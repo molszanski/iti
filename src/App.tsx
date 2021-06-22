@@ -38,4 +38,10 @@ function App({}: AppProps) {
   );
 }
 
+function Profile() {
+  return useEcommerce((a, bc) => {
+    return <></>;
+  });
+}
+
 export default App;
