@@ -1,25 +1,30 @@
-# New Project
+Subjects:
 
-> ✨ Bootstrapped with Create Snowpack App (CSA).
+- event emitter: Rather domain scoped
+- hidden agenda / goal: share containeres and stores between projects
 
-## Available Scripts
+Containers:
 
-### npm start
+- what to do with single use instances?
+  - e.g. RenderPilot changes on SKU.
+- Maybe drop containers and writine individual providers per store?
 
-Runs the app in the development mode.
-Open http://localhost:8080 to view it in the browser.
+  - pros:
+    - granular
+  - cons:
+    - boilerplate
+    - "much work"
+    - form over function
+    - Lack of clear domains
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
+- what about instances shared between multiple containers? No!
+- Can we create "combined" contaners? Ok!
 
-### npm run build
+Notable inspirations:
 
-Builds a static copy of your site to the `build/` folder.
-Your app is ready to be deployed!
+- https://github.com/inversify/InversifyJS
+- https://github.com/microsoft/tsyringe
 
-**For the best production performance:** Add a build bundler plugin like "@snowpack/plugin-webpack" to your `snowpack.config.mjs` config file.
+Notes:
 
-### npm test
-
-Launches the application test runner.
-Run with the `--watch` flag (`npm test -- --watch`) to run in interactive watch mode.
+Sometimes we will need mobx transaction feature
