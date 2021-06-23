@@ -1,27 +1,23 @@
 import React, { useContext, useState, useEffect } from "react"
 import type { A_Container } from "./container.a"
+import type { B_Container } from "./container.b"
 import type { RootContainer } from "./_root.store"
 
-export const RootStoreContext = React.createContext<RootContainer>({} as any)
-export function useRootStore(): RootContainer {
-  const store = useContext(RootStoreContext)
-  return store
-}
+// -- Generic
 
-type Container = {
-  container?: A_Container
+type ContainerGeneric<T> = {
+  container?: T
   error?: Error
 }
-export function useAContainer(): Container {
-  const root = useRootStore()
-
+export function useGenericContainer<T>(
+  containerPromise: Promise<T>,
+): ContainerGeneric<T> {
   const [data, setData] = useState<any>(undefined)
   const [error, setError] = useState()
 
   // We can add optimizations later.
   useEffect(() => {
-    root
-      .getA_Container()
+    containerPromise
       .then((container) => {
         setData(container)
       })
@@ -29,4 +25,22 @@ export function useAContainer(): Container {
   }, [])
 
   return { container: data, error }
+}
+
+// -- Details
+
+export const RootStoreContext = React.createContext<RootContainer>({} as any)
+export function useRootStore(): RootContainer {
+  const store = useContext(RootStoreContext)
+  return store
+}
+
+export function useAContainer(): ContainerGeneric<A_Container> {
+  const root = useRootStore()
+  return useGenericContainer(root.getA_Container())
+}
+
+export function useBContainer(): ContainerGeneric<B_Container> {
+  const root = useRootStore()
+  return useGenericContainer(root.getB_Container())
 }
