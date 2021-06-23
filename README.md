@@ -1,6 +1,7 @@
 Subjects:
 
 - event emitter: Rather domain scoped
+- hidden agenda / goal: share containeres and stores between projects
 
 Containers:
 
