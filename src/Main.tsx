@@ -11,7 +11,6 @@ export const Main = () => {
 
 export const Profile = () => {
   const { container } = useAContainer()
-  console.log("rendering profile with a Container", container)
   if (!container) return null
   const { a1, a2 } = container
 
