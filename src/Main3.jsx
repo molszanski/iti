@@ -33,3 +33,21 @@ export const ProfileAlt = connectContainer(
     )
   },
 )
+
+// 3B: functional connect
+
+export const ProfileAlt = connectContainer(
+  (root) => ({
+    a1: root.a.a1,
+    auth: root.auth.auth,
+  }),
+  (props) => {
+    console.log("rendering profile with a Container", props.a1, props.auth)
+
+    return (
+      <>
+        <span>{propsa1.getName()}</span>
+      </>
+    )
+  },
+)
