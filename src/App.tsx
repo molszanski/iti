@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { RootStoreContext, useAContainer } from "./stores/_container.hooks"
 import { RootContainer } from "./stores/_root.store"
 import "./App.css"
@@ -7,13 +7,7 @@ import { Main } from "./Main"
 interface AppProps {}
 
 function App({}: AppProps) {
-  const [store, setStore] = useState<any>(null)
-  useEffect(() => {
-    const root = new RootContainer()
-    setStore(root)
-  }, [])
-  if (!store) return null
-
+  const store = useMemo(() => new RootContainer(), [])
   return (
     <div className="App">
       <RootStoreContext.Provider value={store}>

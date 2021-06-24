@@ -17,8 +17,8 @@ Containers:
     - form over function
     - Lack of clear domains
 
-- what about instances shared between multiple containers? Why not? Only avoid cyclic deps and were are home
-- Can we create "combined" contaners? Sure
+- what about instances shared between multiple containers? No!
+- Can we create "combined" contaners? Ok!
 
 Notable inspirations:
 
@@ -27,4 +27,4 @@ Notable inspirations:
 
 Notes:
 
-https://github.com/mobxjs/mobx/blob/main/packages/mobx-react-lite/src/observer.ts
+Sometimes we will need mobx transaction feature

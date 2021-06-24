@@ -13,6 +13,7 @@ export async function provideBContainer(
   a: A_Container,
 ): Promise<B_Container> {
   const b1 = new B1(auth.auth, a.a2)
+
   await wait(200)
   const b2 = new B2(auth.auth, a.a1)
 

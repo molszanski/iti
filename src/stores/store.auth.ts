@@ -5,4 +5,9 @@ export class Auth {
     await wait(200)
     return "token123"
   }
+
+  public async getUser(): Promise<any> {
+    await wait(200)
+    return { name: "lol" }
+  }
 }

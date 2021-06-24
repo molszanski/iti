@@ -39,30 +39,3 @@ export class RootContainer {
     return this.b
   }
 }
-
-/**
-
-
-import useSWR from 'swr'
-
-
-
-function Profile() {
-  const { data, error } = useSWR('/api/user', fetcher)
-
-  if (error) return <div>failed to load</div>
-  if (!data) return <div>loading...</div>
-  return <div>hello {data.name}!</div>
-}
-
-
-function Profile() {
-  const { cont, error } = useEcommerce()
-  if(!cont) return <div>loading...</div> | null
-  const {pricing, currencyStore, taxStore} = cont
-
-  return <div>hello {data.name}!</div>
-}
-
-
- */
