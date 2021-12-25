@@ -49,31 +49,3 @@ class Table {
     makeAutoObservable(this)
   }
 }
-
-///
-class Todo {
-  id = Math.random()
-  @observable title = ""
-  @observable finished = false
-
-  constructor() {
-    makeAutoObservable(this)
-  }
-
-  toggle() {
-    this.finished = !this.finished
-  }
-}
-
-class TodoList {
-  @observable todos: Todo[] = []
-
-  @computed
-  get unfinishedTodoCount() {
-    return this.todos.filter((todo) => !todo.finished).length
-  }
-
-  constructor() {
-    makeObservable(this)
-  }
-}

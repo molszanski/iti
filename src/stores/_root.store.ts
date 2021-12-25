@@ -1,4 +1,5 @@
-import { configure, observable, action } from "mobx"
+import { RootContainer } from "../library/library.root-container"
+
 import { A_Container, provideAContainer } from "./container.a"
 import { AuthContainer, provideAuthContainer } from "./container.auth"
 import { B_Container, provideBContainer } from "./container.b"
@@ -7,45 +8,12 @@ import {
   providePizzaPlaceContainer,
 } from "./container.pizza-place"
 
-// don't allow state modifications outside actions
-configure({ enforceActions: "always" })
-
-//
-type ValueOf<T> = T[keyof T]
-
-export class RootContainer {
-  private containerCache: Partial<ContainerRegistry> = {}
-
-  public async getGenericContainer<T extends ValueOf<ContainerRegistry>>(
-    key: keyof ContainerRegistry,
-    containerProvider: () => T,
-  ): Promise<T> {
-    if (this.containerCache[key] == null) {
-      console.log("requesting new container")
-      const containerPromise = containerProvider()
-      this.containerCache[key] = containerPromise as any
-    }
-
-    if (this.containerCache[key] != null) {
-      console.log("getting from cache container")
-      const containerPromise = this.containerCache[key]
-      if (containerPromise != null) {
-        await containerPromise
-        return containerPromise
-      }
-    }
-
-    throw new Error("WTF")
-  }
-}
-
 interface ContainerRegistry {
   auth: Promise<AuthContainer>
-  pizzaContainerSymbol: Promise<PizzaPlace_Container>
+  pizzaContainer: Promise<PizzaPlace_Container>
 }
 
-export class AppContainer extends RootContainer {
-  private authContainer?: AuthContainer
+export class AppContainer extends RootContainer<ContainerRegistry> {
   private a?: A_Container
   private b?: B_Container
 
@@ -55,17 +23,13 @@ export class AppContainer extends RootContainer {
 
   public async getPizzaPlaceContainer2(): Promise<PizzaPlace_Container> {
     return await this.getGenericContainer(
-      "pizzaContainerSymbol",
+      "pizzaContainer",
       providePizzaPlaceContainer,
     )
   }
 
   public async getAuthContainer(): Promise<AuthContainer> {
-    if (!this.authContainer) {
-      this.authContainer = await provideAuthContainer()
-    }
-
-    return this.authContainer
+    return await this.getGenericContainer("auth", provideAuthContainer)
   }
 
   public async getA_Container(): Promise<A_Container> {

@@ -1,8 +1,12 @@
-import React, { useState, useEffect, useMemo } from "react"
-import { RootStoreContext, useAContainer } from "./stores/_container.hooks"
+import { configure } from "mobx"
+import React, { useMemo } from "react"
+import { RootStoreContext } from "./stores/_container.hooks"
 import { AppContainer } from "./stores/_root.store"
 import "./App.css"
 import { Main } from "./Main"
+
+// don't allow state modifications outside actions
+configure({ enforceActions: "always" })
 
 interface AppProps {}
 

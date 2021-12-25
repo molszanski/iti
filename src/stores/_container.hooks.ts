@@ -1,34 +1,9 @@
 import React, { useContext, useState, useEffect } from "react"
+import { useGenericContainer, ContainerGeneric } from "../library/library.hooks"
 import type { A_Container } from "./container.a"
 import type { AuthContainer } from "./container.auth"
 import type { B_Container } from "./container.b"
-import type { RootContainer, AppContainer } from "./_root.store"
-
-// -- Generic
-
-export type ContainerGeneric<T> = {
-  container?: T
-  error?: Error
-}
-export function useGenericContainer<T>(
-  containerPromise: Promise<T>,
-): ContainerGeneric<T> {
-  const [data, setData] = useState<any>(undefined)
-  const [error, setError] = useState()
-
-  // We can add optimizations later.
-  useEffect(() => {
-    containerPromise
-      .then((container) => {
-        setData(container)
-      })
-      .catch((e) => setError(e))
-  }, [])
-
-  return { container: data, error }
-}
-
-// -- Details
+import type { AppContainer } from "./_root.store"
 
 export const RootStoreContext = React.createContext<AppContainer>({} as any)
 export function useRootStore(): AppContainer {
