@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react"
 import type { A_Container } from "./container.a"
 import type { AuthContainer } from "./container.auth"
 import type { B_Container } from "./container.b"
-import type { RootContainer } from "./_root.store"
+import type { RootContainer, AppContainer } from "./_root.store"
 
 // -- Generic
 
@@ -30,8 +30,8 @@ export function useGenericContainer<T>(
 
 // -- Details
 
-export const RootStoreContext = React.createContext<RootContainer>({} as any)
-export function useRootStore(): RootContainer {
+export const RootStoreContext = React.createContext<AppContainer>({} as any)
+export function useRootStore(): AppContainer {
   const store = useContext(RootStoreContext)
   return store
 }

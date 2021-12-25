@@ -10,39 +10,24 @@ import {
 // don't allow state modifications outside actions
 configure({ enforceActions: "always" })
 
-interface ContainerRegistry {
-  auth: Promise<AuthContainer>
-  pizzaContainerSymbol: Promise<PizzaPlace_Container>
-}
-
+//
 type ValueOf<T> = T[keyof T]
+
 export class RootContainer {
-  private authContainer?: AuthContainer
-  private a?: A_Container
-  private b?: B_Container
-
   private containerCache: Partial<ContainerRegistry> = {}
-
-  public async getPizzaPlaceContainer2(): Promise<PizzaPlace_Container> {
-    const key = "pizzaContainerSymbol" as const
-    const containerProvider = providePizzaPlaceContainer
-    const z = await this.getGenericContainer(key, containerProvider)
-
-    return z
-  }
 
   public async getGenericContainer<T extends ValueOf<ContainerRegistry>>(
     key: keyof ContainerRegistry,
     containerProvider: () => T,
   ): Promise<T> {
     if (this.containerCache[key] == null) {
+      console.log("requesting new container")
       const containerPromise = containerProvider()
       this.containerCache[key] = containerPromise as any
-      await containerPromise
-      return containerPromise
     }
 
     if (this.containerCache[key] != null) {
+      console.log("getting from cache container")
       const containerPromise = this.containerCache[key]
       if (containerPromise != null) {
         await containerPromise
@@ -51,6 +36,28 @@ export class RootContainer {
     }
 
     throw new Error("WTF")
+  }
+}
+
+interface ContainerRegistry {
+  auth: Promise<AuthContainer>
+  pizzaContainerSymbol: Promise<PizzaPlace_Container>
+}
+
+export class AppContainer extends RootContainer {
+  private authContainer?: AuthContainer
+  private a?: A_Container
+  private b?: B_Container
+
+  constructor() {
+    super()
+  }
+
+  public async getPizzaPlaceContainer2(): Promise<PizzaPlace_Container> {
+    return await this.getGenericContainer(
+      "pizzaContainerSymbol",
+      providePizzaPlaceContainer,
+    )
   }
 
   public async getAuthContainer(): Promise<AuthContainer> {
