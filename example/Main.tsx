@@ -1,9 +1,5 @@
 import React from "react"
-import cx from "classnames"
 import { useAContainer } from "./stores/_container.hooks"
-import { PizzaPlace } from "./components/PizzaPlace"
-import s from "./Main.module.css"
-import { MainLayoutControl } from "./components/MainLayoutControl"
 
 export const Main = () => {
   return (
@@ -21,8 +17,6 @@ export const Profile = () => {
   return (
     <>
       <span>{a1.getName()}</span>
-
-      <MainLayoutControl />
     </>
   )
 }

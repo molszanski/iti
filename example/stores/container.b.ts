@@ -1,7 +1,7 @@
 import type { A_Container } from "./container.a"
 import type { AuthContainer } from "./container.auth"
 import { B1, B2 } from "./store.b"
-import { wait } from "../library/_utils"
+import { wait } from "./_utils"
 
 export interface B_Container {
   b1: B1

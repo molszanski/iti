@@ -6,6 +6,10 @@ export class B1 {
     // 1. Subscribe to event emitter
     // 2. Pub update
   }
+
+  updateRenderEngine(newReD0) {
+    this.renderPilot = newReD0
+  }
 }
 export class B2 {
   constructor(private auth: Auth, private a1: A1) {}

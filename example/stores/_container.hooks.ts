@@ -6,7 +6,7 @@ import type { RootContainer } from "./_root.store"
 
 // -- Generic
 
-export type ContainerGeneric<T> = {
+type ContainerGeneric<T> = {
   container?: T
   error?: Error
 }
