@@ -32,4 +32,16 @@ export class RootContainer<GenericContainerRegistry> {
     }
     return true
   }
+
+  public async getContainer(
+    key: keyof GenericContainerRegistry,
+  ): Promise<ValueOf<GenericContainerRegistry>> {
+    if (this.containerCache[key] == null) {
+      throw new Error("NO no tak się nie bawimy")
+    } else {
+      const containerPromise = this.containerCache[key]
+      await containerPromise
+      return containerPromise as any
+    }
+  }
 }

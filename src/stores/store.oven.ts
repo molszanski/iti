@@ -2,19 +2,30 @@ import { makeAutoObservable, computed } from "mobx"
 import type { Pizza } from "./store.pizza"
 
 const BAKING_TIME_MS = 400
+const BAKING_TEMPERATURE = 260
 
 export class Oven {
   public currentTemperature = 20
-  private pizzaCapacity = 4
-  public pizzasInside = 4
   public pizInside: Pizza[] = []
+
+  private pizzaCapacity = 4
 
   constructor() {
     console.log("new Oven")
     makeAutoObservable(this)
   }
 
-  public bakePizza(pizza: Pizza) {
+  public async preheatOven() {
+    setTimeout(() => {
+      this.currentTemperature = BAKING_TEMPERATURE
+    }, 200)
+  }
+
+  public async bakePizza(pizza: Pizza) {
+    if (this.currentTemperature < BAKING_TEMPERATURE) {
+      await this.preheatOven()
+    }
+
     if (this.pizzasInOven() < this.pizzaCapacity) {
       this.pizInside.push(pizza)
       setTimeout(() => {

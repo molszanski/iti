@@ -43,7 +43,7 @@ export class DiningTables {
   }
 }
 
-class Table {
+export class Table {
   isEmpty = true
   constructor(public name: string) {
     makeAutoObservable(this)

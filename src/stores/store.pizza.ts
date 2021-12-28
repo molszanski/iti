@@ -1,10 +1,4 @@
-import {
-  makeObservable,
-  makeAutoObservable,
-  observable,
-  computed,
-  action,
-} from "mobx"
+import { makeAutoObservable } from "mobx"
 import type { Ingredient } from "./store.ingrediets"
 
 type PizzaState = "raw" | "hasIngredients" | "baked"

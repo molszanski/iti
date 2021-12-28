@@ -3,6 +3,7 @@ import { RootContainer } from "../library/library.root-container"
 import { A_Container, provideAContainer } from "./container.a"
 import { AuthContainer, provideAuthContainer } from "./container.auth"
 import { B_Container, provideBContainer } from "./container.b"
+import { Kitchen_Container, provideKitchenContainer } from "./container.kitchen"
 import {
   PizzaPlace_Container,
   providePizzaPlaceContainer,
@@ -11,17 +12,21 @@ import {
 interface ContainerRegistry {
   auth: Promise<AuthContainer>
   pizzaContainer: Promise<PizzaPlace_Container>
+  aCont: Promise<A_Container>
+  bCont: Promise<B_Container>
+  kitchen: Promise<Kitchen_Container>
 }
 
 export class AppContainer extends RootContainer<ContainerRegistry> {
-  private a?: A_Container
-  private b?: B_Container
-
   constructor() {
     super()
   }
 
-  public async getPizzaPlaceContainer2(): Promise<PizzaPlace_Container> {
+  public async getKitchenContainer(): Promise<Kitchen_Container> {
+    return await this.getGenericContainer("kitchen", provideKitchenContainer)
+  }
+
+  public async getPizzaPlaceContainer(): Promise<PizzaPlace_Container> {
     return await this.getGenericContainer(
       "pizzaContainer",
       providePizzaPlaceContainer,
@@ -33,21 +38,17 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
   }
 
   public async getA_Container(): Promise<A_Container> {
-    if (!this.a) {
-      const auth = await this.getAuthContainer()
-      this.a = await provideAContainer(auth)
-    }
-
-    return this.a
+    const auth = await this.getAuthContainer()
+    return await this.getGenericContainer("aCont", () =>
+      provideAContainer(auth),
+    )
   }
 
   public async getB_Container(): Promise<B_Container> {
-    if (!this.b) {
-      const auth = await this.getAuthContainer()
-      const a = await this.getA_Container()
-      this.b = await provideBContainer(auth, a)
-    }
-
-    return this.b
+    const auth = await this.getAuthContainer()
+    const aCont = await this.getA_Container()
+    return await this.getGenericContainer("bCont", () =>
+      provideBContainer(auth, aCont),
+    )
   }
 }
