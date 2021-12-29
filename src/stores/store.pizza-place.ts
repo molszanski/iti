@@ -37,7 +37,7 @@ export class DiningTables {
   }
 
   public addNewTable() {
-    console.log("adding new tables")
+    console.log("adding new table")
     const name = (this.tables.length + 1).toString()
     this.tables.push(new Table(name))
   }

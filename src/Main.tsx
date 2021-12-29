@@ -1,6 +1,6 @@
 import React from "react"
 import cx from "classnames"
-import { useAContainer } from "./stores/_container.hooks"
+import { useAContainer } from "./containers/_container.hooks"
 import { PizzaPlace } from "./components/PizzaPlace"
 import s from "./Main.module.css"
 import { MainLayoutControl } from "./components/MainLayoutControl"

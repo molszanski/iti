@@ -6,7 +6,6 @@ export class Ingredients {
   public ingredients: Ingredient[] = []
 
   constructor() {
-    // makeAutoObservable(this)
     makeObservable(this, {
       ingredients: observable,
       addNewIngredient: action,
@@ -15,7 +14,6 @@ export class Ingredients {
   }
 
   public addNewIngredient(n: string) {
-    console.log("adding new ingredient ")
     this.ingredients.push(new Ingredient(n))
   }
 
@@ -25,13 +23,9 @@ export class Ingredients {
     let k = 4
     while (k > 0) {
       const i = Math.floor(Math.random() * this.ingredients.length)
-      console.log(i)
       pi.push(this.ingredients[i])
       _pullAt(this.ingredients, i)
       k--
-      console.log(this.ingredients)
-      console.log(pi)
-      console.log("-----------")
     }
     return pi
   }

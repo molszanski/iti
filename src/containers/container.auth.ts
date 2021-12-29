@@ -1,5 +1,5 @@
-import { Auth } from "./store.auth"
-import { wait } from "../library/_utils"
+import { Auth } from "../stores/store.auth"
+import { wait } from "../_library/_utils"
 
 export interface AuthContainer {
   auth: Auth

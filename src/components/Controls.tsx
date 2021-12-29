@@ -4,7 +4,7 @@ import cx from "classnames"
 import {
   useKitchenContainer,
   usePizzaPlaceContainer,
-} from "../stores/_container.hooks"
+} from "../containers/_container.hooks"
 import s from "./Controls.module.css"
 
 export const Controls = observer(() => {
@@ -13,7 +13,8 @@ export const Controls = observer(() => {
 
   if (!container) return <>Pizza Place is loading</>
   if (!kitchenContainer.container) return <>Kitchen is loading</>
-  const { kitchen } = kitchenContainer.container
+  const { kitchen, orderManager, kitchenSizeController } =
+    kitchenContainer.container
 
   const { pizzaPlace, diningTables } = container
   return (
@@ -27,14 +28,17 @@ export const Controls = observer(() => {
         Close Pizza Place
       </button>
 
+      <button onClick={() => kitchenSizeController.increaseKitchenSize()}>
+        Increase Kitchen Size
+      </button>
+
       {diningTables.tables.map((table) => {
-        let x = 12
         return (
           <div key={table.name}>
             table: {table.name}
             <button
               onClick={() => {
-                kitchen.orderPizza(table)
+                orderManager.orderPizza(table)
               }}
             >
               order pizzas

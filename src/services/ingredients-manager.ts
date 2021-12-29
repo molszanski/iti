@@ -1,5 +1,4 @@
-import { makeAutoObservable } from "mobx"
-import { Ingredients } from "./store.ingrediets"
+import { Ingredients } from "../stores/store.ingrediets"
 import _sampleSize from "lodash/sampleSize"
 import _sample from "lodash/sample"
 
@@ -16,7 +15,7 @@ const INGREDIENTS = [
 /**
  * Fetches Ingredients from the supermarket
  */
-export class IngredientsController {
+export class IngredientsService {
   public static async buyManyIngredients(): Promise<Ingredients> {
     return this.buyIngredients(150)
   }
@@ -27,7 +26,6 @@ export class IngredientsController {
 
   private static buyIngredients(n = 10): Ingredients {
     let x = new Ingredients()
-    console.log("adding new ingredient ")
 
     for (let i = n; i > 0; i--) {
       let z = _sample(INGREDIENTS)

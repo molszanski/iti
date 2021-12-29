@@ -1,9 +1,13 @@
-import { RootContainer } from "../library/library.root-container"
+import { RootContainer } from "../_library/library.root-container"
 
 import { A_Container, provideAContainer } from "./container.a"
 import { AuthContainer, provideAuthContainer } from "./container.auth"
 import { B_Container, provideBContainer } from "./container.b"
-import { Kitchen_Container, provideKitchenContainer } from "./container.kitchen"
+import {
+  Kitchen_Container,
+  provideKitchenContainer,
+  provideUpgradedKitchenContainer,
+} from "./container.kitchen"
 import {
   PizzaPlace_Container,
   providePizzaPlaceContainer,
@@ -22,8 +26,30 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
     super()
   }
 
+  public getKitchenContainerController() {
+    return {
+      upgradeKitchenConatiner: () => {
+        return this.upgradetKitchenContainer()
+      },
+    }
+  }
+
   public async getKitchenContainer(): Promise<Kitchen_Container> {
-    return await this.getGenericContainer("kitchen", provideKitchenContainer)
+    return await this.getGenericContainer("kitchen", () =>
+      provideKitchenContainer({
+        upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
+      }),
+    )
+  }
+
+  public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
+    const k = await this.getKitchenContainer()
+
+    return await this.replaceCointerInstantly("kitchen", () => {
+      return provideUpgradedKitchenContainer(k, {
+        upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
+      })
+    })
   }
 
   public async getPizzaPlaceContainer(): Promise<PizzaPlace_Container> {

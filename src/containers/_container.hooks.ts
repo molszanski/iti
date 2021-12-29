@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { useGenericContainer } from "../library/library.hooks"
+import { useGenericContainer } from "../_library/library.hooks"
 
 import type { AppContainer } from "./_root.store"
 

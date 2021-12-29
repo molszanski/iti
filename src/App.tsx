@@ -1,7 +1,7 @@
 import { configure } from "mobx"
 import React, { useMemo } from "react"
-import { RootStoreContext } from "./stores/_container.hooks"
-import { AppContainer } from "./stores/_root.store"
+import { RootStoreContext } from "./containers/_container.hooks"
+import { AppContainer } from "./containers/_root.store"
 import "./App.css"
 import { Main } from "./Main"
 

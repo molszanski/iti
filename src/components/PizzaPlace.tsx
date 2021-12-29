@@ -5,18 +5,16 @@ import s from "./PizzaPlace.module.css"
 import {
   useKitchenContainer,
   usePizzaPlaceContainer,
-} from "../stores/_container.hooks"
+} from "../containers/_container.hooks"
 
 export const PizzaPlace = observer(() => {
   const [a, setA] = useState(0)
   const { container } = usePizzaPlaceContainer()
 
   if (!container) {
-    console.log("dupa")
     return <>Pizza Place is loading</>
   }
 
-  //@ts-ignore
   const { pizzaPlace, diningTables } = container
   console.log("pizzaPlace.isOpen", pizzaPlace.isOpen)
   return (
@@ -41,13 +39,13 @@ export const KitchenData = observer(() => {
   }
 
   //@ts-ignore
-  const { kitchen } = container
+  const { kitchen, orderManager } = container
   return (
     <>
-      <h3>Kitchen data:</h3>
+      <h3>Kitchen data: ({kitchen.kitchenName})</h3>
       <h4>Orders:</h4>
       <ul>
-        {kitchen.orders.map((order, idx) => {
+        {orderManager.orders.map((order, idx) => {
           return (
             <li key={idx}>
               table: {order.table.name} | pizzastate: {order.pizza.state}

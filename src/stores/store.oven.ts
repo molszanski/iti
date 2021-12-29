@@ -8,10 +8,8 @@ export class Oven {
   public currentTemperature = 20
   public pizInside: Pizza[] = []
 
-  private pizzaCapacity = 4
-
-  constructor() {
-    console.log("new Oven")
+  constructor(private pizzaCapacity = 4) {
+    console.log("new Oven. capacity:", this.pizzaCapacity)
     makeAutoObservable(this)
   }
 

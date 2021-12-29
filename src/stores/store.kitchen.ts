@@ -5,20 +5,38 @@ import { Pizza } from "./store.pizza"
 import type { Table } from "./store.pizza-place"
 
 export class Kitchen {
-  public orders: Order[] = []
+  public kitchenName: string
 
   constructor(private oven: Oven, private ingredients: Ingredients) {
-    console.log("new oven")
+    console.log("new kitchen")
+
+    this.kitchenName = "Random Name " + Math.round(Math.random() * 100)
+    makeAutoObservable(this)
+  }
+
+  public getRandomPizzaIngredients() {
+    return this.ingredients.getRandomPizzaIngredients()
+  }
+
+  public async bakePizza(p: Pizza) {
+    return this.oven.bakePizza(p)
+  }
+}
+
+export class OrderManager {
+  public orders: Order[] = []
+
+  constructor(private kitchen: Kitchen) {
     makeAutoObservable(this)
   }
 
   public async orderPizza(table: Table) {
-    let i = this.ingredients.getRandomPizzaIngredients()
+    let i = this.kitchen.getRandomPizzaIngredients()
     let p = new Pizza(i)
 
     this.orders.push(new Order(p, table))
 
-    this.oven.bakePizza(p)
+    this.kitchen.bakePizza(p)
   }
 }
 

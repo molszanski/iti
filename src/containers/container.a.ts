@@ -1,5 +1,5 @@
 import type { AuthContainer } from "./container.auth"
-import { A1, A2, A3 } from "./store.a"
+import { A1, A2, A3 } from "../stores/store.a"
 
 export interface A_Container {
   a1: A1

@@ -1,4 +1,4 @@
-import { PizzaPlace, DiningTables } from "./store.pizza-place"
+import { PizzaPlace, DiningTables } from "../stores/store.pizza-place"
 
 export interface PizzaPlace_Container {
   pizzaPlace: PizzaPlace
