@@ -68,6 +68,10 @@ export class RootContainer<GenericContainerRegistry> {
     containerProvider: () => T,
   ): Promise<T> {
     const containerPromise = await containerProvider()
+    this.ee.emit("containerUpdated", {
+      key: key,
+      newContainer: containerPromise,
+    })
     this.containerCache[key] = containerPromise
     return containerPromise
   }

@@ -39,7 +39,6 @@ export async function provideKitchenContainer(
 
 export async function provideUpgradedKitchenContainer(
   prevContainer: Kitchen_Container,
-  controls: KitchenUpgrader,
 ): Promise<Kitchen_Container> {
   let biggerOven = new Oven(8)
 

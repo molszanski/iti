@@ -46,9 +46,7 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
     const k = await this.getKitchenContainer()
 
     return await this.replaceCointerInstantly("kitchen", () => {
-      return provideUpgradedKitchenContainer(k, {
-        upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
-      })
+      return provideUpgradedKitchenContainer(k)
     })
   }
 
