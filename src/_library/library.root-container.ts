@@ -1,25 +1,45 @@
-//
+import mitt from "mitt"
+
 type ValueOf<T> = T[keyof T]
 
 export class RootContainer<GenericContainerRegistry> {
+  constructor() {}
+  private ee = mitt<{
+    containerUpdated: {
+      key: keyof GenericContainerRegistry
+      // oldContainer: ValueOf<GenericContainerRegistry>
+      newContainer: ValueOf<GenericContainerRegistry>
+    }
+  }>()
+
+  public on = this.ee.on
+
   private containerCache: Partial<GenericContainerRegistry> = {}
-  // private containerSubscribers: Partial<GenericContainerRegistry> = []
 
   public async getGenericContainer<T extends ValueOf<GenericContainerRegistry>>(
     key: keyof GenericContainerRegistry,
     containerProvider: () => T,
   ): Promise<T> {
     if (this.containerCache[key] == null) {
-      console.log("requesting new container")
+      console.log(`requesting new container [${key}]`)
       const containerPromise = containerProvider()
       this.containerCache[key] = containerPromise as any
+
+      await containerPromise
+      this.ee.emit("containerUpdated", {
+        key: key,
+        newContainer: containerPromise as any,
+      })
     }
 
     if (this.containerCache[key] != null) {
-      console.log("getting from cache container")
       const containerPromise = this.containerCache[key]
       if (containerPromise != null) {
         await containerPromise
+        // this.ee.emit("containerUpdated", {
+        //   key: key,
+        //   newContainer: containerPromise as any,
+        // })
         return containerPromise as any
       }
     }

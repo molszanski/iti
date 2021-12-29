@@ -27,18 +27,16 @@ export function useBContainer() {
 
 export function useKitchenContainer() {
   const root = useRootStore()
-  const onContainerUpdate = () => {
-    console.log("lol")
-  }
 
   return useGenericContainer(root.getKitchenContainer(), {
     onContainerUpdate: (cb) => {
-      console.log("setting update in 3 seconds")
-      setTimeout(async () => {
-        const c = await root.getKitchenContainer()
-
-        cb(c)
-      }, 3000)
+      root.on("containerUpdated", (update) => {
+        if (update.key === "kitchen") {
+          root.getKitchenContainer().then((kitchenContainer) => {
+            cb(kitchenContainer)
+          })
+        }
+      })
     },
   })
 }

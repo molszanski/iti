@@ -7,9 +7,6 @@ export type ContainerGeneric<T> = {
   error?: Error
 }
 
-/* OK */
-interface Controls {}
-
 export function useGenericContainer<T>(
   containerPromise: Promise<T>,
   controls?: {
