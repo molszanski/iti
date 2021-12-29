@@ -8,13 +8,13 @@ export type ContainerGeneric<T> = {
 }
 
 /* OK */
-interface Controls {
-  onContainerUpdate(cb: (container: any) => void): void
-}
+interface Controls {}
 
 export function useGenericContainer<T>(
   containerPromise: Promise<T>,
-  controls?: Controls,
+  controls?: {
+    onContainerUpdate(cb: (container: T) => void): void
+  },
 ): ContainerGeneric<T> {
   const [data, setData] = useState<any>(undefined)
   const [error, setError] = useState()

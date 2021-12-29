@@ -30,7 +30,17 @@ export function useKitchenContainer() {
   const onContainerUpdate = () => {
     console.log("lol")
   }
-  return useGenericContainer(root.getKitchenContainer())
+
+  return useGenericContainer(root.getKitchenContainer(), {
+    onContainerUpdate: (cb) => {
+      console.log("setting update in 3 seconds")
+      setTimeout(async () => {
+        const c = await root.getKitchenContainer()
+
+        cb(c)
+      }, 3000)
+    },
+  })
 }
 
 export function usePizzaPlaceContainer() {
