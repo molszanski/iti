@@ -2,6 +2,9 @@ import mitt from "mitt"
 
 type ValueOf<T> = T[keyof T]
 
+const allEvents = new Map()
+const allCache = {}
+
 export class RootContainer<GenericContainerRegistry> {
   constructor() {}
   private ee = mitt<{
@@ -10,11 +13,11 @@ export class RootContainer<GenericContainerRegistry> {
       // oldContainer: ValueOf<GenericContainerRegistry>
       newContainer: ValueOf<GenericContainerRegistry>
     }
-  }>()
+  }>(allEvents)
 
   public on = this.ee.on
 
-  private containerCache: Partial<GenericContainerRegistry> = {}
+  private containerCache: Partial<GenericContainerRegistry> = allCache
 
   public async getGenericContainer<T extends ValueOf<GenericContainerRegistry>>(
     key: keyof GenericContainerRegistry,
@@ -36,10 +39,6 @@ export class RootContainer<GenericContainerRegistry> {
       const containerPromise = this.containerCache[key]
       if (containerPromise != null) {
         await containerPromise
-        // this.ee.emit("containerUpdated", {
-        //   key: key,
-        //   newContainer: containerPromise as any,
-        // })
         return containerPromise as any
       }
     }

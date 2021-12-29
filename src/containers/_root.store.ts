@@ -21,6 +21,35 @@ interface ContainerRegistry {
   kitchen: Promise<Kitchen_Container>
 }
 
+export class SecondAppContainer extends RootContainer<ContainerRegistry> {
+  constructor() {
+    super()
+  }
+
+  public getKitchenContainerController() {
+    return {
+      upgradeKitchenConatiner: () => {
+        return this.upgradetKitchenContainer()
+      },
+    }
+  }
+
+  public async getKitchenContainer() {
+    return await this.getGenericContainer("kitchen", () =>
+      provideKitchenContainer({
+        upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
+      }),
+    )
+  }
+  public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
+    const k = await this.getKitchenContainer()
+
+    return await this.replaceCointerInstantly("kitchen", () => {
+      return provideUpgradedKitchenContainer(k)
+    })
+  }
+}
+
 export class AppContainer extends RootContainer<ContainerRegistry> {
   constructor() {
     super()

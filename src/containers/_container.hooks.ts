@@ -1,7 +1,7 @@
 import React, { useContext } from "react"
 import { useGenericContainer } from "../_library/library.hooks"
 
-import type { AppContainer } from "./_root.store"
+import type { AppContainer, SecondAppContainer } from "./_root.store"
 
 export const RootStoreContext = React.createContext<AppContainer>({} as any)
 
@@ -44,4 +44,31 @@ export function useKitchenContainer() {
 export function usePizzaPlaceContainer() {
   const root = useRootStore()
   return useGenericContainer(root.getPizzaPlaceContainer())
+}
+
+///
+
+export const SecondAppContext = React.createContext<SecondAppContainer>(
+  {} as any,
+)
+export function SeconAppContainer() {
+  const store = useContext(SecondAppContext)
+  return store
+}
+
+export function useSecondKitchenContainer() {
+  const root = SeconAppContainer()
+  console.log("using second kitchen container")
+
+  return useGenericContainer(root.getKitchenContainer(), {
+    onContainerUpdate: (cb) => {
+      root.on("containerUpdated", (update) => {
+        if (update.key === "kitchen") {
+          root.getKitchenContainer().then((kitchenContainer) => {
+            cb(kitchenContainer)
+          })
+        }
+      })
+    },
+  })
 }

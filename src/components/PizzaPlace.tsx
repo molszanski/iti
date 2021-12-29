@@ -5,6 +5,7 @@ import s from "./PizzaPlace.module.css"
 import {
   useKitchenContainer,
   usePizzaPlaceContainer,
+  useSecondKitchenContainer,
 } from "../containers/_container.hooks"
 
 export const PizzaPlace = observer(() => {
@@ -33,7 +34,7 @@ export const PizzaPlace = observer(() => {
 })
 
 export const KitchenData = observer(() => {
-  const { container } = useKitchenContainer()
+  const { container } = useSecondKitchenContainer()
   if (!container) {
     return <>Kitchen is loading</>
   }

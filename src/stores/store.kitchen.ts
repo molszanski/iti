@@ -8,9 +8,9 @@ export class Kitchen {
   public kitchenName: string
 
   constructor(private oven: Oven, private ingredients: Ingredients) {
-    console.log("new kitchen")
-
     this.kitchenName = "Random Name " + Math.round(Math.random() * 100)
+    console.log("new kitchen: " + this.kitchenName)
+
     makeAutoObservable(this)
   }
 
