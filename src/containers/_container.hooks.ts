@@ -27,6 +27,9 @@ export function useBContainer() {
 
 export function useKitchenContainer() {
   const root = useRootStore()
+  const onContainerUpdate = () => {
+    console.log("lol")
+  }
   return useGenericContainer(root.getKitchenContainer())
 }
 

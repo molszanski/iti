@@ -29,9 +29,6 @@ export class RootContainer<GenericContainerRegistry> {
 
   /**
    * Clear first, then slowly recreate
-   * @param key
-   * @param containerProvider
-   * @returns
    */
   public async replaceCointerInstantly<
     T extends ValueOf<GenericContainerRegistry>,
@@ -45,9 +42,6 @@ export class RootContainer<GenericContainerRegistry> {
 
   /**
    * Kinda like stale while rewalidate
-   * @param key
-   * @param containerProvider
-   * @returns
    */
   public async replaceCointerAsync<T extends ValueOf<GenericContainerRegistry>>(
     key: keyof GenericContainerRegistry,
