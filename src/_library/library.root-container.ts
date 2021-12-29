@@ -3,6 +3,7 @@ type ValueOf<T> = T[keyof T]
 
 export class RootContainer<GenericContainerRegistry> {
   private containerCache: Partial<GenericContainerRegistry> = {}
+  // private containerSubscribers: Partial<GenericContainerRegistry> = []
 
   public async getGenericContainer<T extends ValueOf<GenericContainerRegistry>>(
     key: keyof GenericContainerRegistry,

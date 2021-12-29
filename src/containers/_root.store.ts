@@ -34,7 +34,7 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
     }
   }
 
-  public async getKitchenContainer(): Promise<Kitchen_Container> {
+  public async getKitchenContainer() {
     return await this.getGenericContainer("kitchen", () =>
       provideKitchenContainer({
         upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
@@ -52,25 +52,25 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
     })
   }
 
-  public async getPizzaPlaceContainer(): Promise<PizzaPlace_Container> {
+  public async getPizzaPlaceContainer() {
     return await this.getGenericContainer(
       "pizzaContainer",
       providePizzaPlaceContainer,
     )
   }
 
-  public async getAuthContainer(): Promise<AuthContainer> {
+  public async getAuthContainer() {
     return await this.getGenericContainer("auth", provideAuthContainer)
   }
 
-  public async getA_Container(): Promise<A_Container> {
+  public async getA_Container() {
     const auth = await this.getAuthContainer()
     return await this.getGenericContainer("aCont", () =>
       provideAContainer(auth),
     )
   }
 
-  public async getB_Container(): Promise<B_Container> {
+  public async getB_Container() {
     const auth = await this.getAuthContainer()
     const aCont = await this.getA_Container()
     return await this.getGenericContainer("bCont", () =>
