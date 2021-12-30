@@ -22,8 +22,7 @@
     "mobx-react-lite": "^3.2.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "ts-node": "^10.4.0",
-    "tsm": "^2.2.1"
+    "ts-node": "^10.4.0"
   },
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.1.0",
