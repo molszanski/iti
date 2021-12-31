@@ -4,6 +4,7 @@ import cx from "classnames"
 import s from "./PizzaPlace.module.css"
 import {
   useAllStores,
+  useAllSuperStores,
   useKitchenContainer,
   usePizzaPlaceContainer,
   useSecondKitchenContainer,
@@ -118,9 +119,11 @@ export const Inventory2 = observer(() => {
 })
 
 export const Inventory3 = observer(() => {
-  const { container } = useGenericContainer(useAllStores().kitchen.container)
+  const { container } = useGenericContainer(
+    useAllSuperStores().kitchen._container,
+  )
   if (!container) return <>Loading</>
-
+  console.log(container)
   const { ingredients } = container
   return (
     <>
