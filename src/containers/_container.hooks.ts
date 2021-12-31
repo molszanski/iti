@@ -22,8 +22,41 @@ export function useAllStores() {
   })
 
   return {
-    container: s.kitchen(),
-    // onUpdate: (cb) =>
+    kitchen: {
+      container: s.kitchen(),
+      onUpdate: (cb: any) =>
+        root.on("containerUpdated", async (update) => {
+          if (update.key === "kitchen") {
+            let kc = await s.kitchen()
+            cb(kc)
+          }
+        }),
+    },
+  }
+}
+
+export function useAllSuperStores() {
+  const root = useRootStore()
+
+  const s = root.getKeys()
+  let k = s.kitchen()
+  root.on("containerUpdated", async (update) => {
+    if (update.key === "kitchen") {
+      let kc = await s.kitchen()
+    }
+  })
+
+  return {
+    kitchen: {
+      container: s.kitchen(),
+      onUpdate: (cb: any) =>
+        root.on("containerUpdated", async (update) => {
+          if (update.key === "kitchen") {
+            let kc = await s.kitchen()
+            cb(kc)
+          }
+        }),
+    },
   }
 }
 

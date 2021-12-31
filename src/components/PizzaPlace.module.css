@@ -2,6 +2,13 @@
   display: grid;
 }
 
+.kitchenData {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-around;
+}
+
 /* .bricks {
   background-color: silver;
   background-image: linear-gradient(335deg, #b00 23px, transparent 23px),

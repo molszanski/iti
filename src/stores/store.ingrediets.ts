@@ -1,6 +1,13 @@
-import { makeAutoObservable, makeObservable, action, observable } from "mobx"
+import {
+  makeAutoObservable,
+  makeObservable,
+  action,
+  computed,
+  observable,
+} from "mobx"
 import _sample from "lodash/sample"
 import _pullAt from "lodash/pullAt"
+import _countBy from "lodash/countBy"
 
 export class Ingredients {
   public ingredients: Ingredient[] = []
@@ -10,6 +17,7 @@ export class Ingredients {
       ingredients: observable,
       addNewIngredient: action,
       getRandomPizzaIngredients: action,
+      ingredientsStats: computed,
     })
   }
 
@@ -28,6 +36,14 @@ export class Ingredients {
       k--
     }
     return pi
+  }
+
+  public get ingredientsStats() {
+    const stats = _countBy(this.ingredients, (ing) => ing.name)
+    for (let k in stats) {
+      console.log(k)
+    }
+    return Object.entries(stats)
   }
 }
 
