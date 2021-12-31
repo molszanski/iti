@@ -16,6 +16,7 @@ export function useGenericContainer<T>(
   const [data, setData] = useState<any>(undefined)
   const [error, setError] = useState()
 
+  // Update container
   useEffect(() => {
     if (controls) {
       controls.onContainerUpdate((container) => {

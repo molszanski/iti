@@ -6,7 +6,9 @@ const allEvents = new Map()
 const allCache = {}
 
 export class RootContainer<GenericContainerRegistry> {
-  constructor() {}
+  /**
+   * EventEmitter Logic
+   */
   private ee = mitt<{
     containerUpdated: {
       key: keyof GenericContainerRegistry
@@ -14,9 +16,11 @@ export class RootContainer<GenericContainerRegistry> {
       newContainer: ValueOf<GenericContainerRegistry>
     }
   }>(allEvents)
-
   public on = this.ee.on
 
+  /**
+   * Cache
+   */
   private containerCache: Partial<GenericContainerRegistry> = allCache
 
   public async getGenericContainer<T extends ValueOf<GenericContainerRegistry>>(

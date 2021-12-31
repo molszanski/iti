@@ -10,6 +10,23 @@ export function useRootStore(): AppContainer {
   return store
 }
 
+export function useAllStores() {
+  const root = useRootStore()
+
+  const s = root.getKeys()
+  let k = s.kitchen()
+  root.on("containerUpdated", async (update) => {
+    if (update.key === "kitchen") {
+      let kc = await s.kitchen()
+    }
+  })
+
+  return {
+    container: s.kitchen(),
+    // onUpdate: (cb) =>
+  }
+}
+
 export function useAuthContainer() {
   const root = useRootStore()
   return useGenericContainer(root.getAuthContainer())

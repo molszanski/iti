@@ -1,3 +1,4 @@
+import _ from "lodash"
 import { AppContainer } from "../containers/_root.store"
 
 console.log(123)
@@ -12,8 +13,14 @@ async function runStuff() {
   pp.diningTables.addNewTable()
   pp.diningTables.addNewTable()
 
-  let randomTable = pp.diningTables.tables[1]
-  k.orderManager.orderPizza(randomTable)
+  k.orderManager.orderPizza(pp.diningTables.tables[1])
+  k.orderManager.orderPizza(pp.diningTables.tables[2])
+
+  console.log(k.orderManager.orders)
+  k.orderManager.orders.forEach((order) => {
+    console.log(order.pizza.state)
+    console.log(JSON.stringify(order.pizza.ingredients))
+  })
 }
 
 runStuff().then(() => {
