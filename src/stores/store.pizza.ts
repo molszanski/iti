@@ -10,4 +10,8 @@ export class Pizza {
     console.log("new pizza with ingredients created")
     makeAutoObservable(this)
   }
+
+  public updatePizzaState(ns: PizzaState) {
+    this.state = ns
+  }
 }

@@ -8,6 +8,27 @@ import {
 import s from "./Controls.module.css"
 
 export const Controls = observer(() => {
+  return (
+    <div className={s.controlsSections}>
+      <PizzaPlaceControls />
+      <StuffControls />
+    </div>
+  )
+})
+
+export const StuffControls = observer(() => {
+  if (location.search === "") {
+    location.href = location.href + "?priceMin=300"
+  }
+
+  return (
+    <div>
+      <button onClick={() => console.log("sdfsd")}>Stuff with URl</button>
+    </div>
+  )
+})
+
+export const PizzaPlaceControls = observer(() => {
   const { container } = usePizzaPlaceContainer()
   let kitchenContainer = useKitchenContainer()
 

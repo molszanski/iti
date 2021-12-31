@@ -15,7 +15,7 @@ export class Oven {
 
   public async preheatOven() {
     setTimeout(() => {
-      this.currentTemperature = BAKING_TEMPERATURE
+      this.updateTemperature(BAKING_TEMPERATURE)
     }, 200)
   }
 
@@ -25,11 +25,19 @@ export class Oven {
     }
 
     if (this.pizzasInOven() < this.pizzaCapacity) {
-      this.pizInside.push(pizza)
+      this.addPizzaToOven(pizza)
       setTimeout(() => {
-        pizza.state = "baked"
+        pizza.updatePizzaState("baked")
       }, BAKING_TIME_MS)
     }
+  }
+
+  private updateTemperature(nc: number) {
+    this.currentTemperature = nc
+  }
+
+  private addPizzaToOven(p: Pizza) {
+    this.pizInside.push(p)
   }
 
   @computed

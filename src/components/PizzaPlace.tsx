@@ -122,6 +122,9 @@ export const Inventory3 = observer(() => {
   const { container } = useGenericContainer(
     useAllSuperStores().kitchen._container,
   )
+
+  // useGenericContainer().kitchen()
+
   if (!container) return <>Loading</>
   console.log(container)
   const { ingredients } = container

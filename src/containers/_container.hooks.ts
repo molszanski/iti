@@ -36,7 +36,6 @@ export function useAllStores() {
   }
 }
 
-type ValueOf<T> = T[keyof T]
 /**
  * Return a map of keys to container and update functions
  *
@@ -71,7 +70,6 @@ export function useAllSuperStores() {
         }),
     }
   })
-  console.log("--->>", FFFFF)
 
   // const containers = Object.entries(containerMap)
   // const TK = Object.keys(containerMap) as any as keyof typeof containerMap
