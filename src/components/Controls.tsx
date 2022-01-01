@@ -1,9 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import {
-  useKitchenContainer,
-  usePizzaPlaceContainer,
-} from "../containers/_container.hooks"
+import { useDandy } from "../containers/_container.hooks"
 import s from "./Controls.module.css"
 
 export const Controls = observer(() => {
@@ -28,14 +25,15 @@ export const StuffControls = observer(() => {
 })
 
 export const PizzaPlaceControls = observer(() => {
-  const { container } = usePizzaPlaceContainer()
-  let kitchenContainer = useKitchenContainer()
+  const [kitchenCont] = useDandy().kitchen()
+  const [pizzaPlaceCont] = useDandy().pizzaContainer()
 
-  if (!container) return <>Pizza Place is loading</>
-  if (!kitchenContainer.container) return <>Kitchen is loading</>
-  const { kitchen, orderManager } = kitchenContainer.container
+  if (!pizzaPlaceCont) return <>Pizza Place is loading</>
+  if (!kitchenCont) return <>Kitchen is loading</>
 
-  const { pizzaPlace, diningTables } = container
+  const { orderManager } = kitchenCont
+  const { pizzaPlace, diningTables } = pizzaPlaceCont
+
   return (
     <div>
       <button onClick={() => diningTables.addNewTable()}>Add Table</button>

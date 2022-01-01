@@ -28,9 +28,7 @@ export class RootContainer<GenericContainerRegistry> {
     containerProvider: () => T,
   ): Promise<T> {
     if (this.containerCache[key] == null) {
-      console.log(`requesting new container [${key}]`)
-      const containerPromise = await containerProvider()
-      console.log("dupa")
+      const containerPromise = containerProvider()
       this.containerCache[key] = containerPromise as any
 
       await containerPromise

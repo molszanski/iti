@@ -2,22 +2,14 @@ import React from "react"
 import { observer } from "mobx-react-lite"
 import cx from "classnames"
 import s from "./PizzaPlace.module.css"
-import {
-  useAllSuperStores,
-  useDandy,
-  useKitchenContainer,
-  usePizzaPlaceContainer,
-  // useSecondKitchenContainer,
-} from "../containers/_container.hooks"
-import { useGenericContainer } from "../_library/library.hooks"
+import { useDandy } from "../containers/_container.hooks"
 
 export const PizzaPlace = observer(() => {
-  const { container } = usePizzaPlaceContainer()
+  const [pizza] = useDandy().pizzaContainer()
+  if (!pizza) return <>Pizza Place is loading</>
 
-  if (!container) {
-    return <>Pizza Place is loading</>
-  }
-  const { pizzaPlace, diningTables } = container
+  console.log("pizza", pizza)
+  const { pizzaPlace, diningTables } = pizza
 
   return (
     <>
@@ -33,13 +25,11 @@ export const PizzaPlace = observer(() => {
 })
 
 export const KitchenData = observer(() => {
-  const { container } = useKitchenContainer()
-  if (!container) {
-    return <>Kitchen is loading</>
-  }
+  const [kitchenCont] = useDandy().kitchen()
 
-  //@ts-ignore
-  const { kitchen, orderManager } = container
+  if (!kitchenCont) return <>Kitchen is loading</>
+
+  const { kitchen, orderManager } = kitchenCont
   return (
     <>
       <h3>Kitchen data: ({kitchen.kitchenName})</h3>
@@ -81,11 +71,9 @@ export const KitchenData = observer(() => {
 })
 
 export const Inventory = observer(() => {
-  const { container } = useKitchenContainer()
-  if (!container) {
-    return <>Pizza Place is loading</>
-  }
-  const { ingredients } = container
+  const [kitchenCont] = useDandy().kitchen()
+  if (!kitchenCont) return <>Kitchen is loading</>
+  const { ingredients } = kitchenCont
   return (
     <>
       <ul>
@@ -100,12 +88,10 @@ export const Inventory = observer(() => {
 })
 
 export const Inventory2 = observer(() => {
-  const { container } = useGenericContainer(
-    useAllSuperStores().kitchen._container,
-  )
-  if (!container) return <>Loading</>
+  const [kitchenCont] = useDandy().kitchen()
+  if (!kitchenCont) return <>Kitchen is loading</>
+  const { ingredients } = kitchenCont
 
-  const { ingredients } = container
   return (
     <>
       <strong>Other ingredients</strong>
@@ -121,12 +107,10 @@ export const Inventory2 = observer(() => {
 })
 
 export const Inventory3 = observer(() => {
-  const [kitchen] = useDandy().kitchen()
-  if (!kitchen) return <>Loading</>
+  const [kitchenCont] = useDandy().kitchen()
+  if (!kitchenCont) return <>Kitchen is loading</>
+  const { ingredients } = kitchenCont
 
-  console.log("kkkk", kitchen)
-
-  const { ingredients } = kitchen
   return (
     <>
       <strong>Other ingredients</strong>
@@ -143,25 +127,3 @@ export const Inventory3 = observer(() => {
     </>
   )
 })
-
-// export const Inventory4 = observer(() => {
-//   const root = useRootStore()
-
-//   // useGenericContainer().kitchen()
-
-//   if (!container) return <>Loading</>
-//   console.log(container)
-//   const { ingredients } = container
-//   return (
-//     <>
-//       <strong>Other ingredients</strong>
-//       <ul>
-//         {ingredients.ingredientsStats.map(([name, count], idx) => (
-//           <li key={idx}>
-//             {name} - {count}
-//           </li>
-//         ))}
-//       </ul>
-//     </>
-//   )
-// })

@@ -1,9 +1,6 @@
 import _ from "lodash"
 import React, { useContext } from "react"
-import {
-  useGenericContainer,
-  useBetterGenericContainer,
-} from "../_library/library.hooks"
+import { useBetterGenericContainer } from "../_library/library.hooks"
 
 import type { AppContainer } from "./_root.store"
 export const RootStoreContext = React.createContext<AppContainer>({} as any)
@@ -49,67 +46,25 @@ export function useAllSuperStores() {
 
   return containerDecoratedMap
 }
+type UnPromisify<T> = T extends Promise<infer U> ? U : T
 
 export function useDandy() {
   const s = useAllSuperStores()
 
-  const FFF: any = {}
-  _.forEach(s, (v: any, k) => {
+  type ContainerKeys = keyof AppContainer["KKK"]
+
+  let FFF: {
+    [K in ContainerKeys]: () => [
+      UnPromisify<ReturnType<AppContainer["KKK"][K]>>,
+      any,
+    ]
+  } = {} as any
+
+  _.forEach(s, (v: any, k: any) => {
+    // @ts-ignore
     FFF[k] = () =>
       useBetterGenericContainer(v._container, { onContainerUpdate: v.onUpdate })
   })
+
   return FFF
 }
-
-export function useBContainer() {
-  const root = useRootStore()
-  return useGenericContainer(root.getB_Container())
-}
-
-export function useKitchenContainer() {
-  const root = useRootStore()
-
-  return useGenericContainer(root.getKitchenContainer(), {
-    onContainerUpdate: (cb) => {
-      root.on("containerUpdated", (update) => {
-        if (update.key === "kitchen") {
-          root.getKitchenContainer().then((kitchenContainer) => {
-            cb(kitchenContainer)
-          })
-        }
-      })
-    },
-  })
-}
-
-export function usePizzaPlaceContainer() {
-  const root = useRootStore()
-  return useGenericContainer(root.getPizzaPlaceContainer())
-}
-
-///
-
-// export const SecondAppContext = React.createContext<SecondAppContainer>(
-//   {} as any,
-// )
-// export function SeconAppContainer() {
-//   const store = useContext(SecondAppContext)
-//   return store
-// }
-
-// export function useSecondKitchenContainer() {
-//   const root = SeconAppContainer()
-//   console.log("using second kitchen container")
-
-//   return useGenericContainer(root.getKitchenContainer(), {
-//     onContainerUpdate: (cb) => {
-//       root.on("containerUpdated", (update) => {
-//         if (update.key === "kitchen") {
-//           root.getKitchenContainer().then((kitchenContainer) => {
-//             cb(kitchenContainer)
-//           })
-//         }
-//       })
-//     },
-//   })
-// }

@@ -1,20 +1,24 @@
 import _ from "lodash"
-import { AppContainer } from "../containers/_root.store"
+import { AppContainerNew } from "../containers/_root.store-copy"
+// import { AppContainer } from "../containers/_root.store"
 
 console.log(123)
 
 async function runStuff() {
-  let a = new AppContainer()
+  let a = new AppContainerNew()
 
   let l = a.getBetterKeys()
-
   console.log(l)
 
   let k = await l.auth()
+  let k333 = await l.auth()
   console.log(k)
+  console.log(k333)
 
   let k2 = await l.aCont()
+  let k22 = await l.aCont()
   console.log(k2)
+  console.log(k22)
 
   let k3 = await l.bCont()
   console.log(k3)

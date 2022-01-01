@@ -30,50 +30,39 @@ interface ContainerRegistry {
 type ContainerRegistryAsFunctions = {
   [P in keyof ContainerRegistry]: () => ContainerRegistry[P]
 }
-
-function getDeps(root: AppContainer) {
+function getDeps(ctx: AppContainer) {
   const that = {
-    auth: async () => {
-      console.log("~~~")
-      return provideAuthContainer()
-    },
-    aCont: async () => provideAContainer(await that.auth()),
-    bCont: async () => provideBContainer(await that.auth(), await that.aCont()),
+    auth: async () => provideAuthContainer(),
+    aCont: async () => provideAContainer(await ctx.KKK.auth()),
+    bCont: async () =>
+      provideBContainer(await ctx.KKK.auth(), await ctx.KKK.aCont()),
 
     // pizza stuff
     pizzaContainer: async () => providePizzaPlaceContainer(),
     kitchen: async () => provideKitchenContainer(),
 
     _biggerKitchen: async () =>
-      provideUpgradedKitchenContainer(await that.kitchen()),
-    kitchenManipulator: async () => provideKitchenManipulatorContainer(root),
+      provideUpgradedKitchenContainer(await ctx.KKK.kitchen()),
+    kitchenManipulator: async () => provideKitchenManipulatorContainer(ctx),
   }
-
   return that
 }
 
 export class AppContainer extends RootContainer<ContainerRegistry> {
-  private ZZZ: ContainerRegistryAsFunctions
+  private ZZZ = getDeps(this)
+
+  public KKK: ReturnType<typeof getDeps>
   constructor() {
     super()
-    this.ZZZ = getDeps(this)
-    this.decoratOwnStuff()
-  }
 
-  private decoratOwnStuff() {
-    console.log(this.ZZZ)
-    console.log(Object.getOwnPropertyNames(this.ZZZ))
-    //
-
+    // @ts-ignore
+    this.KKK = {}
     _.forOwn(this.ZZZ, (v: any, k: any) => {
-      console.log("~~~~>> if", v)
       //@ts-ignore
-      this.ZZZ[k] = () => this.getGenericContainer(k, v)
+      this.KKK[k] = () => {
+        return this.getGenericContainer(k, v)
+      }
     })
-  }
-
-  private get cont() {
-    return this.ZZZ
   }
 
   /**
@@ -81,14 +70,7 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
    * @returns
    */
   public getBetterKeys(): ContainerRegistryAsFunctions {
-    return this.ZZZ
-    // const FF: any = {}
-    // _.forOwn(this.ZZZ, (v: any, k: any) => {
-    //   // @ts-ignore
-    //   this.ZZZ[k] = () => this.getGenericContainer(k, v)
-    //   FF[k] = () => this.getGenericContainer(k, v)
-    // })
-    // return FF
+    return this.KKK
   }
 
   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
@@ -98,104 +80,4 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
       return provideUpgradedKitchenContainer(currentKitchen)
     })
   }
-
-  /// ==================
-  /// DELETE
-  /// ==================
-
-  public async getAuthContainer() {
-    return await this.getGenericContainer("auth", provideAuthContainer)
-  }
-
-  public async getA_Container() {
-    const auth = await this.getAuthContainer()
-    return await this.getGenericContainer("aCont", () =>
-      provideAContainer(auth),
-    )
-  }
-
-  public async getKitchenContainer() {
-    return await this.getGenericContainer("kitchen", () =>
-      provideKitchenContainer(),
-    )
-  }
-
-  public async getPizzaPlaceContainer() {
-    return await this.getGenericContainer(
-      "pizzaContainer",
-      providePizzaPlaceContainer,
-    )
-  }
-
-  public async getB_Container() {
-    const auth = await this.getAuthContainer()
-    const aCont = await this.getA_Container()
-    return await this.getGenericContainer("bCont", () =>
-      provideBContainer(auth, aCont),
-    )
-  }
 }
-
-// export class SecondAppContainer extends RootContainer<ContainerRegistry> {
-//   constructor() {
-//     super()
-//   }
-
-//   public getKitchenContainerController() {
-//     return {
-//       upgradeKitchenConatiner: () => {
-//         return this.upgradetKitchenContainer()
-//       },
-//     }
-//   }
-
-//   public async getKitchenContainer() {
-//     return await this.getGenericContainer("kitchen", () =>
-//       provideKitchenContainer({
-//         upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
-//       }),
-//     )
-//   }
-//   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
-//     const k = await this.getKitchenContainer()
-
-//     return await this.replaceCointerInstantly("kitchen", () => {
-//       return provideUpgradedKitchenContainer(k)
-//     })
-//   }
-// }
-
-// export class Lol
-//   extends RootContainer<ContainerRegistry>
-//   implements ContainerRegistryAsFunctions
-// {
-//   auth = async () => provideAuthContainer()
-//   pizzaContainer = async () => providePizzaPlaceContainer()
-//   aCont = async () => provideAContainer(await this.auth())
-//   bCont = async () => provideBContainer(await this.auth(), await this.aCont())
-//   kitchen = async () =>
-//     provideKitchenContainer({
-//       upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
-//     })
-
-//   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
-//     const k = await this.kitchen()
-
-//     return await this.replaceCointerInstantly("kitchen", () => {
-//       return provideUpgradedKitchenContainer(k)
-//     })
-//   }
-
-//   // public getKeys2(): {
-//   //   [P in keyof ContainerRegistry]: () => any
-//   // } {
-//   //   const K = {
-//   //     auth: async () => provideAuthContainer(),
-//   //     pizzaContainer: this.getPizzaPlaceContainer.bind(this),
-//   //     aCont: async () => provideAContainer(await K.auth()),
-//   //     bCont: this.getB_Container.bind(this),
-//   //     kitchen: this.getKitchenContainer.bind(this),
-//   //   }
-//   //   return K
-//   // }
-// }
