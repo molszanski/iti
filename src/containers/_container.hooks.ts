@@ -61,16 +61,6 @@ export function useDandy() {
   return FFF
 }
 
-export function useAuthContainer() {
-  const root = useRootStore()
-  return useGenericContainer(root.getAuthContainer())
-}
-
-export function useAContainer() {
-  const root = useRootStore()
-  return useGenericContainer(root.getA_Container())
-}
-
 export function useBContainer() {
   const root = useRootStore()
   return useGenericContainer(root.getB_Container())

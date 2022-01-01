@@ -31,26 +31,49 @@ type ContainerRegistryAsFunctions = {
   [P in keyof ContainerRegistry]: () => ContainerRegistry[P]
 }
 
-class AppContainerDepenencyTracker {
-  constructor(private root: AppContainer) {}
-  auth = async () => provideAuthContainer()
-  aCont = async () => provideAContainer(await this.auth())
-  bCont = async () => provideBContainer(await this.auth(), await this.aCont())
+function getDeps(root: AppContainer) {
+  const that = {
+    auth: async () => {
+      console.log("~~~")
+      return provideAuthContainer()
+    },
+    aCont: async () => provideAContainer(await that.auth()),
+    bCont: async () => provideBContainer(await that.auth(), await that.aCont()),
 
-  // pizza stuff
-  pizzaContainer = async () => providePizzaPlaceContainer()
-  kitchen = async () => provideKitchenContainer()
+    // pizza stuff
+    pizzaContainer: async () => providePizzaPlaceContainer(),
+    kitchen: async () => provideKitchenContainer(),
 
-  _biggerKitchen = async () =>
-    provideUpgradedKitchenContainer(await this.kitchen())
-  kitchenManipulator = async () => provideKitchenManipulatorContainer(this.root)
+    _biggerKitchen: async () =>
+      provideUpgradedKitchenContainer(await that.kitchen()),
+    kitchenManipulator: async () => provideKitchenManipulatorContainer(root),
+  }
+
+  return that
 }
 
 export class AppContainer extends RootContainer<ContainerRegistry> {
   private ZZZ: ContainerRegistryAsFunctions
   constructor() {
     super()
-    this.ZZZ = new AppContainerDepenencyTracker(this)
+    this.ZZZ = getDeps(this)
+    this.decoratOwnStuff()
+  }
+
+  private decoratOwnStuff() {
+    console.log(this.ZZZ)
+    console.log(Object.getOwnPropertyNames(this.ZZZ))
+    //
+
+    _.forOwn(this.ZZZ, (v: any, k: any) => {
+      console.log("~~~~>> if", v)
+      //@ts-ignore
+      this.ZZZ[k] = () => this.getGenericContainer(k, v)
+    })
+  }
+
+  private get cont() {
+    return this.ZZZ
   }
 
   /**
@@ -58,11 +81,14 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
    * @returns
    */
   public getBetterKeys(): ContainerRegistryAsFunctions {
-    const FF: any = {}
-    _.forOwn(this.ZZZ, (v: any, k: any) => {
-      FF[k] = () => this.getGenericContainer(k, v)
-    })
-    return FF
+    return this.ZZZ
+    // const FF: any = {}
+    // _.forOwn(this.ZZZ, (v: any, k: any) => {
+    //   // @ts-ignore
+    //   this.ZZZ[k] = () => this.getGenericContainer(k, v)
+    //   FF[k] = () => this.getGenericContainer(k, v)
+    // })
+    // return FF
   }
 
   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
