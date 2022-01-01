@@ -1,11 +1,11 @@
 import _ from "lodash"
-import { AppContainerNew } from "../containers/_root.store-copy"
-// import { AppContainer } from "../containers/_root.store"
+// import { AppContainerNew } from "../containers/_root.store-copy"
+import { AppContainer } from "../containers/_root.store"
 
 console.log(123)
 
 async function runStuff() {
-  let a = new AppContainerNew()
+  let a = new AppContainer()
 
   let l = a.getBetterKeys()
   console.log(l)
