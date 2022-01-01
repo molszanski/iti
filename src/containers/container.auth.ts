@@ -6,9 +6,9 @@ export interface AuthContainer {
 }
 
 export async function provideAuthContainer(): Promise<AuthContainer> {
+  console.log("authContainer called")
   const auth = new Auth()
   await wait(500)
-  console.log("authorizing user")
   await auth.getToken()
   return {
     auth: auth,

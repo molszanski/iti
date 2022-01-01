@@ -1,11 +1,12 @@
 export class KitchenSizeUIController {
   constructor(
-    private cbs: {
+    private cbs?: {
       onKitchenResize: () => Promise<any>
     },
   ) {}
 
   public async increaseKitchenSize() {
-    this.cbs.onKitchenResize()
+    console.log("kitchen resize")
+    // this.cbs.onKitchenResize()
   }
 }

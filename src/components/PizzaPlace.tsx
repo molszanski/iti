@@ -4,6 +4,7 @@ import cx from "classnames"
 import s from "./PizzaPlace.module.css"
 import {
   useAllSuperStores,
+  useDandy,
   useKitchenContainer,
   usePizzaPlaceContainer,
   // useSecondKitchenContainer,
@@ -120,24 +121,24 @@ export const Inventory2 = observer(() => {
 })
 
 export const Inventory3 = observer(() => {
-  const { container } = useGenericContainer(
-    useAllSuperStores().kitchen._container,
-  )
+  const [kitchen] = useDandy().kitchen()
+  if (!kitchen) return <>Loading</>
 
-  // useGenericContainer().kitchen()
+  console.log("kkkk", kitchen)
 
-  if (!container) return <>Loading</>
-  console.log(container)
-  const { ingredients } = container
+  const { ingredients } = kitchen
   return (
     <>
       <strong>Other ingredients</strong>
       <ul>
-        {ingredients.ingredientsStats.map(([name, count], idx) => (
-          <li key={idx}>
-            {name} - {count}
-          </li>
-        ))}
+        {
+          // @ts-ignore
+          ingredients.ingredientsStats.map(([name, count], idx: any) => (
+            <li key={idx}>
+              {name} - {count}
+            </li>
+          ))
+        }
       </ul>
     </>
   )

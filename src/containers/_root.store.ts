@@ -5,6 +5,10 @@ import { A_Container, provideAContainer } from "./container.a"
 import { AuthContainer, provideAuthContainer } from "./container.auth"
 import { B_Container, provideBContainer } from "./container.b"
 import {
+  KitchenManipulator_Container,
+  provideKitchenManipulatorContainer,
+} from "./container.kitchein-manipulator"
+import {
   Kitchen_Container,
   provideKitchenContainer,
   provideUpgradedKitchenContainer,
@@ -20,6 +24,7 @@ interface ContainerRegistry {
   aCont: Promise<A_Container>
   bCont: Promise<B_Container>
   kitchen: Promise<Kitchen_Container>
+  kitchenManipulator: Promise<KitchenManipulator_Container>
 }
 
 type ContainerRegistryAsFunctions = {
@@ -27,6 +32,7 @@ type ContainerRegistryAsFunctions = {
 }
 
 class AppContainerDepenencyTracker {
+  constructor(private root: AppContainer) {}
   auth = async () => provideAuthContainer()
   aCont = async () => provideAContainer(await this.auth())
   bCont = async () => provideBContainer(await this.auth(), await this.aCont())
@@ -34,13 +40,17 @@ class AppContainerDepenencyTracker {
   // pizza stuff
   pizzaContainer = async () => providePizzaPlaceContainer()
   kitchen = async () => provideKitchenContainer()
+
+  _biggerKitchen = async () =>
+    provideUpgradedKitchenContainer(await this.kitchen())
+  kitchenManipulator = async () => provideKitchenManipulatorContainer(this.root)
 }
 
 export class AppContainer extends RootContainer<ContainerRegistry> {
   private ZZZ: ContainerRegistryAsFunctions
   constructor() {
     super()
-    this.ZZZ = new AppContainerDepenencyTracker()
+    this.ZZZ = new AppContainerDepenencyTracker(this)
   }
 
   /**
@@ -55,41 +65,17 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
     return FF
   }
 
-  public getKeys(): ContainerRegistryAsFunctions {
-    return {
-      auth: this.getAuthContainer.bind(this),
-      pizzaContainer: this.getPizzaPlaceContainer.bind(this),
-      aCont: this.getA_Container.bind(this),
-      bCont: this.getB_Container.bind(this),
-      kitchen: this.getKitchenContainer.bind(this),
-    }
+  public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
+    const currentKitchen = await this.getBetterKeys().kitchen()
+
+    return await this.replaceCointerInstantly("kitchen", () => {
+      return provideUpgradedKitchenContainer(currentKitchen)
+    })
   }
 
-  // public lol() {
-  //   const containerMap = this.getKeys()
-  //   type ContainerKeys = keyof ReturnType<typeof this.getKeys>
-  //   type Containers = ReturnType<typeof this.getKeys>
-
-  //   let FFFFF: {
-  //     [K in ContainerKeys]: {
-  //       _key: K
-  //       _container: ReturnType<Containers[K]>
-  //       stuff: any
-  //     }
-  //   } = {} as any
-
-  //   _.forEach(containerMap, (contPromise, contKey) => {
-  //     // @ts-ignore
-  //     FFFFF[contKey] = {
-  //       _container: contPromise(),
-  //       _key: contKey,
-  //       stuff: ()=>{
-  //         this.getGenericContainer(contKey,)
-  //       }
-
-  //     }
-  //   })
-  // }
+  /// ==================
+  /// DELETE
+  /// ==================
 
   public async getAuthContainer() {
     return await this.getGenericContainer("auth", provideAuthContainer)
@@ -102,30 +88,10 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
     )
   }
 
-  public getKitchenContainerController() {
-    return {
-      upgradeKitchenConatiner: () => {
-        return this.upgradetKitchenContainer()
-      },
-    }
-  }
-
   public async getKitchenContainer() {
-    return await this.getGenericContainer(
-      "kitchen",
-      () => provideKitchenContainer(),
-      //   {
-      //   upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
-      // }
+    return await this.getGenericContainer("kitchen", () =>
+      provideKitchenContainer(),
     )
-  }
-
-  public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
-    const k = await this.getKitchenContainer()
-
-    return await this.replaceCointerInstantly("kitchen", () => {
-      return provideUpgradedKitchenContainer(k)
-    })
   }
 
   public async getPizzaPlaceContainer() {

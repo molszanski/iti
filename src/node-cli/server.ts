@@ -13,8 +13,11 @@ async function runStuff() {
   let k = await l.auth()
   console.log(k)
 
-  let k2 = await l.auth()
-  console.log(k)
+  let k2 = await l.aCont()
+  console.log(k2)
+
+  let k3 = await l.bCont()
+  console.log(k3)
 }
 
 runStuff().then(() => {

@@ -1,9 +1,11 @@
 import _ from "lodash"
 import React, { useContext } from "react"
-import { useGenericContainer } from "../_library/library.hooks"
+import {
+  useGenericContainer,
+  useBetterGenericContainer,
+} from "../_library/library.hooks"
 
 import type { AppContainer } from "./_root.store"
-
 export const RootStoreContext = React.createContext<AppContainer>({} as any)
 
 export function useRootStore(): AppContainer {
@@ -18,12 +20,11 @@ export function useRootStore(): AppContainer {
  */
 export function useAllSuperStores() {
   const root = useRootStore()
-  const containerMap = root.getKeys()
+  const containerMap = root.getBetterKeys()
 
-  type ContainerKeys = keyof ReturnType<typeof root.getKeys>
-  type Containers = ReturnType<typeof root.getKeys>
+  type ContainerKeys = keyof ReturnType<typeof root.getBetterKeys>
+  type Containers = ReturnType<typeof root.getBetterKeys>
 
-  // type ContainerWrappedData = typeof decoratedContainerMap[0]
   let containerDecoratedMap: {
     [K in ContainerKeys]: {
       _key: K
@@ -46,82 +47,19 @@ export function useAllSuperStores() {
     }
   })
 
-  // const containers = Object.entries(containerMap)
-  // const TK = Object.keys(containerMap) as any as keyof typeof containerMap
-
-  // const decoratedContainerMap = containers.map(
-  //   ([containerKey, containerPromise]) => ({
-  //     _container: containerPromise() as any,
-  //     _key: containerKey,
-  //     [containerKey]: containerPromise(),
-  //     onUpdate: (cb: any) =>
-  //       root.on("containerUpdated", async (update) => {
-  //         if (update.key === containerKey) {
-  //           cb(await containerPromise())
-  //         }
-  //       }),
-  //   }),
-  // )
-  // type ContainerWrappedData = typeof decoratedContainerMap
-  // type BBB = {
-  //   [K in ContainerKeys]: ContainerWrappedData
-  // }
-  // type BBB2 = {
-  //   [K in ContainerKeys]: {
-  //     _container: number
-  //     _key: number
-  //     $K: string
-  //     [index: K]: number
-  //   }
-  // }
-
-  // let x: Record<ContainerKeys, ContainerWrappedData> = {} as any
-  // decoratedContainerMap.forEach((v, k) => {
-  //   // @ts-ignore
-  //   x[v._key] = v
-  // })
-
-  // return x
   return containerDecoratedMap
 }
 
-// /**
-//  * Return a map of keys to container and update functions
-//  *
-//  * @returns
-//  */
-//  export function useAllMegaStores() {
-//   const root = useRootStore()
-//   const containerMap = root.getKeys()
+export function useDandy() {
+  const s = useAllSuperStores()
 
-//   type ContainerKeys = keyof ReturnType<typeof root.getKeys>
-//   type Containers = ReturnType<typeof root.getKeys>
-
-//   // type ContainerWrappedData = typeof decoratedContainerMap[0]
-//   let containerDecoratedMap: {
-//     [K in ContainerKeys]: {
-//       _key: K
-//       _container: ReturnType<Containers[K]>
-//       onUpdate: () => void
-//     }
-//   } = {} as any
-
-//   _.forEach(containerMap, (contPromise, contKey) => {
-//     // @ts-ignore
-//     containerDecoratedMap[contKey] = {
-//       _container: contPromise(),
-//       _key: contKey,
-//       onUpdate: (cb: any) =>
-//         root.on("containerUpdated", async (update) => {
-//           if (update.key === contKey) {
-//             cb(await contPromise())
-//           }
-//         }),
-//     }
-//   })
-
-//   return containerDecoratedMap
-// }
+  const FFF: any = {}
+  _.forEach(s, (v: any, k) => {
+    FFF[k] = () =>
+      useBetterGenericContainer(v._container, { onContainerUpdate: v.onUpdate })
+  })
+  return FFF
+}
 
 export function useAuthContainer() {
   const root = useRootStore()
