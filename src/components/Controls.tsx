@@ -1,6 +1,5 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import cx from "classnames"
 import {
   useKitchenContainer,
   usePizzaPlaceContainer,
@@ -34,8 +33,7 @@ export const PizzaPlaceControls = observer(() => {
 
   if (!container) return <>Pizza Place is loading</>
   if (!kitchenContainer.container) return <>Kitchen is loading</>
-  const { kitchen, orderManager, kitchenSizeController } =
-    kitchenContainer.container
+  const { kitchen, orderManager } = kitchenContainer.container
 
   const { pizzaPlace, diningTables } = container
   return (
@@ -49,9 +47,9 @@ export const PizzaPlaceControls = observer(() => {
         Close Pizza Place
       </button>
 
-      <button onClick={() => kitchenSizeController.increaseKitchenSize()}>
+      {/* <button onClick={() => kitchenSizeController.increaseKitchenSize()}>
         Increase Kitchen Size
-      </button>
+      </button> */}
 
       {diningTables.tables.map((table) => {
         return (

@@ -3,11 +3,10 @@ import { observer } from "mobx-react-lite"
 import cx from "classnames"
 import s from "./PizzaPlace.module.css"
 import {
-  useAllStores,
   useAllSuperStores,
   useKitchenContainer,
   usePizzaPlaceContainer,
-  useSecondKitchenContainer,
+  // useSecondKitchenContainer,
 } from "../containers/_container.hooks"
 import { useGenericContainer } from "../_library/library.hooks"
 
@@ -33,7 +32,7 @@ export const PizzaPlace = observer(() => {
 })
 
 export const KitchenData = observer(() => {
-  const { container } = useSecondKitchenContainer()
+  const { container } = useKitchenContainer()
   if (!container) {
     return <>Kitchen is loading</>
   }
@@ -100,7 +99,9 @@ export const Inventory = observer(() => {
 })
 
 export const Inventory2 = observer(() => {
-  const { container } = useGenericContainer(useAllStores().kitchen.container)
+  const { container } = useGenericContainer(
+    useAllSuperStores().kitchen._container,
+  )
   if (!container) return <>Loading</>
 
   const { ingredients } = container
@@ -141,3 +142,25 @@ export const Inventory3 = observer(() => {
     </>
   )
 })
+
+// export const Inventory4 = observer(() => {
+//   const root = useRootStore()
+
+//   // useGenericContainer().kitchen()
+
+//   if (!container) return <>Loading</>
+//   console.log(container)
+//   const { ingredients } = container
+//   return (
+//     <>
+//       <strong>Other ingredients</strong>
+//       <ul>
+//         {ingredients.ingredientsStats.map(([name, count], idx) => (
+//           <li key={idx}>
+//             {name} - {count}
+//           </li>
+//         ))}
+//       </ul>
+//     </>
+//   )
+// })

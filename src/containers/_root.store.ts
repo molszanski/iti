@@ -1,3 +1,4 @@
+import _ from "lodash"
 import { RootContainer } from "../_library/library.root-container"
 
 import { A_Container, provideAContainer } from "./container.a"
@@ -25,60 +26,33 @@ type ContainerRegistryAsFunctions = {
   [P in keyof ContainerRegistry]: () => ContainerRegistry[P]
 }
 
-export class SecondAppContainer extends RootContainer<ContainerRegistry> {
-  constructor() {
-    super()
-  }
-
-  public getKitchenContainerController() {
-    return {
-      upgradeKitchenConatiner: () => {
-        return this.upgradetKitchenContainer()
-      },
-    }
-  }
-
-  public async getKitchenContainer() {
-    return await this.getGenericContainer("kitchen", () =>
-      provideKitchenContainer({
-        upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
-      }),
-    )
-  }
-  public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
-    const k = await this.getKitchenContainer()
-
-    return await this.replaceCointerInstantly("kitchen", () => {
-      return provideUpgradedKitchenContainer(k)
-    })
-  }
-}
-
-export class Lol
-  extends RootContainer<ContainerRegistry>
-  implements ContainerRegistryAsFunctions
-{
+class AppContainerDepenencyTracker {
   auth = async () => provideAuthContainer()
-  pizzaContainer = async () => providePizzaPlaceContainer()
   aCont = async () => provideAContainer(await this.auth())
   bCont = async () => provideBContainer(await this.auth(), await this.aCont())
-  kitchen = async () =>
-    provideKitchenContainer({
-      upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
-    })
 
-  public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
-    const k = await this.kitchen()
-
-    return await this.replaceCointerInstantly("kitchen", () => {
-      return provideUpgradedKitchenContainer(k)
-    })
-  }
+  // pizza stuff
+  pizzaContainer = async () => providePizzaPlaceContainer()
+  kitchen = async () => provideKitchenContainer()
 }
 
 export class AppContainer extends RootContainer<ContainerRegistry> {
+  private ZZZ: ContainerRegistryAsFunctions
   constructor() {
     super()
+    this.ZZZ = new AppContainerDepenencyTracker()
+  }
+
+  /**
+   * We wrap all containers with getGenericContainer
+   * @returns
+   */
+  public getBetterKeys(): ContainerRegistryAsFunctions {
+    const FF: any = {}
+    _.forOwn(this.ZZZ, (v: any, k: any) => {
+      FF[k] = () => this.getGenericContainer(k, v)
+    })
+    return FF
   }
 
   public getKeys(): ContainerRegistryAsFunctions {
@@ -91,29 +65,31 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
     }
   }
 
-  public getLol() {
-    const k = this.getKeys()
+  // public lol() {
+  //   const containerMap = this.getKeys()
+  //   type ContainerKeys = keyof ReturnType<typeof this.getKeys>
+  //   type Containers = ReturnType<typeof this.getKeys>
 
-    const l = {
-      auth: this.getGenericContainer("auth", k["auth"]),
-    }
+  //   let FFFFF: {
+  //     [K in ContainerKeys]: {
+  //       _key: K
+  //       _container: ReturnType<Containers[K]>
+  //       stuff: any
+  //     }
+  //   } = {} as any
 
-    let z = l.auth
-  }
+  //   _.forEach(containerMap, (contPromise, contKey) => {
+  //     // @ts-ignore
+  //     FFFFF[contKey] = {
+  //       _container: contPromise(),
+  //       _key: contKey,
+  //       stuff: ()=>{
+  //         this.getGenericContainer(contKey,)
+  //       }
 
-  public getKeys2(): {
-    [P in keyof ContainerRegistry]: () => any
-  } {
-    const K = {
-      auth: async () => provideAuthContainer(),
-      pizzaContainer: this.getPizzaPlaceContainer.bind(this),
-      // aCont: this.getA_Container.bind(this),
-      aCont: async () => provideAContainer(await K.auth()),
-      bCont: this.getB_Container.bind(this),
-      kitchen: this.getKitchenContainer.bind(this),
-    }
-    return K
-  }
+  //     }
+  //   })
+  // }
 
   public async getAuthContainer() {
     return await this.getGenericContainer("auth", provideAuthContainer)
@@ -135,10 +111,12 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
   }
 
   public async getKitchenContainer() {
-    return await this.getGenericContainer("kitchen", () =>
-      provideKitchenContainer({
-        upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
-      }),
+    return await this.getGenericContainer(
+      "kitchen",
+      () => provideKitchenContainer(),
+      //   {
+      //   upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
+      // }
     )
   }
 
@@ -165,3 +143,67 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
     )
   }
 }
+
+// export class SecondAppContainer extends RootContainer<ContainerRegistry> {
+//   constructor() {
+//     super()
+//   }
+
+//   public getKitchenContainerController() {
+//     return {
+//       upgradeKitchenConatiner: () => {
+//         return this.upgradetKitchenContainer()
+//       },
+//     }
+//   }
+
+//   public async getKitchenContainer() {
+//     return await this.getGenericContainer("kitchen", () =>
+//       provideKitchenContainer({
+//         upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
+//       }),
+//     )
+//   }
+//   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
+//     const k = await this.getKitchenContainer()
+
+//     return await this.replaceCointerInstantly("kitchen", () => {
+//       return provideUpgradedKitchenContainer(k)
+//     })
+//   }
+// }
+
+// export class Lol
+//   extends RootContainer<ContainerRegistry>
+//   implements ContainerRegistryAsFunctions
+// {
+//   auth = async () => provideAuthContainer()
+//   pizzaContainer = async () => providePizzaPlaceContainer()
+//   aCont = async () => provideAContainer(await this.auth())
+//   bCont = async () => provideBContainer(await this.auth(), await this.aCont())
+//   kitchen = async () =>
+//     provideKitchenContainer({
+//       upgradeKitchenConatiner: () => this.upgradetKitchenContainer(),
+//     })
+
+//   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
+//     const k = await this.kitchen()
+
+//     return await this.replaceCointerInstantly("kitchen", () => {
+//       return provideUpgradedKitchenContainer(k)
+//     })
+//   }
+
+//   // public getKeys2(): {
+//   //   [P in keyof ContainerRegistry]: () => any
+//   // } {
+//   //   const K = {
+//   //     auth: async () => provideAuthContainer(),
+//   //     pizzaContainer: this.getPizzaPlaceContainer.bind(this),
+//   //     aCont: async () => provideAContainer(await K.auth()),
+//   //     bCont: this.getB_Container.bind(this),
+//   //     kitchen: this.getKitchenContainer.bind(this),
+//   //   }
+//   //   return K
+//   // }
+// }

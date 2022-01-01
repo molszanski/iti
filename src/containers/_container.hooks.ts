@@ -2,38 +2,13 @@ import _ from "lodash"
 import React, { useContext } from "react"
 import { useGenericContainer } from "../_library/library.hooks"
 
-import type { AppContainer, SecondAppContainer } from "./_root.store"
+import type { AppContainer } from "./_root.store"
 
 export const RootStoreContext = React.createContext<AppContainer>({} as any)
 
 export function useRootStore(): AppContainer {
   const store = useContext(RootStoreContext)
   return store
-}
-
-export function useAllStores() {
-  const root = useRootStore()
-
-  const s = root.getKeys()
-  let k = s.kitchen()
-  root.on("containerUpdated", async (update) => {
-    if (update.key === "kitchen") {
-      let kc = await s.kitchen()
-    }
-  })
-
-  return {
-    kitchen: {
-      container: s.kitchen(),
-      onUpdate: (cb: any) =>
-        root.on("containerUpdated", async (update) => {
-          if (update.key === "kitchen") {
-            let kc = await s.kitchen()
-            cb(kc)
-          }
-        }),
-    },
-  }
 }
 
 /**
@@ -49,7 +24,7 @@ export function useAllSuperStores() {
   type Containers = ReturnType<typeof root.getKeys>
 
   // type ContainerWrappedData = typeof decoratedContainerMap[0]
-  let FFFFF: {
+  let containerDecoratedMap: {
     [K in ContainerKeys]: {
       _key: K
       _container: ReturnType<Containers[K]>
@@ -59,7 +34,7 @@ export function useAllSuperStores() {
 
   _.forEach(containerMap, (contPromise, contKey) => {
     // @ts-ignore
-    FFFFF[contKey] = {
+    containerDecoratedMap[contKey] = {
       _container: contPromise(),
       _key: contKey,
       onUpdate: (cb: any) =>
@@ -107,8 +82,46 @@ export function useAllSuperStores() {
   // })
 
   // return x
-  return FFFFF
+  return containerDecoratedMap
 }
+
+// /**
+//  * Return a map of keys to container and update functions
+//  *
+//  * @returns
+//  */
+//  export function useAllMegaStores() {
+//   const root = useRootStore()
+//   const containerMap = root.getKeys()
+
+//   type ContainerKeys = keyof ReturnType<typeof root.getKeys>
+//   type Containers = ReturnType<typeof root.getKeys>
+
+//   // type ContainerWrappedData = typeof decoratedContainerMap[0]
+//   let containerDecoratedMap: {
+//     [K in ContainerKeys]: {
+//       _key: K
+//       _container: ReturnType<Containers[K]>
+//       onUpdate: () => void
+//     }
+//   } = {} as any
+
+//   _.forEach(containerMap, (contPromise, contKey) => {
+//     // @ts-ignore
+//     containerDecoratedMap[contKey] = {
+//       _container: contPromise(),
+//       _key: contKey,
+//       onUpdate: (cb: any) =>
+//         root.on("containerUpdated", async (update) => {
+//           if (update.key === contKey) {
+//             cb(await contPromise())
+//           }
+//         }),
+//     }
+//   })
+
+//   return containerDecoratedMap
+// }
 
 export function useAuthContainer() {
   const root = useRootStore()
@@ -148,27 +161,27 @@ export function usePizzaPlaceContainer() {
 
 ///
 
-export const SecondAppContext = React.createContext<SecondAppContainer>(
-  {} as any,
-)
-export function SeconAppContainer() {
-  const store = useContext(SecondAppContext)
-  return store
-}
+// export const SecondAppContext = React.createContext<SecondAppContainer>(
+//   {} as any,
+// )
+// export function SeconAppContainer() {
+//   const store = useContext(SecondAppContext)
+//   return store
+// }
 
-export function useSecondKitchenContainer() {
-  const root = SeconAppContainer()
-  console.log("using second kitchen container")
+// export function useSecondKitchenContainer() {
+//   const root = SeconAppContainer()
+//   console.log("using second kitchen container")
 
-  return useGenericContainer(root.getKitchenContainer(), {
-    onContainerUpdate: (cb) => {
-      root.on("containerUpdated", (update) => {
-        if (update.key === "kitchen") {
-          root.getKitchenContainer().then((kitchenContainer) => {
-            cb(kitchenContainer)
-          })
-        }
-      })
-    },
-  })
-}
+//   return useGenericContainer(root.getKitchenContainer(), {
+//     onContainerUpdate: (cb) => {
+//       root.on("containerUpdated", (update) => {
+//         if (update.key === "kitchen") {
+//           root.getKitchenContainer().then((kitchenContainer) => {
+//             cb(kitchenContainer)
+//           })
+//         }
+//       })
+//     },
+//   })
+// }
