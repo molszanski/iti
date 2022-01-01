@@ -13,7 +13,7 @@ export async function provideKitchenManipulatorContainer(
   root: AppContainer,
 ): Promise<KitchenManipulator_Container> {
   let ksc = new KitchenSizeUIController({
-    onKitchenResize: root.upgradetKitchenContainer,
+    onKitchenResize: () => root.upgradetKitchenContainer(),
   })
 
   return {

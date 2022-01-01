@@ -40,7 +40,7 @@ export function useGenericContainer<T>(
 export type ContainerGenericBettter<T> = [container?: T, error?: Error]
 
 export function useBetterGenericContainer<T>(
-  containerPromise: Promise<T>,
+  containerPromise: () => Promise<T>,
   controls?: {
     onContainerUpdate(cb: (container: T) => void): void
   },
@@ -59,7 +59,7 @@ export function useBetterGenericContainer<T>(
 
   // We can add optimizations later.
   useEffect(() => {
-    containerPromise
+    containerPromise()
       .then((container) => {
         setData(container)
       })

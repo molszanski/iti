@@ -27,9 +27,11 @@ export const StuffControls = observer(() => {
 export const PizzaPlaceControls = observer(() => {
   const [kitchenCont] = useDandy().kitchen()
   const [pizzaPlaceCont] = useDandy().pizzaContainer()
+  const [kitchenManipulatorCont] = useDandy().kitchenManipulator()
 
   if (!pizzaPlaceCont) return <>Pizza Place is loading</>
   if (!kitchenCont) return <>Kitchen is loading</>
+  if (!kitchenManipulatorCont) return <>Kitchen is loading</>
 
   const { orderManager } = kitchenCont
   const { pizzaPlace, diningTables } = pizzaPlaceCont
@@ -45,9 +47,14 @@ export const PizzaPlaceControls = observer(() => {
         Close Pizza Place
       </button>
 
-      {/* <button onClick={() => kitchenSizeController.increaseKitchenSize()}>
+      <br />
+      <button
+        onClick={() =>
+          kitchenManipulatorCont.kitchenSizeController.increaseKitchenSize()
+        }
+      >
         Increase Kitchen Size
-      </button> */}
+      </button>
 
       {diningTables.tables.map((table) => {
         return (

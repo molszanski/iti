@@ -41,8 +41,10 @@ function getDeps(ctx: AppContainer) {
     pizzaContainer: async () => providePizzaPlaceContainer(),
     kitchen: async () => provideKitchenContainer(),
 
-    _biggerKitchen: async () =>
-      provideUpgradedKitchenContainer(await ctx.KKK.kitchen()),
+    _biggerKitchen: async () => {
+      return provideUpgradedKitchenContainer(await ctx.KKK.kitchen())
+    },
+
     kitchenManipulator: async () => provideKitchenManipulatorContainer(ctx),
   }
   return that
@@ -63,6 +65,7 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
         return this.getGenericContainer(k, v)
       }
     })
+    console.log("----------------------------")
   }
 
   /**
@@ -74,6 +77,7 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
   }
 
   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
+    console.log("upgrade called")
     const currentKitchen = await this.getBetterKeys().kitchen()
 
     return await this.replaceCointerInstantly("kitchen", () => {

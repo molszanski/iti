@@ -7,6 +7,6 @@ export class KitchenSizeUIController {
 
   public async increaseKitchenSize() {
     console.log("kitchen resize")
-    // this.cbs.onKitchenResize()
+    this.cbs.onKitchenResize()
   }
 }

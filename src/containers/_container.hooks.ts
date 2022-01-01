@@ -25,7 +25,7 @@ export function useAllSuperStores() {
   let containerDecoratedMap: {
     [K in ContainerKeys]: {
       _key: K
-      _container: ReturnType<Containers[K]>
+      _container: () => ReturnType<Containers[K]>
       onUpdate: () => void
     }
   } = {} as any
@@ -33,7 +33,7 @@ export function useAllSuperStores() {
   _.forEach(containerMap, (contPromise, contKey) => {
     // @ts-ignore
     containerDecoratedMap[contKey] = {
-      _container: contPromise(),
+      _container: contPromise,
       _key: contKey,
       onUpdate: (cb: any) =>
         root.on("containerUpdated", async (update) => {
@@ -59,11 +59,17 @@ export function useDandy() {
       any,
     ]
   } = {} as any
-
-  _.forEach(s, (v: any, k: any) => {
+  _.forEach(s, (v, k) => {
     // @ts-ignore
-    FFF[k] = () =>
-      useBetterGenericContainer(v._container, { onContainerUpdate: v.onUpdate })
+    FFF[k] = () => {
+      const cont = v._container
+      // @ts-ignore
+      const retCont = useBetterGenericContainer(cont, {
+        onContainerUpdate: v.onUpdate,
+      })
+
+      return retCont
+    }
   })
 
   return FFF
