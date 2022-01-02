@@ -12,38 +12,43 @@ import {
   provideUpgradedKitchenContainer,
 } from "./container.kitchen"
 
+function getProviders(ctx: RootContainer) {
+  return {
+    auth: async () => provideAuthContainer(),
+    aCont: async () => provideAContainer(await ctx.KKK.auth()),
+    bCont: async () =>
+      provideBContainer(await ctx.KKK.auth(), await ctx.KKK.aCont()),
+
+    // pizza stuff
+    pizzaContainer: async () => providePizzaPlaceContainer(),
+    kitchen: async () => provideKitchenContainer(),
+
+    _biggerKitchen: async () => {
+      return provideUpgradedKitchenContainer(await ctx.KKK.kitchen())
+    },
+
+    kitchenManipulator: async () => {
+      // @ts-ignore
+      provideKitchenManipulatorContainer(ctx)
+    },
+  }
+}
+
+type R = ReturnType<typeof getProviders>
+
 export class AppContainer extends RootContainer {
-  public KKK: ReturnType<AppContainer["getProviders"]>
+  public KKK: R
 
   constructor() {
     super()
     // @ts-ignore
     this.KKK = {}
-    _.forOwn(this.getProviders(this), (v: any, k: any) => {
+    _.forOwn(getProviders(this), (v: any, k: any) => {
       //@ts-ignore
       this.KKK[k] = () => {
         return this.getGenericContainer(k, v)
       }
     })
-  }
-
-  private getProviders(ctx: AppContainer) {
-    return {
-      auth: async () => provideAuthContainer(),
-      aCont: async () => provideAContainer(await ctx.KKK.auth()),
-      bCont: async () =>
-        provideBContainer(await ctx.KKK.auth(), await ctx.KKK.aCont()),
-
-      // pizza stuff
-      pizzaContainer: async () => providePizzaPlaceContainer(),
-      kitchen: async () => provideKitchenContainer(),
-
-      _biggerKitchen: async () => {
-        return provideUpgradedKitchenContainer(await ctx.KKK.kitchen())
-      },
-
-      kitchenManipulator: async () => provideKitchenManipulatorContainer(ctx),
-    }
   }
 
   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
