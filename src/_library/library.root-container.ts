@@ -2,6 +2,9 @@ import mitt from "mitt"
 import _ from "lodash"
 type ValueOf<T> = T[keyof T]
 
+/**
+ * We keep events and cache here, so many instances could share it
+ */
 const allEvents = new Map()
 const allCache = {}
 
@@ -12,21 +15,18 @@ export class RootContainer<
     [K in keyof R]: ReturnType<R[K]>
   },
 > {
-  public KKK: R
+  public providerMap: R
 
   constructor(getProviders: getProv) {
     // @ts-ignore
-    this.KKK = {}
+    this.providerMap = {}
     // @ts-ignore
-    _.forOwn(getProviders(this.KKK), (v: any, k: any) => {
+    _.forOwn(getProviders(this.providerMap), (v: any, k: any) => {
       //@ts-ignore
-      this.KKK[k] = () => {
+      this.providerMap[k] = () => {
         return this.getGenericContainer(k, v)
       }
     })
-  }
-  public dupa(): GenericContainerRegistry {
-    return 1 as any
   }
 
   /**
@@ -68,7 +68,7 @@ export class RootContainer<
       }
     }
 
-    throw new Error("WTF")
+    throw new Error("Should not reach here")
   }
 
   /**
