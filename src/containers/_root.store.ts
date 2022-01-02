@@ -12,43 +12,38 @@ import {
   provideUpgradedKitchenContainer,
 } from "./container.kitchen"
 
-function getProviders(ctx: RootContainer) {
+function getProviders(ctx: any) {
   return {
     auth: async () => provideAuthContainer(),
-    aCont: async () => provideAContainer(await ctx.KKK.auth()),
-    bCont: async () =>
-      provideBContainer(await ctx.KKK.auth(), await ctx.KKK.aCont()),
+    aCont: async () => provideAContainer(await ctx.auth()),
+    bCont: async () => provideBContainer(await ctx.auth(), await ctx.aCont()),
 
     // pizza stuff
     pizzaContainer: async () => providePizzaPlaceContainer(),
     kitchen: async () => provideKitchenContainer(),
 
     _biggerKitchen: async () => {
-      return provideUpgradedKitchenContainer(await ctx.KKK.kitchen())
+      return provideUpgradedKitchenContainer(await ctx.kitchen())
     },
 
-    kitchenManipulator: async () => {
-      // @ts-ignore
-      provideKitchenManipulatorContainer(ctx)
-    },
+    // kitchenManipulator: async () => {
+    //   // @ts-ignore
+    //   provideKitchenManipulatorContainer(ctx)
+    // },
   }
 }
 
+type F = typeof getProviders
 type R = ReturnType<typeof getProviders>
+type RR = {
+  [K in keyof R]: ReturnType<R[K]>
+}
+let x = new RootContainer<F, R, RR>(getProviders)
 
-export class AppContainer extends RootContainer {
-  public KKK: R
-
+export class AppContainer extends RootContainer<F, R, RR> {
   constructor() {
-    super()
-    // @ts-ignore
-    this.KKK = {}
-    _.forOwn(getProviders(this), (v: any, k: any) => {
-      //@ts-ignore
-      this.KKK[k] = () => {
-        return this.getGenericContainer(k, v)
-      }
-    })
+    //@ts-ignore
+    super(getProviders)
   }
 
   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {

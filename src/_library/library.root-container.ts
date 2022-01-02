@@ -1,20 +1,34 @@
 import mitt from "mitt"
-
+import _ from "lodash"
 type ValueOf<T> = T[keyof T]
 
 const allEvents = new Map()
 const allCache = {}
 
-type GenericContainerRegistry = {
-  [K in keyof RootContainer["KKK"]]: ReturnType<RootContainer["KKK"][K]>
-}
+export class RootContainer<F, R, GenericContainerRegistry> {
+  public KKK: R
 
-export abstract class RootContainer {
-  public abstract KKK: {
-    [k: string]: () => Promise<any>
+  constructor(getProviders: F) {
+    // @ts-ignore
+    this.KKK = {}
+    // @ts-ignore
+    _.forOwn(getProviders(this.KKK), (v: any, k: any) => {
+      //@ts-ignore
+      this.KKK[k] = () => {
+        return this.getGenericContainer(k, v)
+      }
+    })
+
+    // // @ts-ignore
+    // this.KKK = {}
+    // // @ts-ignore
+    // _.forOwn(getProviders(this.KKK), (v: any, k: any) => {
+    //   //@ts-ignore
+    //   this.KKK[k] = () => {
+    //     return this.getGenericContainer(k, v)
+    //   }
+    // })
   }
-
-  constructor() {}
 
   /**
    * EventEmitter Logic
