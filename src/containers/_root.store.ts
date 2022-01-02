@@ -18,18 +18,6 @@ import {
   providePizzaPlaceContainer,
 } from "./container.pizza-place"
 
-interface ContainerRegistry {
-  auth: Promise<AuthContainer>
-  pizzaContainer: Promise<PizzaPlace_Container>
-  aCont: Promise<A_Container>
-  bCont: Promise<B_Container>
-  kitchen: Promise<Kitchen_Container>
-  kitchenManipulator: Promise<KitchenManipulator_Container>
-}
-
-type ContainerRegistryAsFunctions = {
-  [P in keyof ContainerRegistry]: () => ContainerRegistry[P]
-}
 function getDeps(ctx: AppContainer) {
   const that = {
     auth: async () => provideAuthContainer(),
@@ -50,10 +38,11 @@ function getDeps(ctx: AppContainer) {
   return that
 }
 
-export class AppContainer extends RootContainer<ContainerRegistry> {
+export class AppContainer extends RootContainer {
   private ZZZ = getDeps(this)
 
   public KKK: ReturnType<typeof getDeps>
+
   constructor() {
     super()
 
@@ -65,7 +54,6 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
         return this.getGenericContainer(k, v)
       }
     })
-    console.log("----------------------------")
   }
 
   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {

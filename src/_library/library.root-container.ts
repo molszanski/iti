@@ -5,14 +5,28 @@ type ValueOf<T> = T[keyof T]
 const allEvents = new Map()
 const allCache = {}
 
-export class RootContainer<GenericContainerRegistry> {
+// export abstract class CoolRootContainer {
+
+//   public abstract on: (eventName: string, cb: any) => any
+// }
+
+type GenericContainerRegistry = {
+  [K in keyof RootContainer["KKK"]]: ReturnType<RootContainer["KKK"][K]>
+}
+
+export abstract class RootContainer {
+  public abstract KKK: {
+    [k: string]: () => Promise<any>
+  }
+
+  constructor() {}
+
   /**
    * EventEmitter Logic
    */
   private ee = mitt<{
     containerUpdated: {
       key: keyof GenericContainerRegistry
-      // oldContainer: ValueOf<GenericContainerRegistry>
       newContainer: ValueOf<GenericContainerRegistry>
     }
   }>(allEvents)

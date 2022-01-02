@@ -10,6 +10,40 @@ export function useRootStore(): AppContainer {
   return store
 }
 
+// export function useLol<T>(appContainer: CoolRootContainer) {
+//   const root = appContainer
+//   const containerMap = root.KKK
+
+//   type ContainerKeys = keyof typeof root["KKK"]
+//   type Containers = typeof root["KKK"]
+
+//   let containerDecoratedMap: {
+//     [K in ContainerKeys]: {
+//       _key: K
+//       _container: () => ReturnType<Containers[K]>
+//       onUpdate: (cb: any) => void
+//     }
+//   } = {} as any
+
+//   _.forEach(containerMap, (contPromise, contKey) => {
+//     // @ts-ignore
+//     containerDecoratedMap[contKey] = {
+//       _container: contPromise,
+//       _key: contKey,
+//       onUpdate: (cb: any) =>
+//         root.on("containerUpdated", async (update) => {
+//           if (update.key === contKey) {
+//             cb(await contPromise())
+//           }
+//         }),
+//     }
+//   })
+
+//   return containerDecoratedMap
+// }
+
+// let x = useLol(useRootStore())
+
 /**
  * Return a map of keys to container and update functions
  *
