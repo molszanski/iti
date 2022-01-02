@@ -42,7 +42,7 @@ let x = new RootContainer(getProviders)
 
 export function lol() {
   let x = new RootContainer(getProviders)
-  return x.KKK
+  return x
 }
 
 export class AppContainer extends RootContainer<F, R, RR> {

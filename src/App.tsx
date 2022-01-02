@@ -1,6 +1,9 @@
 import { configure } from "mobx"
 import React, { useMemo } from "react"
-import { RootStoreContext } from "./containers/_container.hooks"
+import {
+  RootStoreContext,
+  RootStoreContext2,
+} from "./containers/_container.hooks"
 import { AppContainer, lol } from "./containers/_root.store"
 import "./App.css"
 import { Main } from "./Main"
@@ -12,12 +15,14 @@ interface AppProps {}
 
 function App({}: AppProps) {
   const store = useMemo(() => new AppContainer(), [])
-  // const store2 = useMemo(() => lol(), [])
+  const store2 = useMemo(() => lol(), [])
 
   return (
     <div className="App">
       <RootStoreContext.Provider value={store}>
-        <Main />
+        <RootStoreContext2.Provider value={store2}>
+          <Main />
+        </RootStoreContext2.Provider>
       </RootStoreContext.Provider>
     </div>
   )
