@@ -14,9 +14,7 @@ function useRoot2() {
 type UnPromisify<T> = T extends Promise<infer U> ? U : T
 function useStores2<
   ContMap extends {
-    [CK in keyof ContMap]: ContMap[CK] extends (...args: any) => any
-      ? ContMap[CK]
-      : never
+    [CK in keyof ContMap]: ContMap[CK]
   },
   ContainerKeys extends keyof ContMap,
   Lol extends {
@@ -46,7 +44,6 @@ function useStores2<
         // @ts-ignore
         root.on("containerUpdated", async (update) => {
           if (update.key === contKey) {
-            // @ts-ignore
             cb(await contPromise())
           }
         }),
@@ -57,11 +54,8 @@ function useStores2<
   _.forEach(containerDecoratedMap, (v, k) => {
     // @ts-ignore
     FFF[k] = () => {
-      // @ts-ignore
       const cont = v._container
-      // @ts-ignore
       const retCont = useBetterGenericContainer(cont, {
-        // @ts-ignore
         onContainerUpdate: v.onUpdate,
       })
 
