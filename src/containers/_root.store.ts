@@ -38,7 +38,12 @@ type R = ReturnType<typeof getProviders>
 type RR = {
   [K in keyof R]: ReturnType<R[K]>
 }
-let x = new RootContainer<F, R, RR>(getProviders)
+let x = new RootContainer(getProviders)
+
+export function lol() {
+  let x = new RootContainer(getProviders)
+  return x.KKK
+}
 
 export class AppContainer extends RootContainer<F, R, RR> {
   constructor() {

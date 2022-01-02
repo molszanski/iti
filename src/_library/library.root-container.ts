@@ -5,10 +5,16 @@ type ValueOf<T> = T[keyof T]
 const allEvents = new Map()
 const allCache = {}
 
-export class RootContainer<F, R, GenericContainerRegistry> {
+export class RootContainer<
+  getProv extends (...args: any) => any,
+  R extends ReturnType<getProv>,
+  GenericContainerRegistry extends {
+    [K in keyof R]: ReturnType<R[K]>
+  },
+> {
   public KKK: R
 
-  constructor(getProviders: F) {
+  constructor(getProviders: getProv) {
     // @ts-ignore
     this.KKK = {}
     // @ts-ignore
@@ -18,16 +24,9 @@ export class RootContainer<F, R, GenericContainerRegistry> {
         return this.getGenericContainer(k, v)
       }
     })
-
-    // // @ts-ignore
-    // this.KKK = {}
-    // // @ts-ignore
-    // _.forOwn(getProviders(this.KKK), (v: any, k: any) => {
-    //   //@ts-ignore
-    //   this.KKK[k] = () => {
-    //     return this.getGenericContainer(k, v)
-    //   }
-    // })
+  }
+  public dupa(): GenericContainerRegistry {
+    return 1 as any
   }
 
   /**
