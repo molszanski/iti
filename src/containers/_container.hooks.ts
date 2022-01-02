@@ -17,10 +17,10 @@ export function useRootStore(): AppContainer {
  */
 export function useAllSuperStores() {
   const root = useRootStore()
-  const containerMap = root.getBetterKeys()
+  const containerMap = root.KKK
 
-  type ContainerKeys = keyof ReturnType<typeof root.getBetterKeys>
-  type Containers = ReturnType<typeof root.getBetterKeys>
+  type ContainerKeys = keyof typeof root["KKK"]
+  type Containers = typeof root["KKK"]
 
   let containerDecoratedMap: {
     [K in ContainerKeys]: {

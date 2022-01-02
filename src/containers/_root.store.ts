@@ -68,17 +68,9 @@ export class AppContainer extends RootContainer<ContainerRegistry> {
     console.log("----------------------------")
   }
 
-  /**
-   * We wrap all containers with getGenericContainer
-   * @returns
-   */
-  public getBetterKeys(): ContainerRegistryAsFunctions {
-    return this.KKK
-  }
-
   public async upgradetKitchenContainer(): Promise<Kitchen_Container> {
     console.log("upgrade called")
-    const currentKitchen = await this.getBetterKeys().kitchen()
+    const currentKitchen = await this.KKK.kitchen()
 
     return await this.replaceCointerInstantly("kitchen", () => {
       return provideUpgradedKitchenContainer(currentKitchen)

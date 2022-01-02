@@ -7,7 +7,7 @@ console.log(123)
 async function runStuff() {
   let a = new AppContainer()
 
-  let l = a.getBetterKeys()
+  let l = a.KKK
   console.log(l)
 
   let k = await l.auth()
