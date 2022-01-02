@@ -1,6 +1,6 @@
 import React from "react"
 import { observer } from "mobx-react-lite"
-import { useDandy } from "../containers/_container.hooks"
+import { useNewDandy } from "../containers/_container.hooks"
 import s from "./Controls.module.css"
 
 export const Controls = observer(() => {
@@ -25,9 +25,9 @@ export const StuffControls = observer(() => {
 })
 
 export const PizzaPlaceControls = observer(() => {
-  const [kitchenCont] = useDandy().kitchen()
-  const [pizzaPlaceCont] = useDandy().pizzaContainer()
-  // const [kitchenManipulatorCont] = useDandy().kitchenManipulator()
+  const [kitchenCont] = useNewDandy().kitchen()
+  const [pizzaPlaceCont] = useNewDandy().pizzaContainer()
+  // const [kitchenManipulatorCont] = useNewDandy().kitchenManipulator()
 
   if (!pizzaPlaceCont) return <>Pizza Place is loading</>
   if (!kitchenCont) return <>Kitchen is loading</>

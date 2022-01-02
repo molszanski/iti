@@ -2,10 +2,10 @@ import React from "react"
 import { observer } from "mobx-react-lite"
 import cx from "classnames"
 import s from "./PizzaPlace.module.css"
-import { useDandy, useNewDandy } from "../containers/_container.hooks"
+import { useNewDandy } from "../containers/_container.hooks"
 
 export const PizzaPlace = observer(() => {
-  const [pizza] = useDandy().pizzaContainer()
+  const [pizza] = useNewDandy().pizzaContainer()
   if (!pizza) return <>Pizza Place is loading</>
 
   console.log("pizza", pizza)
@@ -25,8 +25,6 @@ export const PizzaPlace = observer(() => {
 })
 
 export const KitchenData = observer(() => {
-  // const [kitchenCont] = useDandy().kitchen()
-
   const [kitchenCont] = useNewDandy().kitchen()
 
   if (!kitchenCont) return <>Kitchen is loading</>
@@ -73,7 +71,7 @@ export const KitchenData = observer(() => {
 })
 
 export const Inventory = observer(() => {
-  const [kitchenCont] = useDandy().kitchen()
+  const [kitchenCont] = useNewDandy().kitchen()
   if (!kitchenCont) return <>Kitchen is loading</>
   const { ingredients } = kitchenCont
   return (
@@ -90,7 +88,7 @@ export const Inventory = observer(() => {
 })
 
 export const Inventory2 = observer(() => {
-  const [kitchenCont] = useDandy().kitchen()
+  const [kitchenCont] = useNewDandy().kitchen()
   if (!kitchenCont) return <>Kitchen is loading</>
   const { ingredients } = kitchenCont
 
@@ -109,7 +107,7 @@ export const Inventory2 = observer(() => {
 })
 
 export const Inventory3 = observer(() => {
-  const [kitchenCont] = useDandy().kitchen()
+  const [kitchenCont] = useNewDandy().kitchen()
   if (!kitchenCont) return <>Kitchen is loading</>
   const { ingredients } = kitchenCont
 

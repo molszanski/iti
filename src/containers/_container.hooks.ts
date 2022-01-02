@@ -59,7 +59,6 @@ function useStores2<
         }),
     }
   })
-  console.log("mm,", containerDecoratedMap)
 
   let FFF: Lol = {} as any
   _.forEach(containerDecoratedMap, (v, k) => {
@@ -77,101 +76,10 @@ function useStores2<
     }
   })
 
-  return FFF as any as Lol
+  return FFF
 }
 
-// let r = useRoot2()
-// let k = useStores2(r.KKK, r)
 export function useNewDandy() {
   const root = useRoot2()
   return useStores2(root.KKK, root)
-}
-
-// let k2 = useLol2()
-// useLol2
-export function useLol2(appContainer: AppContainer) {
-  const root = appContainer
-  const s = useAllSuperStores(root)
-
-  type ContainerKeys = keyof AppContainer["KKK"]
-  type UnPromisify<T> = T extends Promise<infer U> ? U : T
-
-  let FFF: {
-    [K in ContainerKeys]: () => [
-      UnPromisify<ReturnType<AppContainer["KKK"][K]>>,
-      any,
-    ]
-  } = {} as any
-
-  return FFF
-}
-
-/**
- * Return a map of keys to container and update functions
- *
- * @returns
- */
-export function useAllSuperStores(appContainer: AppContainer) {
-  const root = appContainer
-  const containerMap = root.KKK
-
-  type ContainerKeys = keyof typeof root["KKK"]
-  type Containers = typeof root["KKK"]
-
-  let containerDecoratedMap: {
-    [K in ContainerKeys]: {
-      _key: K
-      _container: () => ReturnType<Containers[K]>
-      onUpdate: () => void
-    }
-  } = {} as any
-
-  _.forEach(containerMap, (contPromise, contKey) => {
-    // @ts-ignore
-    containerDecoratedMap[contKey] = {
-      _container: contPromise,
-      _key: contKey,
-      onUpdate: (cb: any) =>
-        root.on("containerUpdated", async (update) => {
-          if (update.key === contKey) {
-            cb(await contPromise())
-          }
-        }),
-    }
-  })
-
-  return containerDecoratedMap
-}
-
-export function useLol(appContainer: AppContainer) {
-  const root = appContainer
-  const s = useAllSuperStores(root)
-
-  type ContainerKeys = keyof AppContainer["KKK"]
-  type UnPromisify<T> = T extends Promise<infer U> ? U : T
-
-  let FFF: {
-    [K in ContainerKeys]: () => [
-      UnPromisify<ReturnType<AppContainer["KKK"][K]>>,
-      any,
-    ]
-  } = {} as any
-  _.forEach(s, (v, k) => {
-    // @ts-ignore
-    FFF[k] = () => {
-      const cont = v._container
-      // @ts-ignore
-      const retCont = useBetterGenericContainer(cont, {
-        onContainerUpdate: v.onUpdate,
-      })
-
-      return retCont
-    }
-  })
-
-  return FFF
-}
-export function useDandy() {
-  const root = useRootStore()
-  return useLol(root)
 }
