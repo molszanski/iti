@@ -5,11 +5,6 @@ type ValueOf<T> = T[keyof T]
 const allEvents = new Map()
 const allCache = {}
 
-// export abstract class CoolRootContainer {
-
-//   public abstract on: (eventName: string, cb: any) => any
-// }
-
 type GenericContainerRegistry = {
   [K in keyof RootContainer["KKK"]]: ReturnType<RootContainer["KKK"][K]>
 }
