@@ -2,14 +2,7 @@ import _ from "lodash"
 import React, { useContext } from "react"
 import type { RootContainer } from "../_library/library.root-container"
 import { useBetterGenericContainer } from "../_library/library.hooks"
-
-import type { AppContainer, lol } from "./_root.store"
-export const RootStoreContext = React.createContext<AppContainer>({} as any)
-
-export function useRootStore(): AppContainer {
-  const store = useContext(RootStoreContext)
-  return store
-}
+import type { lol } from "./_root.store"
 
 export const RootStoreContext2 = React.createContext<ReturnType<typeof lol>>(
   {} as any,
