@@ -1,7 +1,7 @@
 import { configure } from "mobx"
 import React, { useMemo } from "react"
 import { RootStoreContext } from "./containers/_container.hooks"
-import { AppContainer } from "./containers/_root.store"
+import { AppContainer, lol } from "./containers/_root.store"
 import "./App.css"
 import { Main } from "./Main"
 
@@ -12,6 +12,8 @@ interface AppProps {}
 
 function App({}: AppProps) {
   const store = useMemo(() => new AppContainer(), [])
+  // const store2 = useMemo(() => lol(), [])
+
   return (
     <div className="App">
       <RootStoreContext.Provider value={store}>

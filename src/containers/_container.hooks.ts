@@ -1,5 +1,6 @@
 import _ from "lodash"
 import React, { useContext } from "react"
+import { RootContainer } from "src/_library/library.root-container"
 import { useBetterGenericContainer } from "../_library/library.hooks"
 
 import type { AppContainer } from "./_root.store"
@@ -46,13 +47,13 @@ export function useAllSuperStores(appContainer: AppContainer) {
 
   return containerDecoratedMap
 }
-type UnPromisify<T> = T extends Promise<infer U> ? U : T
 
-export function useDandy() {
-  const root = useRootStore()
+export function useLol(appContainer: AppContainer) {
+  const root = appContainer
   const s = useAllSuperStores(root)
 
   type ContainerKeys = keyof AppContainer["KKK"]
+  type UnPromisify<T> = T extends Promise<infer U> ? U : T
 
   let FFF: {
     [K in ContainerKeys]: () => [
@@ -74,4 +75,8 @@ export function useDandy() {
   })
 
   return FFF
+}
+export function useDandy() {
+  const root = useRootStore()
+  return useLol(root)
 }
