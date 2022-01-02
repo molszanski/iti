@@ -11,6 +11,29 @@ import {
   provideUpgradedKitchenContainer,
 } from "./container.kitchen"
 
+interface NestedObject {
+  name: string
+  value: number
+  children?: NestedObject[]
+}
+
+type OptionsObject<Map> = {
+  [K in keyof Map]: () => Map[K]
+}
+
+type OptionsObjectReamap<Map> = {
+  [K in keyof Map]: (r: OptionsObject<Map>) => Map[K]
+}
+
+function getProviders2<Map extends {}>(contextMap: OptionsObjectReamap<Map>) {
+  return contextMap
+}
+
+let x2 = getProviders2({
+  auth: async () => provideAuthContainer(),
+  aCont: async (ctx) => provideAContainer(await ctx.auth()),
+})
+
 function getProviders(ctx: any) {
   return {
     auth: async () => provideAuthContainer(),
@@ -36,17 +59,3 @@ export function lol() {
   let x = new RootContainer(getProviders)
   return x
 }
-
-// function getProviders2(ctx: any) {
-//   return {
-//     auth: async () => provideAuthContainer(),
-//     aCont: async () => provideAContainer(await ctx.auth()),
-//   }
-// }
-
-// export function lol2() {
-//   let x = new RootContainer(getProviders2)
-//   let l = x.KKK
-//   console.log(l)
-//   return x
-// }

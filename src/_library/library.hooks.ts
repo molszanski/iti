@@ -45,7 +45,6 @@ export function useRootStores<
   ContMap extends {
     [CK in keyof ContMap]: ContMap[CK]
   },
-  ContainerKeys extends keyof ContMap,
   Lol extends {
     [CK in keyof ContMap]: ContMap[CK] extends (...args: any) => any
       ? () => [UnPromisify<ReturnType<ContMap[CK]>>, any]
@@ -57,7 +56,7 @@ export function useRootStores<
   root: RootContainer,
 ) {
   let containerDecoratedMap: {
-    [K in ContainerKeys]: {
+    [K in keyof ContMap]: {
       _key: K
       _container: () => ContMap[K]
       onUpdate: () => void
