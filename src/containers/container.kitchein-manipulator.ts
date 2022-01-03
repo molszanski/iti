@@ -1,5 +1,6 @@
 import { KitchenSizeUIController } from "../stores/_controllers/controller.kitchen"
-import type { AppContainer } from "./_root.store"
+import { provideUpgradedKitchenContainer } from "./container.kitchen"
+import type { PizzaAppContainer } from "./_root.store"
 
 export interface KitchenManipulator_Container {
   kitchenSizeController: KitchenSizeUIController
@@ -10,10 +11,15 @@ export interface KitchenUpgrader {
 }
 
 export async function provideKitchenManipulatorContainer(
-  root: AppContainer,
+  root: PizzaAppContainer,
 ): Promise<KitchenManipulator_Container> {
   let ksc = new KitchenSizeUIController({
-    onKitchenResize: () => root.providerMap.upgradetKitchenContainer(),
+    onKitchenResize: async () => {
+      const currentKitchen = await root.providerMap.kitchen()
+      return await root.replaceCointerInstantly("kitchen", () =>
+        provideUpgradedKitchenContainer(currentKitchen),
+      )
+    },
   })
 
   return {

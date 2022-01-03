@@ -45,7 +45,13 @@ export function useRootStores<
   ContMap extends {
     [CK in keyof ContMap]: ContMap[CK]
   },
-  Lol extends {
+  /**
+   * Basically a nice api for hooks
+   * {
+   *   name: () => [containerInstance, errr ]
+   * }
+   */
+  ContainerGetter extends {
     [CK in keyof ContMap]: ContMap[CK] extends (...args: any) => any
       ? () => [UnPromisify<ReturnType<ContMap[CK]>>, any]
       : never
@@ -78,7 +84,7 @@ export function useRootStores<
     }
   })
 
-  let FFF: Lol = {} as any
+  let FFF: ContainerGetter = {} as any
   _.forEach(containerDecoratedMap, (v, k) => {
     // @ts-ignore
     FFF[k] = () => {

@@ -8,6 +8,25 @@ export const Controls = observer(() => {
     <div className={s.controlsSections}>
       <PizzaPlaceControls />
       <StuffControls />
+      <AuthControls />
+    </div>
+  )
+})
+
+export const AuthControls = observer(() => {
+  const [authCont] = useNewDandy().auth()
+  if (!authCont) return <>AUTH is loading</>
+  const { auth } = authCont
+
+  return (
+    <div>
+      <button onClick={() => auth.changeUser("unauthenticated")}>
+        Sign Out
+      </button>
+      <button onClick={() => auth.changeUser("manager")}>
+        Sign in as Manager
+      </button>
+      <button onClick={() => auth.changeUser("admin")}>Sign in as Admin</button>
     </div>
   )
 })
@@ -28,17 +47,24 @@ export const PizzaPlaceControls = observer(() => {
   const [kitchenCont] = useNewDandy().kitchen()
   const [pizzaPlaceCont] = useNewDandy().pizzaContainer()
   const [kitchenManipulatorCont] = useNewDandy().kitchenManipulator()
+  const [authCont] = useNewDandy().auth()
 
   if (!pizzaPlaceCont) return <>Pizza Place is loading</>
   if (!kitchenCont) return <>Kitchen is loading</>
   if (!kitchenManipulatorCont) return <>Kitchen is loading</>
+  if (!authCont) return <>AUTH is loading</>
 
   const { orderManager } = kitchenCont
   const { pizzaPlace, diningTables } = pizzaPlaceCont
+  const { auth, authroization } = authCont
+
+  const actions = authroization.getAvaliableActions()[authroization.userType]
 
   return (
     <div>
-      <button onClick={() => diningTables.addNewTable()}>Add Table</button>
+      {actions.addTables && (
+        <button onClick={() => diningTables.addNewTable()}>Add Table</button>
+      )}
 
       <button onClick={() => pizzaPlace.openPizzaPlace()}>
         Open Restaurant
@@ -48,25 +74,29 @@ export const PizzaPlaceControls = observer(() => {
       </button>
 
       <br />
-      <button
-        onClick={() =>
-          kitchenManipulatorCont.kitchenSizeController.increaseKitchenSize()
-        }
-      >
-        Increase Kitchen Size
-      </button>
+      {actions.upgradeKitchen && (
+        <button
+          onClick={() =>
+            kitchenManipulatorCont.kitchenSizeController.increaseKitchenSize()
+          }
+        >
+          Increase Kitchen Size
+        </button>
+      )}
 
       {diningTables.tables.map((table) => {
         return (
           <div key={table.name}>
             table: {table.name}
-            <button
-              onClick={() => {
-                orderManager.orderPizza(table)
-              }}
-            >
-              order pizzas
-            </button>
+            {actions.orderPizza && (
+              <button
+                onClick={() => {
+                  orderManager.orderPizza(table)
+                }}
+              >
+                order pizzas
+              </button>
+            )}
           </div>
         )
       })}
