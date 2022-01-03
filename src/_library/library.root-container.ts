@@ -8,11 +8,11 @@ type ValueOf<T> = T[keyof T]
 const allEvents = new Map()
 const allCache = {}
 
-export class RootContainer<
+export class RootContainerInner<
   getProv extends (...args: any) => any,
-  R extends ReturnType<getProv>,
-  GenericContainerRegistry extends {
-    [K in keyof R]: ReturnType<R[K]>
+  R = ReturnType<getProv>,
+  GenericContainerRegistry = {
+    [K in keyof R]: R[K]
   },
 > {
   public providerMap: R
@@ -21,7 +21,7 @@ export class RootContainer<
     // @ts-ignore
     this.providerMap = {}
     // @ts-ignore
-    _.forOwn(getProviders(this.providerMap), (v: any, k: any) => {
+    _.forOwn(getProviders(this.providerMap, this), (v: any, k: any) => {
       //@ts-ignore
       this.providerMap[k] = () => {
         return this.getGenericContainer(k, v)
@@ -121,3 +121,7 @@ export class RootContainer<
   //   }
   // }
 }
+
+export class RootContainer<
+  T extends (...args: any) => any,
+> extends RootContainerInner<T> {}
