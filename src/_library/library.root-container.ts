@@ -11,11 +11,10 @@ const allCache = {}
 export class RootContainerInner<
   getProv extends (...args: any) => any,
   R = ReturnType<getProv>,
-  GenericContainerRegistry = {
-    [K in keyof R]: R[K]
-  },
 > {
   public providerMap: R
+  // @ts-ignore
+  public haha: R
 
   constructor(getProviders: getProv) {
     // @ts-ignore
@@ -34,8 +33,8 @@ export class RootContainerInner<
    */
   private ee = mitt<{
     containerUpdated: {
-      key: keyof GenericContainerRegistry
-      newContainer: ValueOf<GenericContainerRegistry>
+      key: keyof R
+      newContainer: ValueOf<R>
     }
   }>(allEvents)
   public on = this.ee.on
@@ -43,11 +42,11 @@ export class RootContainerInner<
   /**
    * Cache
    */
-  private containerCache: Partial<GenericContainerRegistry> = allCache
+  private containerCache: Partial<R> = allCache
 
-  public async getGenericContainer<T extends ValueOf<GenericContainerRegistry>>(
-    key: keyof GenericContainerRegistry,
-    containerProvider: () => T,
+  public async getGenericContainer<T extends keyof R>(
+    key: T,
+    containerProvider: () => R[T],
   ): Promise<T> {
     if (this.containerCache[key] == null) {
       const containerPromise = containerProvider()
@@ -74,21 +73,21 @@ export class RootContainerInner<
   /**
    * Clear first, then slowly recreate
    */
-  public async replaceCointerInstantly<
-    T extends ValueOf<GenericContainerRegistry>,
-  >(
-    key: keyof GenericContainerRegistry,
-    containerProvider: () => T,
-  ): Promise<T> {
+  public async replaceCointerInstantly<T extends keyof R>(
+    key: T,
+    containerProvider: R[T],
+  ) {
     delete this.containerCache[key]
+    // for some reasone we do
+    //@ts-ignore
     return this.getGenericContainer(key, containerProvider)
   }
 
   /**
    * Kinda like stale while rewalidate
    */
-  public async replaceCointerAsync<T extends ValueOf<GenericContainerRegistry>>(
-    key: keyof GenericContainerRegistry,
+  public async replaceCointerAsync<T extends ValueOf<R>>(
+    key: keyof R,
     containerProvider: () => T,
   ): Promise<T> {
     const containerPromise = await containerProvider()
@@ -102,7 +101,7 @@ export class RootContainerInner<
 
   // Commented out because they seem to not be needed yet
 
-  // public hasContainer(key: keyof GenericContainerRegistry): Boolean {
+  // public hasContainer(key: keyof R): Boolean {
   //   if (this.containerCache[key] == null) {
   //     return false
   //   }
@@ -110,8 +109,8 @@ export class RootContainerInner<
   // }
 
   // public async getContainer(
-  //   key: keyof GenericContainerRegistry,
-  // ): Promise<ValueOf<GenericContainerRegistry>> {
+  //   key: keyof R,
+  // ): Promise<ValueOf<R>> {
   //   if (this.containerCache[key] == null) {
   //     throw new Error("NO no tak się nie bawimy")
   //   } else {
