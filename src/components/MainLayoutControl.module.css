@@ -1,0 +1,17 @@
+.controls {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  grid-template-rows: 3fr 1fr;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+
+.main {
+  grid-area: 1 / 1 / 2 / 2;
+}
+.aside {
+  grid-area: 1 / 2 / 2 / 3;
+}
+.bottom {
+  grid-area: 2 / 1 / 3 / 3;
+}

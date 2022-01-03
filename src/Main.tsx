@@ -1,5 +1,9 @@
 import React from "react"
-import { useAContainer } from "./stores/_container.hooks"
+import cx from "classnames"
+import { useNewDandy } from "./containers/_container.hooks"
+import { PizzaPlace } from "./components/PizzaPlace"
+import s from "./Main.module.css"
+import { MainLayoutControl } from "./components/MainLayoutControl"
 
 export const Main = () => {
   return (
@@ -10,13 +14,15 @@ export const Main = () => {
 }
 
 export const Profile = () => {
-  const { container } = useAContainer()
-  if (!container) return null
-  const { a1, a2 } = container
+  const [a] = useNewDandy().aCont()
+  if (!a) return null
+  const { a1, a2 } = a
 
   return (
     <>
       <span>{a1.getName()}</span>
+
+      <MainLayoutControl />
     </>
   )
 }

@@ -6,6 +6,7 @@ export interface A_Container {
   a2: A2
   a3: A3
 }
+
 export async function provideAContainer(
   auth: AuthContainer,
 ): Promise<A_Container> {

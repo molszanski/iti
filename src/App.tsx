@@ -1,18 +1,23 @@
-import React, { useState, useEffect, useMemo } from "react"
-import { RootStoreContext, useAContainer } from "./stores/_container.hooks"
-import { RootContainer } from "./stores/_root.store"
+import { configure } from "mobx"
+import React, { useMemo } from "react"
+import { RootStoreContext2 } from "./containers/_container.hooks"
+import { lol } from "./containers/_root.store"
 import "./App.css"
 import { Main } from "./Main"
+
+// don't allow state modifications outside actions
+configure({ enforceActions: "always" })
 
 interface AppProps {}
 
 function App({}: AppProps) {
-  const store = useMemo(() => new RootContainer(), [])
+  const store2 = useMemo(() => lol(), [])
+
   return (
     <div className="App">
-      <RootStoreContext.Provider value={store}>
+      <RootStoreContext2.Provider value={store2}>
         <Main />
-      </RootStoreContext.Provider>
+      </RootStoreContext2.Provider>
     </div>
   )
 }
