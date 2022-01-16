@@ -56,15 +56,6 @@ export const KitchenData = observer(() => {
           <h4>Ingredients:</h4>
           <Inventory />
         </div>
-        <div>
-          <h4>Ingredients:</h4>
-          <Inventory2 />
-        </div>
-
-        <div>
-          <h4>Ingredients:</h4>
-          <Inventory3 />
-        </div>
       </div>
     </>
   )
@@ -82,47 +73,6 @@ export const Inventory = observer(() => {
             {name} - {count}
           </li>
         ))}
-      </ul>
-    </>
-  )
-})
-
-export const Inventory2 = observer(() => {
-  const [kitchenCont] = useNewDandy().kitchen()
-  if (!kitchenCont) return <>Kitchen is loading</>
-  const { ingredients } = kitchenCont
-
-  return (
-    <>
-      <strong>Other ingredients</strong>
-      <ul>
-        {ingredients.ingredientsStats.map(([name, count], idx) => (
-          <li key={idx}>
-            {name} - {count}
-          </li>
-        ))}
-      </ul>
-    </>
-  )
-})
-
-export const Inventory3 = observer(() => {
-  const [kitchenCont] = useNewDandy().kitchen()
-  if (!kitchenCont) return <>Kitchen is loading</>
-  const { ingredients } = kitchenCont
-
-  return (
-    <>
-      <strong>Other ingredients</strong>
-      <ul>
-        {
-          // @ts-ignore
-          ingredients.ingredientsStats.map(([name, count], idx: any) => (
-            <li key={idx}>
-              {name} - {count}
-            </li>
-          ))
-        }
       </ul>
     </>
   )

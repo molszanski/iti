@@ -2,8 +2,8 @@ import { configure } from "mobx"
 import React, { useMemo } from "react"
 import { RootStoreContext2 } from "./containers/_container.hooks"
 import { getMainPizzaAppContainer } from "./containers/_root.store"
-import "./App.css"
 import { Main } from "./Main"
+import "./App.css"
 
 // don't allow state modifications outside actions
 configure({ enforceActions: "always" })

@@ -7,6 +7,7 @@ import { provideBContainer } from "./container.b"
 import { provideKitchenManipulatorContainer } from "./container.kitchein-manipulator"
 import { providePizzaPlaceContainer } from "./container.pizza-place"
 import { provideKitchenContainer } from "./container.kitchen"
+import { provideFatLib1 } from "./container.fat-lib1"
 
 interface PizzaRegistry {
   auth: () => ReturnType<typeof provideAuthContainer>
@@ -17,6 +18,7 @@ interface PizzaRegistry {
   kitchenManipulator: () => ReturnType<
     typeof provideKitchenManipulatorContainer
   >
+  fatlib1: () => ReturnType<typeof provideFatLib1>
 }
 export type PizzaAppContainer = RootContainer<() => PizzaRegistry>
 
@@ -31,6 +33,9 @@ function getProviders(ctx: PizzaRegistry, root: PizzaAppContainer) {
     kitchen: async () => provideKitchenContainer(),
 
     kitchenManipulator: async () => provideKitchenManipulatorContainer(root),
+
+    // fat libs
+    fatlib1: async () => provideFatLib1(),
   }
 }
 

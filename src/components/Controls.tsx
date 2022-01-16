@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { useNewDandy } from "../containers/_container.hooks"
 import s from "./Controls.module.css"
@@ -8,9 +8,48 @@ export const Controls = observer(() => {
     <div className={s.controlsSections}>
       <PizzaPlaceControls />
       <StuffControls />
+      <AdminControls />
       <AuthControls />
     </div>
   )
+})
+
+export const AdminControls = observer(() => {
+  const [authCont] = useNewDandy().auth()
+  const [showFatLib1, setShowFatLib1] = useState(false)
+  if (!authCont) return <>AUTH is loading</>
+
+  if (authCont.authroization.userType !== "admin") {
+    return null
+  }
+
+  return (
+    <div>
+      <br />
+      <button onClick={() => setShowFatLib1(true)}>downloads fatlib</button>
+      {showFatLib1 && <FatLibData />}
+    </div>
+  )
+})
+
+export const FatLibData = observer(() => {
+  const [fatLibData, setShowFatLibData] = useState("")
+  const [fatlib] = useNewDandy().fatlib1()
+  useEffect(() => {
+    console.log("running fatlib hook")
+    if (fatlib != null) {
+      fatlib.getFatLibData().then((data) => {
+        setShowFatLibData("data")
+      })
+    }
+  }, [fatlib])
+  if (!fatlib) return <>fatlib is loading</>
+
+  if (fatLibData.length == 0) {
+    return null
+  }
+
+  return <div>I can haz fat lib data 1</div>
 })
 
 export const AuthControls = observer(() => {
