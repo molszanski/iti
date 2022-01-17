@@ -1,16 +1,11 @@
-import {
-  makeObservable,
-  makeAutoObservable,
-  observable,
-  computed,
-  action,
-} from "mobx"
+import { makeObservable, makeAutoObservable, observable, action } from "mobx"
+import type { FatLib2_3MB } from "../fat-libs/fat-lib2"
 
 export class PizzaPlace {
   public isOpen = false
   public name = "Rocket Pizza"
 
-  constructor() {
+  constructor(private fatlib: () => Promise<FatLib2_3MB>) {
     console.log("new pizza place")
     // makeAutoObservable(this)
     makeObservable(this, {
@@ -26,6 +21,11 @@ export class PizzaPlace {
 
   public closePizzaPlace() {
     this.isOpen = false
+  }
+
+  public async getFatLibImage() {
+    const fatLib = await this.fatlib()
+    return fatLib.getData()
   }
 }
 

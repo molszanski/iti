@@ -20,9 +20,6 @@ export async function provideKitchenContainer(): Promise<Kitchen_Container> {
 
   let kitchen = new Kitchen(oven, ingredients)
   let orders = new OrderManager(kitchen)
-  // let ksc = new KitchenSizeUIController({
-  //   onKitchenResize: controls.upgradeKitchenConatiner,
-  // })
 
   return {
     oven: oven,
@@ -37,7 +34,7 @@ export async function provideUpgradedKitchenContainer(
 ): Promise<Kitchen_Container> {
   let biggerOven = new Oven(8)
 
-  // Here is one way of data migration
+  // This is one way of migrating data
   let kitchen = new Kitchen(biggerOven, prevContainer.ingredients)
   let orderManager = new OrderManager(kitchen)
   orderManager.orders = prevContainer.orderManager.orders
@@ -46,7 +43,6 @@ export async function provideUpgradedKitchenContainer(
     oven: biggerOven,
     orderManager: orderManager,
     ingredients: prevContainer.ingredients,
-    // kitchenSizeController: prevContainer.kitchenSizeController,
     kitchen: kitchen,
   }
 }

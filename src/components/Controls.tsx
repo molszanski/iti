@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { observer } from "mobx-react-lite"
 import { useNewDandy } from "../containers/_container.hooks"
 import s from "./Controls.module.css"
@@ -33,23 +33,10 @@ export const AdminControls = observer(() => {
 })
 
 export const FatLibData = observer(() => {
-  const [fatLibData, setShowFatLibData] = useState("")
   const [fatlib] = useNewDandy().fatlib1()
-  useEffect(() => {
-    console.log("running fatlib hook")
-    if (fatlib != null) {
-      fatlib.getFatLibData().then((data) => {
-        setShowFatLibData("data")
-      })
-    }
-  }, [fatlib])
   if (!fatlib) return <>fatlib is loading</>
 
-  if (fatLibData.length == 0) {
-    return null
-  }
-
-  return <div>I can haz fat lib data 1</div>
+  return <div>I can haz fat lib data 1: {fatlib.fatLibData}</div>
 })
 
 export const AuthControls = observer(() => {
@@ -122,6 +109,11 @@ export const PizzaPlaceControls = observer(() => {
           Increase Kitchen Size
         </button>
       )}
+
+      <br />
+      <button onClick={() => pizzaPlace.getFatLibImage()}>
+        Get important stuff from fat lib 2
+      </button>
 
       {diningTables.tables.map((table) => {
         return (
