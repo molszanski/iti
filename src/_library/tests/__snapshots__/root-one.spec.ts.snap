@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should get two containers that are async 1`] = `
+Object {
+  "aCont": Object {
+    "a1": Object {},
+    "a2": Object {
+      "a1": Object {},
+    },
+    "a3": Object {
+      "a1": Object {},
+      "a2": Object {
+        "a1": Object {},
+      },
+    },
+  },
+  "bCont": Object {
+    "b1": Object {
+      "a2": Object {
+        "a1": Object {},
+      },
+    },
+    "b2": Object {
+      "a1": Object {},
+    },
+  },
+}
+`;

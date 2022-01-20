@@ -63,7 +63,7 @@ export function useRootStores<
       : never
   },
 >(
-  containerMap: ContMap,
+  providerMap: ContMap,
   //@ts-ignore
   root: RootContainer,
 ) {
@@ -75,7 +75,7 @@ export function useRootStores<
     }
   } = {} as any
 
-  _.forEach(containerMap, (contPromise, contKey) => {
+  _.forEach(providerMap, (contPromise, contKey) => {
     // @ts-ignore
     containerDecoratedMap[contKey] = {
       _container: contPromise,
