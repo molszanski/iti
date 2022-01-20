@@ -51,3 +51,4 @@
 // // runStuff().then(() => {
 // //   console.log("done")
 // // })
+export const x = { a: 12 }
