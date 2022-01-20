@@ -40,9 +40,6 @@ export class Ingredients {
 
   public get ingredientsStats() {
     const stats = _countBy(this.ingredients, (ing) => ing.name)
-    for (let k in stats) {
-      console.log(k)
-    }
     return Object.entries(stats)
   }
 }

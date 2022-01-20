@@ -8,7 +8,6 @@ export const PizzaPlace = observer(() => {
   const [pizza] = useNewDandy().pizzaContainer()
   if (!pizza) return <>Pizza Place is loading</>
 
-  console.log("pizza", pizza)
   const { pizzaPlace, diningTables } = pizza
 
   return (

@@ -2,8 +2,11 @@ import React, { useContext, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { useNewDandy } from "../containers/_container.hooks"
 import s from "./Controls.module.css"
-import type { Kitchen_Container } from "src/containers/container.kitchen"
-import type { PizzaPlace_Container } from "src/containers/container.pizza-place"
+import {
+  EnsureKitchenConainer,
+  EnsureLol,
+  useKitchenContext,
+} from "./EnsureKitchen"
 
 export const Controls = observer(() => {
   return (
@@ -12,6 +15,7 @@ export const Controls = observer(() => {
       <EnsureKitchenConainer>
         <NewPizzaPlaceControls />
       </EnsureKitchenConainer>
+      <EnsureLol />
       <StuffControls />
       <AdminControls />
       <AuthControls />
@@ -46,6 +50,7 @@ export const FatLibData = observer(() => {
 
 export const AuthControls = observer(() => {
   const [authCont] = useNewDandy().auth()
+
   if (!authCont) return <>AUTH is loading</>
   const { auth } = authCont
 
@@ -71,51 +76,6 @@ export const StuffControls = observer(() => {
     <div>
       <button onClick={() => console.log("sdfsd")}>Stuff with URl</button>
     </div>
-  )
-})
-
-export interface EnsureKitchenContext {
-  kitchenCont: Kitchen_Container
-  pizzaPlaceCont: PizzaPlace_Container
-}
-export const EnsureKitchenReactContext =
-  React.createContext<EnsureKitchenContext>({} as any)
-
-function useKitchenContext() {
-  return useContext(EnsureKitchenReactContext)
-}
-
-interface MyProps {
-  children: React.ReactNode
-}
-export const EnsureKitchenConainer = observer((props: MyProps) => {
-  const [all, setAll] = useState<EnsureKitchenContext>({} as any)
-
-  const [kitchenCont] = useNewDandy().kitchen()
-  const [pizzaPlaceCont] = useNewDandy().pizzaContainer()
-  const [kitchenManipulatorCont] = useNewDandy().kitchenManipulator()
-  const [authCont] = useNewDandy().auth()
-
-  useEffect(() => {
-    setAll({
-      kitchenCont: kitchenCont,
-      pizzaPlaceCont: pizzaPlaceCont,
-    })
-  }, [kitchenCont, pizzaPlaceCont])
-
-  if (
-    !all.pizzaPlaceCont ||
-    !all.kitchenCont ||
-    !kitchenManipulatorCont ||
-    !authCont
-  ) {
-    return <>Kitchen is loading</>
-  }
-
-  return (
-    <EnsureKitchenReactContext.Provider value={all}>
-      {props.children}
-    </EnsureKitchenReactContext.Provider>
   )
 })
 

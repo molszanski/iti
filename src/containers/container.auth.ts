@@ -9,7 +9,7 @@ export interface AuthContainer {
 
 export async function provideAuthContainer(): Promise<AuthContainer> {
   const auth = new Auth()
-  await wait(500)
+  await wait(50)
   await auth.getToken()
   let x = await auth.getUserType()
   return {
