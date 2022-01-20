@@ -1,5 +1,6 @@
 import mitt from "mitt"
 import _ from "lodash"
+import { UnPromisify } from "./_utils"
 type ValueOf<T> = T[keyof T]
 
 /**
@@ -26,6 +27,28 @@ export class RootContainerInner<
         return this.getGenericContainer(k, v)
       }
     })
+  }
+
+  /**
+   * We can actually extract this into a wrapper class
+   */
+  public async getContainerSet<T extends keyof R>(b: T[]) {
+    let fWithProm = b.map((containerKey) => this.providerMap[containerKey])
+
+    // @ts-expect-error
+    let allProm = fWithProm.map((el) => el())
+
+    let containerDecoratedMap: {
+      // @ts-ignore
+      [K in T]: UnPromisify<ReturnType<R[K]>>
+    } = {} as any
+
+    const x = await Promise.all(allProm)
+
+    b.forEach((containerKey, index) => {
+      containerDecoratedMap[containerKey] = x[index]
+    })
+    return containerDecoratedMap
   }
 
   /**

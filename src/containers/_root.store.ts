@@ -1,4 +1,3 @@
-import _ from "lodash"
 import { RootContainer } from "../_library/library.root-container"
 
 import { provideAContainer } from "./container.a"
