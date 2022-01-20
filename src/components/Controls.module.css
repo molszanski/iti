@@ -4,3 +4,8 @@
   height: 100%;
   justify-content: space-around;
 }
+
+.controlsSections > * + * {
+  border-top: 1px solid lightgray;
+  padding-top: 16px;
+}

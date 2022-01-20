@@ -1,8 +1,14 @@
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
 .App {
   text-align: center;
 }
 .App code {
-  background: #FFF3;
+  background: #fff3;
   padding: 4px 8px;
   border-radius: 4px;
 }

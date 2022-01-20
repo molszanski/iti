@@ -7,7 +7,7 @@ export interface B_Container {
 
 export async function provideConfigContainer(): Promise<B_Container> {
   const b1 = getDayType()
-  await wait(200)
+  await wait(90)
 
   return {
     dayType: b1,

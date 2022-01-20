@@ -6,14 +6,20 @@ import React, { useState, useEffect } from "react"
 export type ContainerGeneric<T> = {
   container?: T
   error?: Error
+  key?: string
 }
 
-export type ContainerGenericBettter<T> = [container?: T, error?: Error]
+export type ContainerGenericBettter<T> = [
+  container?: T,
+  error?: Error,
+  key?: string,
+]
 
 export function useBetterGenericContainer<T>(
   containerPromise: () => Promise<T>,
-  controls?: {
+  controls: {
     onContainerUpdate(cb: (container: T) => void): void
+    containerKey: string
   },
 ): ContainerGenericBettter<T> {
   const [data, setData] = useState<any>(undefined)
@@ -37,7 +43,7 @@ export function useBetterGenericContainer<T>(
       .catch((e) => setError(e))
   }, [])
 
-  return [data, error]
+  return [data, error, controls.containerKey]
 }
 
 type UnPromisify<T> = T extends Promise<infer U> ? U : T
@@ -53,7 +59,7 @@ export function useRootStores<
    */
   ContainerGetter extends {
     [CK in keyof ContMap]: ContMap[CK] extends (...args: any) => any
-      ? () => [UnPromisify<ReturnType<ContMap[CK]>>, any]
+      ? () => [UnPromisify<ReturnType<ContMap[CK]>>, any, CK]
       : never
   },
 >(
@@ -91,6 +97,7 @@ export function useRootStores<
       const cont = v._container
       const retCont = useBetterGenericContainer(cont, {
         onContainerUpdate: v.onUpdate,
+        containerKey: k,
       })
 
       return retCont
