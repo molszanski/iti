@@ -11,13 +11,22 @@ it("should get two containers that are async", async () => {
   expect(containerSet).toMatchSnapshot(containerSet)
 })
 
-// it.only("should subscribe to container set change", async () => {
-//   const cont = getMainMockAppContainer()
-//   let containerSet = await cont.getContainerSet(["aCont", "bCont"])
+it.only("should subscribe to container set change", (cb) => {
+  ;(async () => {
+    const cont = getMainMockAppContainer()
+    let containerSet = await cont.getContainerSet(["aCont", "bCont", "cCont"])
 
-//   expect(containerSet).toHaveProperty("aCont")
-//   expect(containerSet).toHaveProperty("bCont")
-//   expect(containerSet.bCont.b2).toMatchObject({ a1: {} })
+    expect(containerSet).toHaveProperty("aCont")
+    expect(containerSet).toHaveProperty("bCont")
+    expect(containerSet.bCont.b2).toMatchObject({ a1: {} })
+    expect(containerSet.cCont.c2.size).toBe(5)
 
-//   expect(containerSet).toMatchSnapshot(containerSet)
-// })
+    containerSet.cCont.upgradeCContainer()
+    cont.subscribeToContinerSet(["aCont", "bCont", "cCont"], (containerSet) => {
+      expect(containerSet.cCont.c2.size).toBe(10)
+      cb()
+    })
+  })()
+})
+
+it.skip("should be able to unsubscribe from container set change", (cb) => {})
