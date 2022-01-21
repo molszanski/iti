@@ -1,13 +1,11 @@
 import _ from "lodash"
+import { wait } from "../_library/_utils"
 import { getMainPizzaAppContainer } from "./_root.store"
 
-it.only("lol", async () => {
-  let a = 12
-
-  const cont = getMainPizzaAppContainer()
-
-  let m = await cont.getContainerSet(["aCont", "bCont", "auth"])
-  console.log("~~~!!!", m)
-
-  expect(a).toBe(12)
+it.only("lol", (cb) => {
+  ;(async () => {
+    let a = 12
+    expect(a).toBe(12)
+    cb()
+  })()
 })

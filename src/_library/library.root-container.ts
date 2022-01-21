@@ -32,6 +32,28 @@ export class RootContainerInner<
   /**
    * We can actually extract this into a wrapper class
    */
+  public subscribeToContinerSet<T extends keyof R>(
+    tokens: T[],
+    cb: (
+      containerSet: Awaited<{
+        // @ts-ignore
+        [K in T]: UnPromisify<ReturnType<R[K]>>
+      }>,
+    ) => void,
+  ): void {
+    this.on("containerUpdated", async (ev) => {
+      // @ts-ignore
+      if (tokens.includes(ev.key)) {
+        let s = await this.getContainerSet(tokens)
+        // @ts-ignore
+        cb(s)
+      }
+    })
+  }
+
+  /**
+   * We can actually extract this into a wrapper class
+   */
   public async getContainerSet<T extends keyof R>(b: T[]) {
     let fWithProm = b.map((containerKey) => this.providerMap[containerKey])
 

@@ -3,13 +3,15 @@ import type { Ingredients } from "./store.ingrediets"
 import type { Oven } from "./store.oven"
 import { Pizza } from "./store.pizza"
 import type { Table } from "./store.pizza-place"
+import debug from "debug"
+const log = debug("oven")
 
 export class Kitchen {
   public kitchenName: string
 
   constructor(private oven: Oven, private ingredients: Ingredients) {
     this.kitchenName = "Random Name " + Math.round(Math.random() * 100)
-    console.log("new kitchen: " + this.kitchenName)
+    log("new kitchen: " + this.kitchenName)
 
     makeAutoObservable(this)
   }
