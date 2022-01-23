@@ -24,7 +24,7 @@ interface PizzaRegistry {
 }
 export type PizzaAppContainer = RootContainer<() => PizzaRegistry>
 
-function getProviders(ctx: PizzaRegistry, root: PizzaAppContainer) {
+export function getProviders(ctx: PizzaRegistry, root: PizzaAppContainer) {
   return {
     auth: async () => provideAuthContainer(),
     aCont: async () => provideAContainer(await ctx.auth()),
