@@ -1,5 +1,6 @@
 import _ from "lodash"
 import { RootContainer } from "../../library.root-container"
+import { UnPromisify } from "../../_utils"
 
 import { provideAContainer } from "./container.a"
 import { provideBContainer } from "./container.b"
@@ -20,6 +21,33 @@ function getProviders(ctx: Registry, root: MockAppContainer) {
       provideCContainer(await ctx.aCont(), await ctx.bCont(), root),
   }
 }
+
+type ContExtractor<
+  IncLib extends (...args: any) => {
+    [k: string]: () => Promise<unknown>
+  },
+> = {
+  lib: {
+    [S in keyof ReturnType<IncLib>]: UnPromisify<
+      ReturnType<ReturnType<IncLib>[S]>
+    >
+  }
+  keys: keyof ReturnType<IncLib>
+}
+
+type F = ContExtractor<typeof getProviders>
+
+async function useShit<Token extends keyof ReturnType<typeof getProviders>>(
+  b: Token[],
+): Promise<{
+  [S in Token]: UnPromisify<ReturnType<ReturnType<typeof getProviders>[S]>>
+}> {
+  let root = getMainMockAppContainer()
+  let k = await root.getContainerSet(b)
+  return k
+}
+
+let a = useShit(["cCont", "bCont"]).then((dupa) => console.log(dupa))
 
 export function getMainMockAppContainer() {
   return new RootContainer(getProviders)

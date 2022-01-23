@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react"
-import { useNewDandy } from "../containers/_container.hooks"
+import { useNewDandy, useShit } from "../containers/_container.hooks"
 import type { Kitchen_Container } from "../containers/container.kitchen"
 import type { PizzaPlace_Container } from "../containers/container.pizza-place"
 import type {
@@ -7,6 +7,7 @@ import type {
   PizzaAppContainer,
 } from "../containers/_root.store"
 import { useRootStores } from "../_library/library.hooks"
+import { observer } from "mobx-react-lite"
 
 export interface EnsureKitchenContext {
   kitchenCont: Kitchen_Container
@@ -64,40 +65,49 @@ const useFancy = (p: ContainerKeys) => {
   return lol
 }
 
-export const EnsureLol = () => {
-  const [all, setAll] = useState(null as any)
-  console.log("ensure start")
-  // const { kitchen } = useFancy()
-  const containers = useFancy(["kitchen", "fatlib1"])
-  console.log("ensure end")
+export const EnsureLol = observer(() => {
+  let containerSet = useShit(["aCont", "bCont"])
+  console.log("lol")
+  if (!containerSet) return <>Pizza Place is loading</>
+  console.log("ready set", containerSet)
+  return <>123</>
+  // containerSet
 
-  return <>"happy"</>
-  // let x = [
-  //   useNewDandy().kitchen(),
-  //   useNewDandy().pizzaContainer(),
-  //   useNewDandy().kitchenManipulator(),
-  //   useNewDandy().auth(),
-  // ]
-  // console.log(x)
-  // const outs = x.map((p) => p[0])
-  // useEffect(() => {
-  //   Promise.all(outs).then(() => {
-  //     console.log("loaded")
-  //     setAll({
-  //       kitchen: outs[0],
-  //       pizzaPlaceCont: outs[1],
-  //     })
-  //   })
-  // }, outs)
+  // return (
+  //   <>
+  //     <div className={cx(s.pizzaPlace, s.bricks)}>
+  //       <h3>Pizza Place: {pizzaPlace.name}</h3>
+  //       <h3>Open?: {pizzaPlace.isOpen ? "true" : "false"}</h3>
+  //       <h3>Dining Tables: {diningTables.tables.length}</h3>
+  //     </div>
+  //   </>
+  // )
+})
+// let x = [
+//   useNewDandy().kitchen(),
+//   useNewDandy().pizzaContainer(),
+//   useNewDandy().kitchenManipulator(),
+//   useNewDandy().auth(),
+// ]
+// console.log(x)
+// const outs = x.map((p) => p[0])
+// useEffect(() => {
+//   Promise.all(outs).then(() => {
+//     console.log("loaded")
+//     setAll({
+//       kitchen: outs[0],
+//       pizzaPlaceCont: outs[1],
+//     })
+//   })
+// }, outs)
 
-  // console.log("££££", all)
+// console.log("££££", all)
 
-  // if (all == null) {
-  //   return <>Kitchen is loading</>
-  // }
+// if (all == null) {
+//   return <>Kitchen is loading</>
+// }
 
-  // return <>name: {all.pizzaPlaceCont.pizzaPlace.name}</>
-}
+// return <>name: {all.pizzaPlaceCont.pizzaPlace.name}</>
 
 export const RootStoreContext3 = React.createContext<
   ReturnType<typeof getMainPizzaAppContainer>
