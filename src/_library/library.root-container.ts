@@ -9,20 +9,21 @@ type ValueOf<T> = T[keyof T]
 const allEvents = new Map()
 const allCache = {}
 
+type GenericProviderSignature = (...args: any) => {
+  [s: string]: () => Promise<any>
+}
+
 export class RootContainerInner<
-  getProv extends (...args: any) => any,
+  getProv extends GenericProviderSignature,
   R = ReturnType<getProv>,
 > {
-  public providerMap: R
-  // @ts-ignore
-  public haha: R
+  public providerMap: ReturnType<getProv>
 
   constructor(getProviders: getProv) {
-    // @ts-ignore
+    // @ts-expect-error
     this.providerMap = {}
-    // @ts-ignore
     _.forOwn(getProviders(this.providerMap, this), (v: any, k: any) => {
-      //@ts-ignore
+      // @ts-expect-error
       this.providerMap[k] = () => {
         return this.getGenericContainer(k, v)
       }
@@ -32,20 +33,16 @@ export class RootContainerInner<
   /**
    * We can actually extract this into a wrapper class
    */
-  public subscribeToContinerSet<T extends keyof R>(
+  public subscribeToContinerSet<T extends keyof ReturnType<getProv>>(
     tokens: T[],
-    cb: (
-      containerSet: Awaited<{
-        // @ts-ignore
-        [K in T]: UnPromisify<ReturnType<R[K]>>
-      }>,
-    ) => void,
+    cb: (containerSet: {
+      [K in T]: UnPromisify<ReturnType<ReturnType<getProv>[K]>>
+    }) => void,
   ): void {
     this.on("containerUpdated", async (ev) => {
-      // @ts-ignore
+      // @ts-expect-error
       if (tokens.includes(ev.key)) {
         let s = await this.getContainerSet(tokens)
-        // @ts-ignore
         cb(s)
       }
     })
@@ -54,15 +51,13 @@ export class RootContainerInner<
   /**
    * We can actually extract this into a wrapper class
    */
-  public async getContainerSet<T extends keyof R>(b: T[]) {
+  public async getContainerSet<T extends keyof ReturnType<getProv>>(b: T[]) {
     let fWithProm = b.map((containerKey) => this.providerMap[containerKey])
 
-    // @ts-expect-error
     let allProm = fWithProm.map((el) => el())
 
     let containerDecoratedMap: {
-      // @ts-ignore
-      [K in T]: UnPromisify<ReturnType<R[K]>>
+      [K in T]: UnPromisify<ReturnType<ReturnType<getProv>[K]>>
     } = {} as any
 
     const x = await Promise.all(allProm)
@@ -124,7 +119,7 @@ export class RootContainerInner<
   ) {
     delete this.containerCache[key]
     // for some reasone we do
-    //@ts-ignore
+    // @ts-expect-error
     return this.getGenericContainer(key, containerProvider)
   }
 
