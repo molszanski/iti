@@ -13,7 +13,7 @@ type GenericProviderSignature = (...args: any) => {
   [s: string]: () => Promise<any>
 }
 
-export class RootContainerInner<
+export class RootContainer<
   getProv extends GenericProviderSignature,
   R = ReturnType<getProv>,
 > {
@@ -160,7 +160,3 @@ export class RootContainerInner<
   //   }
   // }
 }
-
-export class RootContainer<
-  T extends (...args: any) => any,
-> extends RootContainerInner<T> {}

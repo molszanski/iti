@@ -25,14 +25,19 @@ type ContainerGetter<
 type ContainerKeys<providerFun extends (...args: any) => any> =
   keyof ReturnType<providerFun>
 
-export function useShit<Token extends ContainerKeys<typeof getProviders>>(
-  b: Token[],
-): {
-  [S in Token]: ContainerGetter<typeof getProviders, S>
-} {
-  const [all, setAll] = useState<{
-    [S in Token]: ContainerGetter<typeof getProviders, S>
-  }>(null as any)
+type ContainerSet<
+  Token extends string,
+  providerFun extends (...args: any) => any,
+> = {
+  [S in Token]: ContainerGetter<providerFun, S>
+}
+
+export function useContainerSet<
+  Token extends ContainerKeys<typeof getProviders>,
+>(b: Token[]): ContainerSet<Token, typeof getProviders> {
+  const [all, setAll] = useState<ContainerSet<Token, typeof getProviders>>(
+    null as any,
+  )
   const root = useRoot2()
 
   useEffect(() => {
@@ -43,10 +48,3 @@ export function useShit<Token extends ContainerKeys<typeof getProviders>>(
 
   return all
 }
-
-async function l() {
-  const root = useRoot2()
-  let a = await root.getContainerSet(["aCont"])
-}
-
-l()
