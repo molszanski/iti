@@ -1,37 +1,40 @@
-import React, { useContext, useEffect, useState } from "react"
-import { useNewDandy, useContainerSet } from "../containers/_container.hooks"
-import type { Kitchen_Container } from "../containers/container.kitchen"
-import type { PizzaPlace_Container } from "../containers/container.pizza-place"
-import { observer } from "mobx-react-lite"
-import { AuthContainer } from "../containers/container.auth"
-import { KitchenManipulator_Container } from "../containers/container.kitchein-manipulator"
+import React, { useContext } from "react"
+import { useContainerSet } from "../containers/_container.hooks"
 
-export interface EnsureKitchenContext {
-  kitchen: Kitchen_Container
-  pizzaContainer: PizzaPlace_Container
-  auth: AuthContainer
-  kitchenManipulator: KitchenManipulator_Container
+function generateHooks<Hook extends (...args: any) => any>(
+  containerSetGetterHook: Hook,
+) {
+  type ContainerSetContext = ReturnType<typeof containerSetGetterHook>
+
+  const EnsureReactContext = React.createContext<ContainerSetContext>({} as any)
+
+  function useThatContext() {
+    return useContext(EnsureReactContext)
+  }
+
+  const EnsureConainer = (props: {
+    fallback: React.ReactNode
+    children: React.ReactNode
+  }) => {
+    let containerSet = containerSetGetterHook()
+    if (!containerSet) return <>Pizza Place is loading</>
+
+    return (
+      <EnsureReactContext.Provider value={containerSet}>
+        {props.children}
+      </EnsureReactContext.Provider>
+    )
+  }
+
+  return {
+    EnsureWrapper: EnsureConainer,
+    contextHook: useThatContext,
+  }
 }
-export const EnsureKitchenReactContext =
-  React.createContext<EnsureKitchenContext>({} as any)
 
-export function useKitchenContext() {
-  return useContext(EnsureKitchenReactContext)
-}
+const x = generateHooks(() =>
+  useContainerSet(["kitchen", "pizzaContainer", "auth"]),
+)
 
-export const EnsureKitchenConainer = (props: { children: React.ReactNode }) => {
-  let containerSet = useContainerSet([
-    "kitchen",
-    "pizzaContainer",
-    "auth",
-    "kitchenManipulator",
-  ])
-
-  if (!containerSet) return <>Pizza Place is loading</>
-
-  return (
-    <EnsureKitchenReactContext.Provider value={containerSet}>
-      {props.children}
-    </EnsureKitchenReactContext.Provider>
-  )
-}
+export const EnsureNewKitchenConainer = x.EnsureWrapper
+export const useNewKitchenContext = x.contextHook

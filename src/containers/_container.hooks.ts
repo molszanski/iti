@@ -46,5 +46,11 @@ export function useContainerSet<
     })
   }, b)
 
+  useEffect(() => {
+    root.subscribeToContinerSet(b, (contSet) => {
+      setAll(contSet)
+    })
+  }, b)
+
   return all
 }
