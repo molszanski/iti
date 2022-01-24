@@ -2,11 +2,7 @@ import React, { useContext, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { useNewDandy } from "../containers/_container.hooks"
 import s from "./Controls.module.css"
-import {
-  EnsureKitchenConainer,
-  EnsureLol,
-  useKitchenContext,
-} from "./EnsureKitchen"
+import { EnsureKitchenConainer, useKitchenContext } from "./EnsureKitchen"
 
 export const Controls = observer(() => {
   return (
@@ -15,7 +11,6 @@ export const Controls = observer(() => {
       <EnsureKitchenConainer>
         <NewPizzaPlaceControls />
       </EnsureKitchenConainer>
-      <EnsureLol />
       <StuffControls />
       <AdminControls />
       <AuthControls />
@@ -80,11 +75,17 @@ export const StuffControls = observer(() => {
 })
 
 export const NewPizzaPlaceControls = observer(() => {
-  const { pizzaPlace } = useKitchenContext().pizzaPlaceCont
+  const {
+    kitchen: { oven, kitchen },
+    pizzaContainer,
+  } = useKitchenContext()
+  const { pizzaPlace } = pizzaContainer
 
   return (
     <div>
       New Kitchen controls <br />
+      Kitchen name: {kitchen.kitchenName} <br />
+      Oven size: {oven.pizzaCapacity} <br />
       <button onClick={() => pizzaPlace.openPizzaPlace()}>
         Open Restaurant
       </button>
