@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { useNewDandy } from "../containers/_container.hooks"
-import s from "./Controls.module.css"
 import { EnsureNewKitchenConainer, useNewKitchenContext } from "./EnsureKitchen"
+import s from "./Controls.module.css"
 
 export const Controls = observer(() => {
   return (
     <div className={s.controlsSections}>
       <PizzaPlaceControls />
-      <EnsureNewKitchenConainer fallback={<>windows is now loading</>}>
+      <EnsureNewKitchenConainer>
         <NewPizzaPlaceControls />
       </EnsureNewKitchenConainer>
       <StuffControls />
