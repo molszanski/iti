@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { useNewDandy } from "../containers/_container.hooks"
+import { useContainerSet, useNewDandy } from "../containers/_container.hooks"
 import { EnsureNewKitchenConainer, useNewKitchenContext } from "./EnsureKitchen"
 import s from "./Controls.module.css"
 
@@ -80,6 +80,7 @@ export const NewPizzaPlaceControls = observer(() => {
     pizzaContainer,
   } = useNewKitchenContext()
   const { pizzaPlace } = pizzaContainer
+  let f = useNewKitchenContext()
 
   return (
     <div>
@@ -101,15 +102,17 @@ export const PizzaPlaceControls = observer(() => {
   const [pizzaPlaceCont] = useNewDandy().pizzaContainer()
   const [kitchenManipulatorCont] = useNewDandy().kitchenManipulator()
   const [authCont] = useNewDandy().auth()
+  const x = useContainerSet(["auth"])
 
   if (!pizzaPlaceCont) return <>Pizza Place is loading</>
   if (!kitchenCont) return <>Kitchen is loading</>
   if (!kitchenManipulatorCont) return <>Kitchen is loading</>
   if (!authCont) return <>AUTH is loading</>
+  if (!x) return <>AUTH is loading</>
 
   const { orderManager } = kitchenCont
   const { pizzaPlace, diningTables } = pizzaPlaceCont
-  const { auth, authroization } = authCont
+  const { auth, authroization } = x.auth
 
   const actions = authroization.getAvaliableActions()[authroization.userType]
 
