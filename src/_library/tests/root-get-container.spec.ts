@@ -13,10 +13,18 @@ it("should get a single container", () => {
   })()
 })
 
-it.only("should subscribe to a single container", () => {
+it("should subscribe to a single container", (cb) => {
   // This is silly
   ;(async () => {
     const cont = getMainMockAppContainer()
     expect(cont.containers).toHaveProperty("bCont")
+    expect(cont.containers.aCont).toBeInstanceOf(Promise)
+
+    let cCont = await cont.containers.cCont
+    cont.subscribeToContiner("cCont", (new_cCont) => {
+      expect(new_cCont.c2.size).toBe(10)
+      cb()
+    })
+    cCont.upgradeCContainer()
   })()
 })

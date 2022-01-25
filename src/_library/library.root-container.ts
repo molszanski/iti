@@ -35,14 +35,6 @@ export class RootContainer<
     })
   }
 
-  public async getContainer<T extends keyof R>(
-    b: T,
-  ): Promise<GetContainer<R, T>> {
-    let functionWithContainerPromise = this.providerMap[b]
-    let container = await functionWithContainerPromise()
-    return container
-  }
-
   public get containers() {
     type ContainerGetter = {
       [CK in keyof R]: Promise<GetContainer<R, CK>>
@@ -55,48 +47,17 @@ export class RootContainer<
     return containerMap
   }
 
-  // public getMuchoContainer<
-  //   ContMap extends {
-  //     [CK in keyof R]: GetContainer<R, CK>
-  //   },
-  //   ContainerGetter extends {
-  //     [CK in keyof R]: GetContainer<R, CK>
-  //   },
-  // >() /**
-  //  * Basically a nice api for hooks
-  //  * {
-  //  *   name: () => [containerInstance, errr ]
-  //  * }
-  //  */ {
-  //   return 1 as any as ContainerGetter
-  //   // let fWithProm = b.map((containerKey) => this.providerMap[containerKey])
-
-  //   // let allProm = fWithProm.map((el) => el())
-
-  //   // let containerDecoratedMap: {
-  //   //   [K in T]: GetContainer<R, K>
-  //   // } = {} as any
-
-  //   // b.forEach((containerKey, index) => {
-  //   //   containerDecoratedMap[containerKey] = x[index]
-  //   // })
-  //   // return containerDecoratedMap
-  // }
-
-  // public subscribeToContiner<T extends keyof R>(
-  //   tokens: T[],
-  //   cb: (containerSet: {
-  //     [K in T]: GetContainer<R, K>
-  //   }) => void,
-  // ): void {
-  //   this.on("containerUpdated", async (ev) => {
-  //     // @ts-expect-error
-  //     if (tokens.includes(ev.key)) {
-  //       let s = await this.getContainerSet(tokens)
-  //       cb(s)
-  //     }
-  //   })
-  // }
+  public subscribeToContiner<T extends keyof R>(
+    token: T,
+    cb: (container: GetContainer<R, T>) => void,
+  ): void {
+    this.on("containerUpdated", async (ev) => {
+      if (token === ev.key) {
+        let s = await this.containers[token]
+        cb(s)
+      }
+    })
+  }
 
   /**
    * We can actually extract this into a wrapper class

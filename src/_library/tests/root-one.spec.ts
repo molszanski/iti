@@ -11,7 +11,7 @@ it("should get two containers that are async", async () => {
   expect(containerSet).toMatchSnapshot(containerSet)
 })
 
-it.only("should subscribe to container set change", (cb) => {
+it("should subscribe to container set change", (cb) => {
   ;(async () => {
     const cont = getMainMockAppContainer()
     let containerSet = await cont.getContainerSet(["aCont", "bCont", "cCont"])
@@ -26,6 +26,15 @@ it.only("should subscribe to container set change", (cb) => {
       expect(containerSet.cCont.c2.size).toBe(10)
       cb()
     })
+  })()
+})
+
+it.only("should get container set via better api", (cb) => {
+  ;(async () => {
+    const cont = getMainMockAppContainer()
+    let a = 12
+    expect(a).toBe(12)
+    cb()
   })()
 })
 
