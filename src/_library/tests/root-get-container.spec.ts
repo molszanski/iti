@@ -1,19 +1,22 @@
 import { getMainMockAppContainer } from "./mocks/_mock-app-container"
 
-it.only("should get a single container", async () => {
-  let a = 12
-  const cont = getMainMockAppContainer()
-  let containerSet = await cont.getContainerSet(["aCont"])
-  // console.log(containerSet)
+it("should get a single container", () => {
+  // This is silly
+  ;(async () => {
+    const cont = getMainMockAppContainer()
+    expect(cont.containers).toHaveProperty("bCont")
+    expect(cont.containers.aCont).toBeInstanceOf(Promise)
 
-  let m = await cont.getContainer("aCont")
-  // console.log("====", m)
+    let b = await cont.containers.bCont
+    expect(b).toHaveProperty("b2")
+    expect(b).toMatchSnapshot()
+  })()
+})
 
-  // expect(containerSet).toHaveProperty("aCont")
-  // expect(containerSet).toHaveProperty("bCont")
-  // expect(containerSet.bCont.b2).toMatchObject({ a1: {} })
-
-  // expect(containerSet).toMatchSnapshot(containerSet)
-
-  expect(a).toBe(12)
+it.only("should subscribe to a single container", () => {
+  // This is silly
+  ;(async () => {
+    const cont = getMainMockAppContainer()
+    expect(cont.containers).toHaveProperty("bCont")
+  })()
 })

@@ -1,5 +1,6 @@
 import _ from "lodash"
 import React, { useState, useEffect } from "react"
+import { UnPromisify } from "./_utils"
 
 // -- Generic
 
@@ -46,7 +47,6 @@ export function useBetterGenericContainer<T>(
   return [data, error, controls.containerKey]
 }
 
-type UnPromisify<T> = T extends Promise<infer U> ? U : T
 export function useRootStores<
   ContMap extends {
     [CK in keyof ContMap]: ContMap[CK]

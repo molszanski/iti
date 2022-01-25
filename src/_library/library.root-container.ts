@@ -43,6 +43,46 @@ export class RootContainer<
     return container
   }
 
+  public get containers() {
+    type ContainerGetter = {
+      [CK in keyof R]: Promise<GetContainer<R, CK>>
+    }
+
+    let containerMap = <ContainerGetter>{}
+    for (let key in this.providerMap) {
+      containerMap[key] = this.providerMap[key]()
+    }
+    return containerMap
+  }
+
+  // public getMuchoContainer<
+  //   ContMap extends {
+  //     [CK in keyof R]: GetContainer<R, CK>
+  //   },
+  //   ContainerGetter extends {
+  //     [CK in keyof R]: GetContainer<R, CK>
+  //   },
+  // >() /**
+  //  * Basically a nice api for hooks
+  //  * {
+  //  *   name: () => [containerInstance, errr ]
+  //  * }
+  //  */ {
+  //   return 1 as any as ContainerGetter
+  //   // let fWithProm = b.map((containerKey) => this.providerMap[containerKey])
+
+  //   // let allProm = fWithProm.map((el) => el())
+
+  //   // let containerDecoratedMap: {
+  //   //   [K in T]: GetContainer<R, K>
+  //   // } = {} as any
+
+  //   // b.forEach((containerKey, index) => {
+  //   //   containerDecoratedMap[containerKey] = x[index]
+  //   // })
+  //   // return containerDecoratedMap
+  // }
+
   // public subscribeToContiner<T extends keyof R>(
   //   tokens: T[],
   //   cb: (containerSet: {
