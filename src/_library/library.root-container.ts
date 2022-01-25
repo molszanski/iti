@@ -15,9 +15,9 @@ type GenericProviderSignature = (...args: any) => {
 
 export class RootContainer<
   getProv extends GenericProviderSignature,
-  R = ReturnType<getProv>,
+  R extends ReturnType<getProv>,
 > {
-  public providerMap: ReturnType<getProv>
+  public providerMap: R
 
   constructor(getProviders: getProv) {
     // @ts-expect-error
@@ -33,10 +33,10 @@ export class RootContainer<
   /**
    * We can actually extract this into a wrapper class
    */
-  public subscribeToContinerSet<T extends keyof ReturnType<getProv>>(
+  public subscribeToContinerSet<T extends keyof R>(
     tokens: T[],
     cb: (containerSet: {
-      [K in T]: UnPromisify<ReturnType<ReturnType<getProv>[K]>>
+      [K in T]: UnPromisify<ReturnType<R[K]>>
     }) => void,
   ): void {
     this.on("containerUpdated", async (ev) => {
@@ -51,13 +51,13 @@ export class RootContainer<
   /**
    * We can actually extract this into a wrapper class
    */
-  public async getContainerSet<T extends keyof ReturnType<getProv>>(b: T[]) {
+  public async getContainerSet<T extends keyof R>(b: T[]) {
     let fWithProm = b.map((containerKey) => this.providerMap[containerKey])
 
     let allProm = fWithProm.map((el) => el())
 
     let containerDecoratedMap: {
-      [K in T]: UnPromisify<ReturnType<ReturnType<getProv>[K]>>
+      [K in T]: UnPromisify<ReturnType<R[K]>>
     } = {} as any
 
     const x = await Promise.all(allProm)
@@ -138,25 +138,74 @@ export class RootContainer<
     this.containerCache[key] = containerPromise
     return containerPromise
   }
-
-  // Commented out because they seem to not be needed yet
-
-  // public hasContainer(key: keyof R): Boolean {
-  //   if (this.containerCache[key] == null) {
-  //     return false
-  //   }
-  //   return true
-  // }
-
-  // public async getContainer(
-  //   key: keyof R,
-  // ): Promise<ValueOf<R>> {
-  //   if (this.containerCache[key] == null) {
-  //     throw new Error("NO no tak się nie bawimy")
-  //   } else {
-  //     const containerPromise = this.containerCache[key]
-  //     await containerPromise
-  //     return containerPromise as any
-  //   }
-  // }
 }
+
+export function makeRoot<getProv extends GenericProviderSignature>(
+  getProviders: getProv,
+) {
+  type R = ReturnType<getProv>
+  let root = new RootContainer<typeof getProviders, R>(getProviders)
+  return root
+}
+
+// Commented out because they seem to not be needed yet
+
+// public hasContainer(key: keyof R): Boolean {
+//   if (this.containerCache[key] == null) {
+//     return false
+//   }
+//   return true
+// }
+
+// public async getContainer(
+//   key: keyof R,
+// ): Promise<ValueOf<R>> {
+//   if (this.containerCache[key] == null) {
+//     throw new Error("NO no tak się nie bawimy")
+//   } else {
+//     const containerPromise = this.containerCache[key]
+//     await containerPromise
+//     return containerPromise as any
+//   }
+// }
+
+// Failed. Circular reference:
+
+// export function getProviderWrapper<
+//   getProviderFun extends (root: MockAppContainer) => any,
+//   R extends ReturnType<getProviderFun>,
+//   kiz extends keyof R,
+//   Registry extends { [K in kiz]: () => UnPromisify<ReturnType<R[K]>> },
+//   Lib extends (...args: any) => { [K in keyof Registry]: Registry[K] },
+//   MockAppContainer extends RootContainer<Lib, ReturnType<Lib>>,
+// >(cb: getProviderFun) {
+//   const r = new RootContainer(cb)
+//   // @ts-expect-error
+//   cb(r)
+//   return 1 as any as R
+// }
+
+// Failed: Circular reference
+// // https://github.com/microsoft/TypeScript/issues/29586
+
+// type GenericProviderSignature = (...args: any) => {
+//   [s: string]: () => Promise<any>
+// }
+// type R<getProviderFun extends GenericProviderSignature> =
+//   ReturnType<getProviderFun>
+
+// type kiz<getProviderFun extends GenericProviderSignature> =
+//   keyof R<getProviderFun>
+
+// type Registry2M<getProviderFun extends GenericProviderSignature> = {
+//   [K in kiz<getProviderFun>]: () => UnPromisify<ReturnType<R[K]>>
+// }
+// type Lib33<Registry23 extends Registry2M<typeof getProviders>> = (
+//   ...args: any
+// ) => { [K in keyof Registry23]: Registry23[K] }
+
+// type ZisRegistry = Registry2M<typeof getProviders>
+// type MockAppContainer33 = RootContainer<
+//   Lib33<ZisRegistry>,
+//   ReturnType<Lib33<ZisRegistry>>
+// >

@@ -1,5 +1,5 @@
 import _ from "lodash"
-import { RootContainer } from "../../library.root-container"
+import { makeRoot, RootContainer } from "../../library.root-container"
 
 import { provideAContainer } from "./container.a"
 import { provideBContainer } from "./container.b"
@@ -10,9 +10,9 @@ interface Registry {
   bCont: () => ReturnType<typeof provideBContainer>
   cCont: () => ReturnType<typeof provideCContainer>
 }
-export type MockAppContainer = RootContainer<
-  (...args: any) => { [K in keyof Registry]: Registry[K] }
->
+
+type Lib = (...args: any) => { [K in keyof Registry]: Registry[K] }
+export type MockAppContainer = RootContainer<Lib, ReturnType<Lib>>
 
 function getProviders(ctx: Registry, root: MockAppContainer) {
   return {
@@ -24,5 +24,6 @@ function getProviders(ctx: Registry, root: MockAppContainer) {
 }
 
 export function getMainMockAppContainer() {
-  return new RootContainer(getProviders)
+  let x = makeRoot(getProviders)
+  return x
 }
