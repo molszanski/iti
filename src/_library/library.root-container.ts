@@ -13,6 +13,11 @@ type GenericProviderSignature = (...args: any) => {
   [s: string]: () => Promise<any>
 }
 
+type GetContainer<
+  Registry extends { [k: string]: () => Promise<any> },
+  K extends keyof Registry,
+> = UnPromisify<ReturnType<Registry[K]>>
+
 export class RootContainer<
   getProv extends GenericProviderSignature,
   R extends ReturnType<getProv>,
@@ -30,23 +35,28 @@ export class RootContainer<
     })
   }
 
-  /**
-   * We can actually extract this into a wrapper class
-   */
-  public subscribeToContinerSet<T extends keyof R>(
-    tokens: T[],
-    cb: (containerSet: {
-      [K in T]: UnPromisify<ReturnType<R[K]>>
-    }) => void,
-  ): void {
-    this.on("containerUpdated", async (ev) => {
-      // @ts-expect-error
-      if (tokens.includes(ev.key)) {
-        let s = await this.getContainerSet(tokens)
-        cb(s)
-      }
-    })
+  public async getContainer<T extends keyof R>(
+    b: T,
+  ): Promise<GetContainer<R, T>> {
+    let functionWithContainerPromise = this.providerMap[b]
+    let container = await functionWithContainerPromise()
+    return container
   }
+
+  // public subscribeToContiner<T extends keyof R>(
+  //   tokens: T[],
+  //   cb: (containerSet: {
+  //     [K in T]: GetContainer<R, K>
+  //   }) => void,
+  // ): void {
+  //   this.on("containerUpdated", async (ev) => {
+  //     // @ts-expect-error
+  //     if (tokens.includes(ev.key)) {
+  //       let s = await this.getContainerSet(tokens)
+  //       cb(s)
+  //     }
+  //   })
+  // }
 
   /**
    * We can actually extract this into a wrapper class
@@ -57,7 +67,7 @@ export class RootContainer<
     let allProm = fWithProm.map((el) => el())
 
     let containerDecoratedMap: {
-      [K in T]: UnPromisify<ReturnType<R[K]>>
+      [K in T]: GetContainer<R, K>
     } = {} as any
 
     const x = await Promise.all(allProm)
@@ -66,6 +76,24 @@ export class RootContainer<
       containerDecoratedMap[containerKey] = x[index]
     })
     return containerDecoratedMap
+  }
+
+  /**
+   * We can actually extract this into a wrapper class
+   */
+  public subscribeToContinerSet<T extends keyof R>(
+    tokens: T[],
+    cb: (containerSet: {
+      [K in T]: GetContainer<R, K>
+    }) => void,
+  ): void {
+    this.on("containerUpdated", async (ev) => {
+      // @ts-expect-error
+      if (tokens.includes(ev.key)) {
+        let s = await this.getContainerSet(tokens)
+        cb(s)
+      }
+    })
   }
 
   /**
