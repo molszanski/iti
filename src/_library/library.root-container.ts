@@ -79,6 +79,34 @@ export class RootContainer<
     return containerDecoratedMap
   }
 
+  public async getContainerSetNew<
+    T extends keyof R,
+    ContainerKeyMap extends {
+      [CK in T]: CK
+    },
+    ConttainerGetter extends {
+      [K in T]: GetContainer<R, K>
+    },
+  >(cb: (keyMap: ContainerKeyMap) => T[]) {
+    let containerMap = <ContainerKeyMap>{}
+
+    for (let key in this.providerMap) {
+      // @ts-expect-error
+      containerMap[key] = key
+    }
+    let xb = cb(containerMap)
+
+    let fWithProm = xb.map((containerKey) => this.providerMap[containerKey])
+    let allProm = fWithProm.map((el) => el())
+    const x = await Promise.all(allProm)
+
+    let containerDecoratedMap = <ConttainerGetter>{}
+    xb.forEach((containerKey, index) => {
+      containerDecoratedMap[containerKey] = x[index]
+    })
+    return containerDecoratedMap
+  }
+
   /**
    * We can actually extract this into a wrapper class
    */

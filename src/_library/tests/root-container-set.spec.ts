@@ -32,7 +32,13 @@ it("should subscribe to container set change", (cb) => {
 it.only("should get container set via a new API", (cb) => {
   ;(async () => {
     const cont = getMainMockAppContainer()
-    let containerSet = await cont.getContainerSet(["aCont", "bCont", "cCont"])
+    let containerSet = await cont.getContainerSetNew((c) => [c.aCont, c.bCont])
+
+    expect(containerSet).toHaveProperty("aCont")
+    expect(containerSet).toHaveProperty("bCont")
+    expect(containerSet.bCont.b2).toMatchObject({ a1: {} })
+
+    expect(containerSet).toMatchSnapshot(containerSet)
 
     cb()
   })()
