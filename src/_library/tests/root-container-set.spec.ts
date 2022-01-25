@@ -29,11 +29,11 @@ it("should subscribe to container set change", (cb) => {
   })()
 })
 
-it.only("should get container set via better api", (cb) => {
+it.only("should get container set via a new API", (cb) => {
   ;(async () => {
     const cont = getMainMockAppContainer()
-    let a = 12
-    expect(a).toBe(12)
+    let containerSet = await cont.getContainerSet(["aCont", "bCont", "cCont"])
+
     cb()
   })()
 })
