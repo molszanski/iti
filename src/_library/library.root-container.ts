@@ -1,5 +1,4 @@
 import mitt from "mitt"
-import _ from "lodash"
 import { UnPromisify } from "./_utils"
 type ValueOf<T> = T[keyof T]
 
@@ -25,26 +24,16 @@ export class RootContainer<
   public providerMap: R
 
   constructor(getProviders: getProv) {
-    // @ts-expect-error
-    this.providerMap = {}
-    _.forOwn(getProviders(this.providerMap, this), (v: any, k: any) => {
+    this.providerMap = <R>{}
+
+    let m = getProviders(this.providerMap, this)
+    for (let contKey in m) {
       // @ts-expect-error
-      this.providerMap[k] = () => {
-        return this.getGenericContainer(k, v)
+      this.providerMap[contKey] = () => {
+        // @ts-expect-error
+        return this.getGenericContainer(contKey, m[contKey])
       }
-    })
-  }
-
-  public get containers() {
-    type ContainerGetter = {
-      [CK in keyof R]: Promise<GetContainer<R, CK>>
     }
-
-    let containerMap = <ContainerGetter>{}
-    for (let key in this.providerMap) {
-      containerMap[key] = this.providerMap[key]()
-    }
-    return containerMap
   }
 
   public subscribeToContiner<T extends keyof R>(
@@ -79,15 +68,27 @@ export class RootContainer<
     return containerDecoratedMap
   }
 
+  public get containers() {
+    type ContainerGetter = {
+      [CK in keyof R]: Promise<GetContainer<R, CK>>
+    }
+
+    let containerMap = <ContainerGetter>{}
+    for (let key in this.providerMap) {
+      containerMap[key] = this.providerMap[key]()
+    }
+    return containerMap
+  }
+
   public async getContainerSetNew<
     T extends keyof R,
     ContainerKeyMap extends {
       [CK in T]: CK
     },
     ConttainerGetter extends {
-      [K in T]: GetContainer<R, K>
+      [CK in T]: GetContainer<R, CK>
     },
-  >(cb: (keyMap: ContainerKeyMap) => T[]) {
+  >(cb: (keyMap: ContainerKeyMap) => T[]): Promise<ConttainerGetter> {
     let containerMap = <ContainerKeyMap>{}
 
     for (let key in this.providerMap) {
