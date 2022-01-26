@@ -21,6 +21,7 @@
     "react-dom": "^17.0.2",
     "react-scripts": "5.0.0",
     "ts-node": "^10.4.0",
+    "tsd": "^0.19.1",
     "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"
   },
@@ -28,7 +29,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "tsd": "tsd tsd_project"
   },
   "browserslist": {
     "production": [

@@ -23,9 +23,8 @@ interface PizzaRegistry {
   fatlib2: () => ReturnType<typeof provideFatLib2>
 }
 
-export type PizzaAppContainer = RootContainer<
-  (...args: any) => { [K in keyof PizzaRegistry]: PizzaRegistry[K] }
->
+type Lib = (...args: any) => { [K in keyof PizzaRegistry]: PizzaRegistry[K] }
+export type PizzaAppContainer = RootContainer<Lib, ReturnType<Lib>>
 
 export function getProviders(ctx: PizzaRegistry, root: PizzaAppContainer) {
   return {

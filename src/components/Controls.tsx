@@ -97,6 +97,22 @@ export const NewPizzaPlaceControls = observer(() => {
   )
 })
 
+type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T
+  ? 1
+  : 2) extends <G>() => G extends U ? 1 : 2
+  ? Y
+  : N
+
+declare const exactType: <T, U>(
+  draft: T & IfEquals<T, U>,
+  expected: U & IfEquals<T, U>,
+) => IfEquals<T, U>
+
+let a = 1
+let b = 123
+
+// $ExpectError
+exactType(typeof a, typeof b)
 export const PizzaPlaceControls = observer(() => {
   const [kitchenCont] = useNewDandy().kitchen()
   const [pizzaPlaceCont] = useNewDandy().pizzaContainer()
