@@ -17,7 +17,8 @@
     "build": "microbundle build",
     "bb": "tsc",
     "size": "size-limit",
-    "analyze": "size-limit --why"
+    "analyze": "size-limit --why",
+    "tsd": "tsd tsd_project"
   },
   "dependencies": {
     "mitt": "^3.0.0"
