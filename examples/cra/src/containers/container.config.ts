@@ -1,4 +1,4 @@
-import { wait } from "../_library/_utils"
+import { wait } from "snow-splash"
 import { DayType, getDayType } from "../services/url-param"
 
 export interface B_Container {

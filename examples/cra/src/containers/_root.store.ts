@@ -1,4 +1,4 @@
-import { RootContainer } from "../_library/library.root-container"
+import { RootContainer } from "snow-splash"
 
 import { provideAContainer } from "./container.a"
 import { provideAuthContainer } from "./container.auth"
