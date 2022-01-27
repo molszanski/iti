@@ -42,13 +42,15 @@ export class RootContainer<
   public subscribeToContiner<T extends keyof R>(
     token: T,
     cb: (container: GetContainer<R, T>) => void,
-  ): void {
-    this.on("containerUpdated", async (ev) => {
+  ): () => void {
+    const containerUpdateSubscription = async (ev) => {
       if (token === ev.key) {
         let s = await this.containers[token]
         cb(s)
       }
-    })
+    }
+    this.on("containerUpdated", containerUpdateSubscription)
+    return () => this.off("containerUpdated", containerUpdateSubscription)
   }
 
   /**
@@ -124,14 +126,15 @@ export class RootContainer<
     cb: (containerSet: {
       [K in T]: GetContainer<R, K>
     }) => void,
-  ): void {
-    this.on("containerUpdated", async (ev) => {
-      // @ts-expect-error
+  ): () => void {
+    const containerSetSubscription = async (ev) => {
       if (tokens.includes(ev.key)) {
         let s = await this.getContainerSet(tokens)
         cb(s)
       }
-    })
+    }
+    this.on("containerUpdated", containerSetSubscription)
+    return () => this.off("containerUpdated", containerSetSubscription)
   }
 
   /**
@@ -144,6 +147,7 @@ export class RootContainer<
     }
   }>(allEvents)
   public on = this.ee.on
+  public off = this.ee.off
 
   /**
    * Cache
