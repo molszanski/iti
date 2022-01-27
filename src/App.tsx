@@ -1,6 +1,6 @@
 import { configure } from "mobx"
 import React, { useMemo } from "react"
-import { RootStoreContext2 } from "./containers/_container.hooks"
+import { RootStoreContext } from "./containers/_container.hooks"
 import { getMainPizzaAppContainer } from "./containers/_root.store"
 import { Main } from "./Main"
 import "./App.css"
@@ -15,9 +15,9 @@ function App({}: AppProps) {
 
   return (
     <div className="App">
-      <RootStoreContext2.Provider value={store}>
+      <RootStoreContext.Provider value={store}>
         <Main />
-      </RootStoreContext2.Provider>
+      </RootStoreContext.Provider>
     </div>
   )
 }
