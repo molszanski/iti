@@ -116,7 +116,7 @@ export class RootContainer<
     return containerDecoratedMap
   }
 
-  private getContainerSetCallback<T extends keyof R>(
+  public getContainerSetCallback<T extends keyof R>(
     cb: (keyMap: TokenKeyMap) => T[],
   ): T[] {
     let containerMap = <TokenKeyMap>{}

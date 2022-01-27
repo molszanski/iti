@@ -1,6 +1,10 @@
 import React, { useContext, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { useContainerSet, useContainer } from "../containers/_container.hooks"
+import {
+  useContainerSet,
+  useContainer,
+  useContainerSetNew,
+} from "../containers/_container.hooks"
 import { EnsureNewKitchenConainer, useNewKitchenContext } from "./EnsureKitchen"
 import s from "./Controls.module.css"
 
@@ -45,13 +49,15 @@ export const FatLibData = observer(() => {
 })
 
 export const NewTestControls = observer(() => {
-  const [authContainer] = useContainer().auth
-  const [kitchenContainer] = useContainer().kitchen
+  const { auth, kitchen } = useContainer()
+  const cSet = useContainerSetNew((c) => [c.aCont])
 
-  if (!authContainer) return <>AUTH is loading</>
-  if (!kitchenContainer) return <>AUTH is loading</>
-  console.log("pizza capacity: ", kitchenContainer.oven.pizzaCapacity)
-  const { auth } = authContainer
+  if (!auth[0]) return <>AUTH is loading</>
+  if (!kitchen[0]) return <>AUTH is loading</>
+  if (!cSet) return <>AUTH is loading</>
+
+  console.log("pizza capacity: ", kitchen[0].oven.pizzaCapacity)
+  console.log("pizza capacity22: ", cSet.aCont.a1.getName())
 
   return <div>new Test constroles</div>
 })
@@ -115,6 +121,7 @@ export const PizzaPlaceControls = observer(() => {
   const [pizzaPlaceCont] = useContainer().pizzaContainer
   const [kitchenManipulatorCont] = useContainer().kitchenManipulator
   const [authCont] = useContainer().auth
+
   const x = useContainerSet(["auth"])
 
   if (!pizzaPlaceCont) return <>Pizza Place is loading</>

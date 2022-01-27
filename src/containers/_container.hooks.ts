@@ -36,10 +36,16 @@ function getContainerSetHooks<
     return k
   }
 
-  // function useContainer() {
-  //   const root = useRoot()
-  //   return useRootStores(root.providerMap, root)
-  // }
+  function useContainerSetNew<
+    Token extends ContainerKeys<getProviderFunction> & string,
+    TokenMap extends { [T in ContainerKeys<getProviderFunction>]: T },
+  >(
+    cb: (keyMap: TokenMap) => Token[],
+  ): ContainerSet<Token, getProviderFunction> {
+    const root = useRoot()
+    let tokenSet = root.getContainerSetCallback(cb)
+    return useContainerSet(tokenSet)
+  }
 
   function useContainerSet<
     Token extends ContainerKeys<getProviderFunction> & string,
@@ -70,6 +76,7 @@ function getContainerSetHooks<
     f,
     useRoot: useRoot,
     useContainerSet: useContainerSet,
+    useContainerSetNew: useContainerSetNew,
     RootStoreContext2: RootStoreContext2,
   }
 }
@@ -85,6 +92,7 @@ function useRoot() {
 
 let mega = getContainerSetHooks(getProviders, RootStoreContext2)
 export const useContainerSet = mega.useContainerSet
+export const useContainerSetNew = mega.useContainerSetNew
 // export const useRoot = mega.useRoot
 // let f = useRoot()
 // export const useContainer = mega.useContainer
