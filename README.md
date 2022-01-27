@@ -1,1 +1,1 @@
-./README.md
+./snow-splash/README.md
