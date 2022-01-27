@@ -6,7 +6,7 @@ import { MockAppContainer } from "./_mock-app-container"
 export interface C_Container {
   c1: C1
   c2: C2
-  upgradeCContainer: () => void
+  upgradeCContainer: (x?: number) => void
 }
 
 export async function provideCContainer(
@@ -17,14 +17,14 @@ export async function provideCContainer(
   const c1 = new C1(a.a2)
   const c2 = new C2(a.a1, b.b2, 5)
 
-  async function reaplacer() {
+  async function replacer(ovenSize = 10) {
     return await root.replaceCointerInstantly("cCont", async () => {
       const c1 = new C1(a.a2)
-      const c2 = new C2(a.a1, b.b2, 10)
+      const c2 = new C2(a.a1, b.b2, ovenSize)
       return {
         c1,
         c2,
-        upgradeCContainer: reaplacer,
+        upgradeCContainer: (ovenSize = 10) => replacer(ovenSize),
       }
     })
   }
@@ -32,6 +32,6 @@ export async function provideCContainer(
   return {
     c1,
     c2,
-    upgradeCContainer: reaplacer,
+    upgradeCContainer: replacer,
   }
 }

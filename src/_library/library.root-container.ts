@@ -20,6 +20,7 @@ type GetContainer<
 export class RootContainer<
   getProv extends GenericProviderSignature,
   R extends ReturnType<getProv>,
+  TokenKeyMap = { [T in keyof R]: T },
 > {
   public readonly providerMap: R
   public readonly tokens: Array<keyof R>
@@ -92,14 +93,11 @@ export class RootContainer<
 
   public async getContainerSetNew<
     T extends keyof R,
-    ContainerKeyMap extends {
-      [CK in T]: T
-    },
     ConttainerGetter extends {
       [CK in T]: GetContainer<R, CK>
     },
-  >(cb: (keyMap: ContainerKeyMap) => T[]): Promise<ConttainerGetter> {
-    let containerMap = <ContainerKeyMap>{}
+  >(cb: (keyMap: TokenKeyMap) => T[]): Promise<ConttainerGetter> {
+    let containerMap = <TokenKeyMap>{}
 
     for (let key of this.tokens) {
       // @ts-expect-error
@@ -116,6 +114,37 @@ export class RootContainer<
       containerDecoratedMap[containerKey] = x[index]
     })
     return containerDecoratedMap
+  }
+
+  private getContainerSetCallback<T extends keyof R>(
+    cb: (keyMap: TokenKeyMap) => T[],
+  ): T[] {
+    let containerMap = <TokenKeyMap>{}
+    for (let key of this.tokens) {
+      // @ts-expect-error
+      containerMap[key] = key
+    }
+    return cb(containerMap)
+  }
+
+  /**
+   * We can actually extract this into a wrapper class
+   */
+  public subscribeToContinerSetNew<T extends keyof R>(
+    sub: (keyMap: TokenKeyMap) => T[],
+    cb: (containerSet: {
+      [K in T]: GetContainer<R, K>
+    }) => void,
+  ): () => void {
+    const tokens = this.getContainerSetCallback(sub)
+    const containerSetSubscription = async (ev) => {
+      if (tokens.includes(ev.key)) {
+        let s = await this.getContainerSet(tokens)
+        cb(s)
+      }
+    }
+    this.on("containerUpdated", containerSetSubscription)
+    return () => this.off("containerUpdated", containerSetSubscription)
   }
 
   /**

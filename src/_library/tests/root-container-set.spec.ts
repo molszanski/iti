@@ -44,4 +44,44 @@ it("should get container set via a new API", (cb) => {
   })()
 })
 
-it.skip("should be able to unsubscribe from container set change", (cb) => {})
+it("should subscribe to container set change via a new APi", (cb) => {
+  ;(async () => {
+    const cont = getMainMockAppContainer()
+    let containerSet = await cont.getContainerSetNew((c) => [c.aCont, c.cCont])
+    expect(containerSet).toHaveProperty("aCont")
+
+    containerSet.cCont.upgradeCContainer()
+    cont.subscribeToContinerSetNew(
+      (c) => [c.aCont, c.cCont],
+      (containerSet) => {
+        expect(containerSet.cCont.c2.size).toBe(10)
+        cb()
+      },
+    )
+  })()
+})
+
+it("should be able to unsubscribe from container set change", (cb) => {
+  ;(async () => {
+    const cont = getMainMockAppContainer()
+    let containerSet = await cont.getContainerSetNew((c) => [c.aCont, c.cCont])
+
+    const fn = jest.fn()
+    containerSet.cCont.upgradeCContainer()
+    const unsub = cont.subscribeToContinerSetNew(
+      (c) => [c.cCont],
+      () => {
+        unsub()
+        fn()
+        containerSet.cCont.upgradeCContainer()
+        cont.subscribeToContinerSetNew(
+          (c) => [c.cCont],
+          () => {
+            expect(fn).toHaveBeenCalledTimes(1)
+            cb()
+          },
+        )
+      },
+    )
+  })()
+})
