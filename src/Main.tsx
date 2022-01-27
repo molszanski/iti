@@ -1,5 +1,5 @@
 import React from "react"
-import { useNewDandy } from "./containers/_container.hooks"
+import { useContainer } from "./containers/_container.hooks"
 import { MainLayoutControl } from "./components/MainLayoutControl"
 
 export const Main = () => {
@@ -11,7 +11,7 @@ export const Main = () => {
 }
 
 export const Profile = () => {
-  const [a] = useNewDandy().aCont()
+  const [a] = useContainer().aCont
   if (!a) return null
   const { a1, a2 } = a
 

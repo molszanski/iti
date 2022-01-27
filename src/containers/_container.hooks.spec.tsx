@@ -3,12 +3,12 @@ import { render, screen } from "@testing-library/react"
 
 import { expectType, expectError } from "tsd"
 import type { AuthContainer } from "./container.auth"
-import { useNewDandy } from "./_container.hooks"
+import { useContainer } from "./_container.hooks"
 import { PizzaAppWrapper } from "./_AppRoot"
 import { B_Container } from "./container.b"
 
 // it("should pass basic ts test", () => {
-//   let [authCont] = useNewDandy().auth()
+//   let [authCont] = useContainer().auth
 //   expectType<AuthContainer>(authCont)
 // })
 
@@ -22,10 +22,10 @@ test("renders learn react link", () => {
 
 it("should pass basic ts test", () => {
   const App = () => {
-    let [authCont] = useNewDandy().auth()
+    let [authCont] = useContainer().auth
     expectType<AuthContainer>(authCont)
 
-    let x = useNewDandy()
+    let x = useContainer()
     expectError<any>(x)
 
     return <></>

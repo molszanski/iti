@@ -1,9 +1,6 @@
 import _ from "lodash"
 import React, { useContext, useEffect, useState } from "react"
-import {
-  useBetterGenericContainer,
-  useRootStores,
-} from "../_library/library.hooks"
+import { useBetterGenericContainer } from "../_library/library.hooks"
 import { UnPromisify } from "../_library/_utils"
 import { getProviders, PizzaAppContainer } from "./_root.store"
 
@@ -34,15 +31,15 @@ function getContainerSetHooks<
 ) {
   const f: ContainerKeys<getProviderFunction> = null as any
 
-  function useRoot2() {
+  function useRoot() {
     let k = useContext(reactContext)
     return k
   }
 
-  function useNewDandy() {
-    const root = useRoot2()
-    return useRootStores(root.providerMap, root)
-  }
+  // function useContainer() {
+  //   const root = useRoot()
+  //   return useRootStores(root.providerMap, root)
+  // }
 
   function useContainerSet<
     Token extends ContainerKeys<getProviderFunction> & string,
@@ -50,7 +47,7 @@ function getContainerSetHooks<
     const [all, setAll] = useState<ContainerSet<Token, getProviderFunction>>(
       null as any,
     )
-    const root = useRoot2()
+    const root = useRoot()
 
     useEffect(() => {
       root.getContainerSet(b).then((contSet) => {
@@ -71,8 +68,7 @@ function getContainerSetHooks<
   return {
     m,
     f,
-    useRoot2: useRoot2,
-    useNewDandy: useNewDandy,
+    useRoot: useRoot,
     useContainerSet: useContainerSet,
     RootStoreContext2: RootStoreContext2,
   }
@@ -82,24 +78,19 @@ export const RootStoreContext2 = React.createContext<PizzaAppContainer>(
   {} as any,
 )
 
-function useRoot2() {
+function useRoot() {
   let k = useContext(RootStoreContext2)
   return k
 }
 
 let mega = getContainerSetHooks(getProviders, RootStoreContext2)
 export const useContainerSet = mega.useContainerSet
-// export const useRoot2 = mega.useRoot2
-// let f = useRoot2()
-// export const useNewDandy = mega.useNewDandy
+// export const useRoot = mega.useRoot
+// let f = useRoot()
+// export const useContainer = mega.useContainer
 
-export function useNewDandy() {
-  const root = useRoot2()
-  return useRootStores(root.providerMap, root)
-}
-
-export function useNewDandy222() {
-  const root = useRoot2()
+export function useContainer() {
+  const root = useRoot()
   return useRootStores222(root.providerMap, root)
 }
 
@@ -124,9 +115,7 @@ export function useRootStores222<
   //@ts-ignore
   root: RootContainer,
 ) {
-  const [data, setData] = useState<ContainerGetter>({} as any)
-
-  let root2 = useRoot2()
+  let root2 = useRoot()
   let FFF = <ContainerGetter>{}
   for (let contKey of root2.tokens) {
     Object.defineProperty(FFF, contKey, {
@@ -136,15 +125,8 @@ export function useRootStores222<
             // @ts-expect-error
             root2.containers[contKey],
           {
-            // onContainerUpdate: (cb: any) => {
-            //   root2.subscribeToContiner(contKey, (container) => {
-            //     cb(container)
-            //   })
-            // },
-            subscribeFunction: (cb: () => any) => {
-              console.log("calling sub on", contKey)
-              return root2.subscribeToContiner(contKey, cb)
-            },
+            subscribeFunction: (cb: () => any) =>
+              root2.subscribeToContiner(contKey, cb),
             containerKey: contKey,
           },
         )

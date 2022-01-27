@@ -1,10 +1,6 @@
 import React, { useContext, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import {
-  useContainerSet,
-  useNewDandy,
-  useNewDandy222,
-} from "../containers/_container.hooks"
+import { useContainerSet, useContainer } from "../containers/_container.hooks"
 import { EnsureNewKitchenConainer, useNewKitchenContext } from "./EnsureKitchen"
 import s from "./Controls.module.css"
 
@@ -24,7 +20,7 @@ export const Controls = observer(() => {
 })
 
 export const AdminControls = observer(() => {
-  const [authCont] = useNewDandy().auth()
+  const [authCont] = useContainer().auth
   const [showFatLib1, setShowFatLib1] = useState(false)
   if (!authCont) return <>AUTH is loading</>
 
@@ -42,15 +38,15 @@ export const AdminControls = observer(() => {
 })
 
 export const FatLibData = observer(() => {
-  const [fatlib] = useNewDandy().fatlib1()
+  const [fatlib] = useContainer().fatlib1
   if (!fatlib) return <>fatlib is loading</>
 
   return <div>I can haz fat lib data 1: {fatlib.fatLibData}</div>
 })
 
 export const NewTestControls = observer(() => {
-  const [authContainer] = useNewDandy222().auth
-  const [kitchenContainer] = useNewDandy222().kitchen
+  const [authContainer] = useContainer().auth
+  const [kitchenContainer] = useContainer().kitchen
 
   if (!authContainer) return <>AUTH is loading</>
   if (!kitchenContainer) return <>AUTH is loading</>
@@ -61,7 +57,7 @@ export const NewTestControls = observer(() => {
 })
 
 export const AuthControls = observer(() => {
-  const [authCont] = useNewDandy().auth()
+  const [authCont] = useContainer().auth
 
   if (!authCont) return <>AUTH is loading</>
   const { auth } = authCont
@@ -115,10 +111,10 @@ export const NewPizzaPlaceControls = observer(() => {
 })
 
 export const PizzaPlaceControls = observer(() => {
-  const [kitchenCont] = useNewDandy().kitchen()
-  const [pizzaPlaceCont] = useNewDandy().pizzaContainer()
-  const [kitchenManipulatorCont] = useNewDandy().kitchenManipulator()
-  const [authCont] = useNewDandy().auth()
+  const [kitchenCont] = useContainer().kitchen
+  const [pizzaPlaceCont] = useContainer().pizzaContainer
+  const [kitchenManipulatorCont] = useContainer().kitchenManipulator
+  const [authCont] = useContainer().auth
   const x = useContainerSet(["auth"])
 
   if (!pizzaPlaceCont) return <>Pizza Place is loading</>

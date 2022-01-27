@@ -2,10 +2,10 @@ import React from "react"
 import { observer } from "mobx-react-lite"
 import cx from "classnames"
 import s from "./PizzaPlace.module.css"
-import { useNewDandy } from "../containers/_container.hooks"
+import { useContainer } from "../containers/_container.hooks"
 
 export const PizzaPlace = observer(() => {
-  const [pizza] = useNewDandy().pizzaContainer()
+  const [pizza] = useContainer().pizzaContainer
   if (!pizza) return <>Pizza Place is loading</>
 
   const { pizzaPlace, diningTables } = pizza
@@ -24,7 +24,7 @@ export const PizzaPlace = observer(() => {
 })
 
 export const KitchenData = observer(() => {
-  const [kitchenCont] = useNewDandy().kitchen()
+  const [kitchenCont] = useContainer().kitchen
 
   if (!kitchenCont) return <>Kitchen is loading</>
 
@@ -61,7 +61,7 @@ export const KitchenData = observer(() => {
 })
 
 export const Inventory = observer(() => {
-  const [kitchenCont] = useNewDandy().kitchen()
+  const [kitchenCont] = useContainer().kitchen
   if (!kitchenCont) return <>Kitchen is loading</>
   const { ingredients } = kitchenCont
   return (
