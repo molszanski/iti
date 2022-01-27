@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
 import { useContainerSet } from "../containers/_container.hooks"
-import { generateEnsureContainerSet } from "../_library/library.generate-ensure-hooks"
+import { generateEnsureContainerSet } from "../_library/react/library.generate-ensure-hooks"
 
 const x = generateEnsureContainerSet(() =>
   useContainerSet(["kitchen", "pizzaContainer", "auth"]),

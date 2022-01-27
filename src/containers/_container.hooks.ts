@@ -1,4 +1,3 @@
-import _ from "lodash"
 import React, { useContext } from "react"
 import { getContainerSetHooks } from "./_container.hook.gen"
 import { getProviders, PizzaAppContainer } from "./_root.store"

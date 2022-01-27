@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react"
-import { useBetterGenericContainer } from "../_library/react/library.hooks"
-import { UnPromisify } from "../_library/_utils"
+import { useBetterGenericContainer } from "./library.hooks"
+import { UnPromisify } from "../_utils"
 
 type ContainerGetter<
   providerFun extends (...args: any) => any,

@@ -1,6 +1,5 @@
-import _ from "lodash"
 import React, { useState, useEffect } from "react"
-import { UnPromisify } from "./_utils"
+import { UnPromisify } from "../_utils"
 
 // -- Generic
 
