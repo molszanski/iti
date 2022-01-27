@@ -24,10 +24,10 @@ export function generateEnsureContainerSet<Hook extends (...args: any) => any>(
       }
     }
 
-    return (
-      <EnsureReactContext.Provider value={containerSet}>
-        {props.children}
-      </EnsureReactContext.Provider>
+    return React.createElement(
+      EnsureReactContext.Provider,
+      { value: containerSet },
+      props.children,
     )
   }
 
