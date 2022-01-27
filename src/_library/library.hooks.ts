@@ -20,6 +20,8 @@ export function useBetterGenericContainer<T>(
   containerPromise: () => Promise<T>,
   controls: {
     onContainerUpdate(cb: (container: T) => void): void
+    unsubscribeFunction?: () => void
+    subscribeFunction?(cb: (container: T) => void): () => void
     containerKey: string
   },
 ): ContainerGenericBettter<T> {
@@ -28,10 +30,14 @@ export function useBetterGenericContainer<T>(
 
   // Update container
   useEffect(() => {
-    if (controls) {
+    if (controls.onContainerUpdate) {
       controls.onContainerUpdate((container) => {
         setData(container)
       })
+      return controls.unsubscribeFunction
+    }
+    if (controls.subscribeFunction) {
+      return controls.subscribeFunction((cont) => setData(cont))
     }
   }, [controls])
 

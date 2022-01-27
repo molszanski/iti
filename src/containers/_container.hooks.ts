@@ -59,9 +59,10 @@ function getContainerSetHooks<
     }, b)
 
     useEffect(() => {
-      root.subscribeToContinerSet(b, (contSet) => {
+      const unsub = root.subscribeToContinerSet(b, (contSet) => {
         setAll(contSet)
       })
+      return unsub
     }, b)
 
     return all
@@ -123,6 +124,8 @@ export function useRootStores222<
   //@ts-ignore
   root: RootContainer,
 ) {
+  const [data, setData] = useState<ContainerGetter>({} as any)
+
   let root2 = useRoot2()
   let FFF = <ContainerGetter>{}
   for (let contKey of root2.tokens) {
@@ -133,10 +136,14 @@ export function useRootStores222<
             // @ts-expect-error
             root2.containers[contKey],
           {
-            onContainerUpdate: (cb: any) => {
-              root2.subscribeToContiner(contKey, (container) => {
-                cb(container)
-              })
+            // onContainerUpdate: (cb: any) => {
+            //   root2.subscribeToContiner(contKey, (container) => {
+            //     cb(container)
+            //   })
+            // },
+            subscribeFunction: (cb: () => any) => {
+              console.log("calling sub on", contKey)
+              return root2.subscribeToContiner(contKey, cb)
             },
             containerKey: contKey,
           },
