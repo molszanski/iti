@@ -1,6 +1,9 @@
 import _ from "lodash"
 import React, { useContext, useEffect, useState } from "react"
-import { useRootStores } from "../_library/library.hooks"
+import {
+  useBetterGenericContainer,
+  useRootStores,
+} from "../_library/library.hooks"
 import { UnPromisify } from "../_library/_utils"
 import { getProviders, PizzaAppContainer } from "./_root.store"
 
@@ -24,14 +27,15 @@ type getAppRootContainer<providerFun extends (a1: any, a2: any) => any> =
 
 function getContainerSetHooks<
   getProviderFunction extends (...args) => { [k: string]: () => Promise<any> },
->(getProviders: getProviderFunction) {
+  AppContanier extends getAppRootContainer<getProviderFunction>,
+>(
+  getProviders: getProviderFunction,
+  reactContext: React.Context<AppContanier>,
+) {
   const f: ContainerKeys<getProviderFunction> = null as any
 
-  type PizzaAppContainer = getAppRootContainer<typeof getProviders>
-
-  const RootStoreContext2 = React.createContext<PizzaAppContainer>({} as any)
   function useRoot2() {
-    let k = useContext(RootStoreContext2)
+    let k = useContext(reactContext)
     return k
   }
 
@@ -42,8 +46,8 @@ function getContainerSetHooks<
 
   function useContainerSet<
     Token extends ContainerKeys<getProviderFunction> & string,
-  >(b: Token[]): ContainerSet<Token, typeof getProviders> {
-    const [all, setAll] = useState<ContainerSet<Token, typeof getProviders>>(
+  >(b: Token[]): ContainerSet<Token, getProviderFunction> {
+    const [all, setAll] = useState<ContainerSet<Token, getProviderFunction>>(
       null as any,
     )
     const root = useRoot2()
@@ -62,9 +66,11 @@ function getContainerSetHooks<
 
     return all
   }
-
+  let m: AppContanier = 1 as any
   return {
+    m,
     f,
+    useRoot2: useRoot2,
     useNewDandy: useNewDandy,
     useContainerSet: useContainerSet,
     RootStoreContext2: RootStoreContext2,
@@ -74,18 +80,71 @@ function getContainerSetHooks<
 export const RootStoreContext2 = React.createContext<PizzaAppContainer>(
   {} as any,
 )
-export function useRoot2() {
+
+function useRoot2() {
   let k = useContext(RootStoreContext2)
   return k
 }
+
+let mega = getContainerSetHooks(getProviders, RootStoreContext2)
+export const useContainerSet = mega.useContainerSet
+// export const useRoot2 = mega.useRoot2
+// let f = useRoot2()
+// export const useNewDandy = mega.useNewDandy
 
 export function useNewDandy() {
   const root = useRoot2()
   return useRootStores(root.providerMap, root)
 }
 
-let mega = getContainerSetHooks(getProviders)
+export function useNewDandy222() {
+  const root = useRoot2()
+  return useRootStores222(root.providerMap, root)
+}
 
-export const useContainerSet = mega.useContainerSet
-// export const useNewDandy = mega.useNewDandy
-// export const RootStoreContext2 = mega.RootStoreContext2
+export function useRootStores222<
+  T extends keyof ContMap,
+  ContMap extends {
+    [CK in T]: ContMap[CK]
+  },
+  /**
+   * Basically a nice api for hooks
+   * {
+   *   name: () => [containerInstance, errr ]
+   * }
+   */
+  ContainerGetter extends {
+    [CK in T]: ContMap[CK] extends any
+      ? [UnPromisify<ReturnType<ContMap[CK]>>, any, CK]
+      : never
+  },
+>(
+  providerMap: ContMap,
+  //@ts-ignore
+  root: RootContainer,
+) {
+  let root2 = useRoot2()
+  let FFF = <ContainerGetter>{}
+  for (let contKey of root2.tokens) {
+    Object.defineProperty(FFF, contKey, {
+      get() {
+        return useBetterGenericContainer(
+          () =>
+            // @ts-expect-error
+            root2.containers[contKey],
+          {
+            onContainerUpdate: (cb: any) => {
+              root2.subscribeToContiner(contKey, (container) => {
+                cb(container)
+              })
+            },
+            containerKey: contKey,
+          },
+        )
+      },
+      configurable: true,
+    })
+  }
+
+  return FFF
+}

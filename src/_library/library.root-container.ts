@@ -21,13 +21,16 @@ export class RootContainer<
   getProv extends GenericProviderSignature,
   R extends ReturnType<getProv>,
 > {
-  public providerMap: R
+  public readonly providerMap: R
+  public readonly tokens: Array<keyof R>
 
   constructor(getProviders: getProv) {
     this.providerMap = <R>{}
 
     let m = getProviders(this.providerMap, this)
-    for (let contKey in m) {
+    this.tokens = Object.keys(m)
+
+    for (let contKey of this.tokens) {
       // @ts-expect-error
       this.providerMap[contKey] = () => {
         // @ts-expect-error
@@ -72,10 +75,15 @@ export class RootContainer<
     type ContainerGetter = {
       [CK in keyof R]: Promise<GetContainer<R, CK>>
     }
-
     let containerMap = <ContainerGetter>{}
-    for (let key in this.providerMap) {
-      containerMap[key] = this.providerMap[key]()
+    let _this = this
+    for (let key of this.tokens) {
+      Object.defineProperty(containerMap, key, {
+        get() {
+          return _this.providerMap[key]()
+        },
+        enumerable: true,
+      })
     }
     return containerMap
   }
@@ -83,7 +91,7 @@ export class RootContainer<
   public async getContainerSetNew<
     T extends keyof R,
     ContainerKeyMap extends {
-      [CK in T]: CK
+      [CK in T]: T
     },
     ConttainerGetter extends {
       [CK in T]: GetContainer<R, CK>
@@ -91,7 +99,7 @@ export class RootContainer<
   >(cb: (keyMap: ContainerKeyMap) => T[]): Promise<ConttainerGetter> {
     let containerMap = <ContainerKeyMap>{}
 
-    for (let key in this.providerMap) {
+    for (let key of this.tokens) {
       // @ts-expect-error
       containerMap[key] = key
     }

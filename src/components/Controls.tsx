@@ -1,6 +1,10 @@
 import React, { useContext, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import { useContainerSet, useNewDandy } from "../containers/_container.hooks"
+import {
+  useContainerSet,
+  useNewDandy,
+  useNewDandy222,
+} from "../containers/_container.hooks"
 import { EnsureNewKitchenConainer, useNewKitchenContext } from "./EnsureKitchen"
 import s from "./Controls.module.css"
 
@@ -14,6 +18,7 @@ export const Controls = observer(() => {
       <StuffControls />
       <AdminControls />
       <AuthControls />
+      <NewTestControls />
     </div>
   )
 })
@@ -41,6 +46,18 @@ export const FatLibData = observer(() => {
   if (!fatlib) return <>fatlib is loading</>
 
   return <div>I can haz fat lib data 1: {fatlib.fatLibData}</div>
+})
+
+export const NewTestControls = observer(() => {
+  const [authContainer] = useNewDandy222().auth
+  const [kitchenContainer] = useNewDandy222().kitchen
+
+  if (!authContainer) return <>AUTH is loading</>
+  if (!kitchenContainer) return <>AUTH is loading</>
+  console.log("pizza capacity: ", kitchenContainer.oven.pizzaCapacity)
+  const { auth } = authContainer
+
+  return <div>new Test constroles</div>
 })
 
 export const AuthControls = observer(() => {
@@ -97,22 +114,6 @@ export const NewPizzaPlaceControls = observer(() => {
   )
 })
 
-type IfEquals<T, U, Y = unknown, N = never> = (<G>() => G extends T
-  ? 1
-  : 2) extends <G>() => G extends U ? 1 : 2
-  ? Y
-  : N
-
-declare const exactType: <T, U>(
-  draft: T & IfEquals<T, U>,
-  expected: U & IfEquals<T, U>,
-) => IfEquals<T, U>
-
-let a = 1
-let b = 123
-
-// $ExpectError
-exactType(typeof a, typeof b)
 export const PizzaPlaceControls = observer(() => {
   const [kitchenCont] = useNewDandy().kitchen()
   const [pizzaPlaceCont] = useNewDandy().pizzaContainer()
