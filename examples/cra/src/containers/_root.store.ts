@@ -1,4 +1,5 @@
 import { RootContainer } from "snow-splash"
+import type { GenericRegistry, ApplicationContainer } from "snow-splash"
 
 import { provideAContainer } from "./container.a"
 import { provideAuthContainer } from "./container.auth"
@@ -10,7 +11,7 @@ import { provideKitchenContainer } from "./container.kitchen"
 import { provideFatLib1 } from "./container.fat-lib1"
 import { provideFatLib2 } from "./container.fat-lib2"
 
-interface PizzaRegistry {
+interface PizzaRegistry extends GenericRegistry {
   auth: () => ReturnType<typeof provideAuthContainer>
   aCont: () => ReturnType<typeof provideAContainer>
   bCont: () => ReturnType<typeof provideBContainer>
@@ -23,8 +24,7 @@ interface PizzaRegistry {
   fatlib2: () => ReturnType<typeof provideFatLib2>
 }
 
-type Lib = (...args: any) => { [K in keyof PizzaRegistry]: PizzaRegistry[K] }
-export type PizzaAppContainer = RootContainer<Lib, ReturnType<Lib>>
+export type PizzaAppContainer = ApplicationContainer<PizzaRegistry>
 
 export function getProviders(ctx: PizzaRegistry, root: PizzaAppContainer) {
   return {

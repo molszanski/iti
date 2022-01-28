@@ -1,17 +1,17 @@
-import { makeRoot, RootContainer } from "../../library.root-container"
+import { makeRoot } from "../../src/library.root-container"
+import { ApplicationContainer, GenericRegistry } from "../../src/_utils"
 
 import { provideAContainer } from "./container.a"
 import { provideBContainer } from "./container.b"
 import { provideCContainer } from "./container.c"
 
-interface Registry {
+interface Registry extends GenericRegistry {
   aCont: () => ReturnType<typeof provideAContainer>
   bCont: () => ReturnType<typeof provideBContainer>
   cCont: () => ReturnType<typeof provideCContainer>
 }
 
-type Lib = (...args: any) => { [K in keyof Registry]: Registry[K] }
-export type MockAppContainer = RootContainer<Lib, ReturnType<Lib>>
+export type MockAppContainer = ApplicationContainer<Registry>
 
 function getProviders(ctx: Registry, root: MockAppContainer) {
   return {
