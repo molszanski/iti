@@ -2,14 +2,14 @@
 
 # Snow Splash
 
-> ~1kB inversion of control container for Typescript/Javascrith with a focus on async flow
+> ~1kB inversion of control container for Typescript/Javascript with a focus on async flow
 
-- **fully async:** merges async and constructor injection via an asynchronous Factory (async function)
-- **clean:** does not pollute business logic with framework extends, library decorators or magic properties
-- **lazy:** initializes your object on demand
-- **split-chunks:** because core is fully async it provides a way to split application logic into chunks
+- **fully async:** merges async and a constructor injection via an async functiom (asynchronous factory pattern)
+- **clean:** does not mix application logic with framework `extends`, library `@decorators` or other magic properties
+- **lazy:** initializes your app modules, packed into containers on demand
+- **split-chunks:** core is fully async and it provides a way to split application logic into chunks
 - **typesafe:** works well with typescript
-- **react:** has useful react bindings to separate your business logic and react view layer
+- **react:** has useful react bindings to help separate application logic and react view layer
 - **lightweight:** doesn't rely on 'reflect-metadata' or decorators
 - **tiny:** ~1kB
 
@@ -17,10 +17,12 @@ Snow-Splash relies on containers to provide usefull grouping. Containers group a
 
 ## Usage
 
-`npm install -S snow-splash`
+```
+npm install -S snow-splash`
+```
 
 ```js
-// STEP 1: Define Containers that group your business logic
+// STEP 1: Define Containers that group your application logic
 
 import { RootContainer } from "snow-splash"
 import { Oven, Kitchen, OrderManager } from "./kitchen/"
@@ -29,7 +31,7 @@ import { PizzaPlace, DiningTables } from "./pizza-place/"
 // async function that returns object of any shape. Acts as async factory
 export async function provideKitchenContainer() {
   const oven = new Oven()
-  await override.preheat()
+  await oven.preheat()
 
   return {
     oven: oven,
@@ -45,7 +47,9 @@ export async function providePizzaPlaceContainer(kitchenContainer) {
     diningTables: new DiningTables(),
   }
 }
+```
 
+```js
 // STEP 2: Wire containers and expose main application container
 
 // core function that wires containers into a DAG
@@ -58,8 +62,10 @@ export function getProviders(ctx) {
 export function getMainPizzaAppContainer() {
   return new RootContainer(getProviders)
 }
+```
 
-// STEP 3: Use inside your App
+```js
+// STEP 3: Use inside your App - Node.js
 
 // -- Node.js
 
@@ -71,8 +77,10 @@ const { pizzaContainer, kitchen } = await pizzaApp.containers
 pizzaContainer.orders.orderPizza()
 
 console.log(`In Oven: ${kitchen.oven.pizzasInOven()}`)
+```
 
-// -- React - works via context
+```js
+// STEP 3: Use inside your App - React - works via context
 
 export const PizzaData = () => {
   const kitchenContainerSet = useContainerSet((c) => [
@@ -97,7 +105,7 @@ export const PizzaData = () => {
 
 Inversion of Control (IoC) is a great way to decouple the application and the most popular pattern of IoC is dependency injection (DI) [but it is not limited to one](https://martinfowler.com/articles/injection.html).
 
-In JavaScript there is not way to create a dependency injection without polluting business logic with a specific IoC library code, or hacking a compiler.
+In JavaScript there is not way to create a dependency injection without mixing application logic with a specific IoC library code, or hacking a compiler.
 
 `snow-splash` provides a pattern to use constructor injection that works in async JS world with all the flexibility you might need at the cost of manually defining providers (async functions) for your code
 
@@ -105,9 +113,11 @@ In JavaScript there is not way to create a dependency injection without pollutin
 
 Javascript does not provide advanced OO primitives unlike Java or C#. Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata` to enable DI.
 
-This has a major downside as it "pollutes" your business logic code with framework decorator imports, magic variables or other lock in.
+This has a major downside as it "mixes" your application logic code with framework decorator imports or magic variables. This is can also be a downside since it provides a lock-in.
 
-**Snow-Splash avoids decorators and `reflect-metada`**
+If two teams in your organization pick two different IoC/DI libs, it would be hard to share code.
+
+**`inversifyjs` and `tsyringe` use decorators and `reflect-metada`**
 
 ```ts
 import { injectable } from "tsyringe"
@@ -125,7 +135,7 @@ import { Foo } from "./foo"
 const instance = container.resolve(Foo)
 ```
 
-**Snow-Splash avoids magic properties and monkey-patching**
+**`typed-inject` uses magic properties and monkey-patching**
 
 ```ts
 import { createInjector } from "typed-inject"
@@ -141,7 +151,7 @@ class Baz {
 }
 ```
 
-With Snow-Splash your business logic is not mixed with the framework code
+With Snow-Splash your application logic is not mixed with the framework code
 
 ```ts
 import type { Ingredients } from "./store.ingrediets"
@@ -209,8 +219,7 @@ function getProviders(ctx: Registry, root: MockAppContainer) {
 }
 
 export function getMainMockAppContainer() {
-  let x = makeRoot(getProviders)
-  return x
+  return makeRoot(getProviders)
 }
 ```
 
@@ -334,7 +343,7 @@ import { useContainerSet } from "../containers/_container.hooks"
 import { generateEnsureContainerSet } from "snow-splash"
 
 const x = generateEnsureContainerSet(() =>
-  useContainerSet(["kitchen", "pizzaContainer", "auth"])
+  useContainerSet(["kitchen", "pizzaContainer", "auth"]),
 )
 export const EnsureNewKitchenConainer = x.EnsureWrapper
 export const useNewKitchenContext = x.contextHook
