@@ -17,9 +17,9 @@ Snow-Splash relies Containers provide a usefull grouping and forms a DAG (direct
 
 ## Usage
 
-```js
-npm install -S snowsplash
+`npm install -S snow-splash`
 
+```js
 // STEP 1: Define Containers
 
 import { RootContainer } from "snow-splash"
@@ -103,7 +103,7 @@ In JavaScript there is not way to create a dependency injection without pollutin
 
 ## Why another library? Alternatives
 
-Javascript is not Java or C# and it does not provide advanced OO constructs. Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata` to enable DI.
+Javascript does not provide advanced OO primitives unlike Java or C#. Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata` to enable DI.
 
 This has a major downside as it "pollutes" your business logic code with framework decorator imports, magic variables or other lock in.
 
@@ -116,9 +116,129 @@ Notable inspirations:
   https://github.com/nicojs/typed-inject
   https://github.com/asvetliakov/Huject
 
+## Getting Started
+
+The best way to get started is to check a Pizza example
+
 ## Docs
 
 ### Tokens
+
+### Containers
+
+Containers are an important unit.
+If you replace them, users will be notified. In react it happens automatically
+
+## API documentation JS / TS
+
+## API documentation React
+
+### `getContainerSetHooks`
+
+Generates a set of app specific container hooks
+
+```ts
+// my-app-hooks.ts
+import React, { useContext } from "react"
+import { getContainerSetHooks } from "snow-splash"
+import { getProviders, PizzaAppContainer } from "./_root.store"
+
+export const MyRootCont = React.createContext(<PizzaAppContainer>{})
+
+let mega = getContainerSetHooks(getProviders, MyRootCont)
+export const useContainerSet = mega.useContainerSet
+export const useContainerSetNew = mega.useContainerSetNew
+```
+
+```tsx
+// PizzaData.tsx
+import { useContainerSet } from "./my-app-hooks"
+export const PizzaData = () => {
+  const containerSet = useContainerSetNew((containers) => [containers.kitchen])
+  console.log(containerSet)
+  return 123
+}
+```
+
+### `useContainer`
+
+```ts
+export const PizzaData = () => {
+  const [kitchenContainer, err] = useContainer().kitchen
+  if (!kitchenContainer || err) {
+    return <>Kitchen is loading</>
+  }
+
+  return <>{kitchenContainer.oven.pizzasInOven}</>
+}
+```
+
+### `useContainerSet`
+
+Get multiple containers and autosubscribes to change.
+
+```ts
+export const PizzaData = () => {
+  const containerSet = useContainerSetNew((containers) => [
+    containers.kitchen,
+    containers.auth,
+  ])
+  if (!containerSet) {
+    return <>Kitchen is loading</>
+  }
+
+  return <>{containerSet.kitchen.oven.pizzasInOven}</>
+}
+```
+
+###
+
+### `generateEnsureContainerSet`
+
+You can create a simpler API for a portion of your applicatoin to avoid dealing with async in every component. There are some helpfull Context helpers at your service. Also you can use classic props drilling to avoid dealing with async flow in every component
+
+```tsx
+import React, { useContext } from "react"
+import { useContainerSet } from "../containers/_container.hooks"
+import { generateEnsureContainerSet } from "snow-splash"
+
+const x = generateEnsureContainerSet(() =>
+  useContainerSet(["kitchen", "pizzaContainer", "auth"]),
+)
+export const EnsureNewKitchenConainer = x.EnsureWrapper
+export const useNewKitchenContext = x.contextHook
+```
+
+```tsx
+export const PizzaApp = () => {
+  return (
+    <div>
+      Pizza App:
+      <EnsureNewKitchenConainer
+        fallback={<>Pizza App is still loading please wait</>}
+      >
+        <NewPizzaPlaceControls />
+      </EnsureNewKitchenConainer>
+    </div>
+  )
+}
+export const PizzaData = () => {
+  const { kitchen, pizzaContainer } = useNewKitchenContext()
+
+  return (
+    <div>
+      <div>Name: {kitchen.kitchen.kitchenName}</div>
+      <div>Tables: {pizzaContainer.diningTables.tables}</div>
+    </div>
+  )
+}
+```
+
+## Questions and tips
+
+**Can I have multiple application containers?**
+
+Yes, no problem at all. If you want, they can even share tokens and hence instances!
 
 ## old notes
 

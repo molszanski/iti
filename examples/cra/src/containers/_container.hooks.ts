@@ -2,11 +2,9 @@ import React, { useContext } from "react"
 import { getContainerSetHooks } from "snow-splash"
 import { getProviders, PizzaAppContainer } from "./_root.store"
 
-export const RootStoreContext = React.createContext<PizzaAppContainer>(
-  {} as any,
-)
+export const MyRootCont = React.createContext(<PizzaAppContainer>{})
 
-let mega = getContainerSetHooks(getProviders, RootStoreContext)
+let mega = getContainerSetHooks(getProviders, MyRootCont)
 export const useContainerSet = mega.useContainerSet
 export const useContainerSetNew = mega.useContainerSetNew
 // export const useRoot = mega.useRoot
@@ -14,6 +12,6 @@ export const useContainerSetNew = mega.useContainerSetNew
 // export const useContainer = mega.useContainer
 
 export function useContainer() {
-  const root = useContext(RootStoreContext)
+  const root = useContext(MyRootCont)
   return mega.useRootContainerMap(root.providerMap, root)
 }
