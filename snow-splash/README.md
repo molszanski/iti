@@ -13,14 +13,14 @@
 - **lightweight:** doesn't rely on 'reflect-metadata' or decorators
 - **tiny:** ~1kB
 
-Snow-Splash relies containers provide usefull grouping. Containers form a DAG (directed acyclic graph) and nodes are initialized on request
+Snow-Splash relies on containers to provide usefull grouping. Containers group a couple of initialized instances together. Containers form a DAG (directed acyclic graph) and containers (nodes) are initialized on request and dependency tree is initialized automatically. This might resemble DI mechanisms
 
 ## Usage
 
 `npm install -S snow-splash`
 
 ```js
-// STEP 1: Define Containers
+// STEP 1: Define Containers that group your business logic
 
 import { RootContainer } from "snow-splash"
 import { Oven, Kitchen, OrderManager } from "./kitchen/"
@@ -153,6 +153,15 @@ export function getMainMockAppContainer() {
 }
 ```
 
+## Typescript
+
+Snow-Splash has a good typescript support
+
+![Autocomplete](../docs/1.png)
+![Autocomplete](../docs/2.png)
+![Autocomplete](../docs/3.png)
+![Autocomplete](../docs/4.png)
+
 ## Docs
 
 ### Tokens
@@ -264,7 +273,7 @@ import { useContainerSet } from "../containers/_container.hooks"
 import { generateEnsureContainerSet } from "snow-splash"
 
 const x = generateEnsureContainerSet(() =>
-  useContainerSet(["kitchen", "pizzaContainer", "auth"])
+  useContainerSet(["kitchen", "pizzaContainer", "auth"]),
 )
 export const EnsureNewKitchenConainer = x.EnsureWrapper
 export const useNewKitchenContext = x.contextHook
