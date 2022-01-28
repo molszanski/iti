@@ -173,7 +173,6 @@ Notable inspirations:
 
 - https://github.com/inversify/InversifyJS
 - https://github.com/microsoft/tsyringe
-
 - https://github.com/nicojs/typed-inject
 - https://github.com/asvetliakov/Huject
 - https://github.com/typestack/typedi
@@ -335,7 +334,7 @@ import { useContainerSet } from "../containers/_container.hooks"
 import { generateEnsureContainerSet } from "snow-splash"
 
 const x = generateEnsureContainerSet(() =>
-  useContainerSet(["kitchen", "pizzaContainer", "auth"]),
+  useContainerSet(["kitchen", "pizzaContainer", "auth"])
 )
 export const EnsureNewKitchenConainer = x.EnsureWrapper
 export const useNewKitchenContext = x.contextHook
