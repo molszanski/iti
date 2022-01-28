@@ -107,14 +107,76 @@ Javascript does not provide advanced OO primitives unlike Java or C#. Libraries 
 
 This has a major downside as it "pollutes" your business logic code with framework decorator imports, magic variables or other lock in.
 
+**Snow-Splash avoids decorators and `reflect-metada`**
+
+```ts
+import { injectable } from "tsyringe"
+
+@injectable()
+class Foo {
+  constructor(private database: Database) {}
+}
+
+// some other file
+import "reflect-metadata"
+import { container } from "tsyringe"
+import { Foo } from "./foo"
+
+const instance = container.resolve(Foo)
+```
+
+**Snow-Splash avoids magic properties and monkey-patching**
+
+```ts
+import { createInjector } from "typed-inject"
+function barFactory(foo: number) {
+  return foo + 1
+}
+barFactory.inject = ["foo"] as const
+class Baz {
+  constructor(bar: number) {
+    console.log(`bar is: ${bar}`)
+  }
+  static inject = ["bar"] as const
+}
+```
+
+With Snow-Splash your business logic is not mixed with the framework code
+
+```ts
+import type { Ingredients } from "./store.ingrediets"
+import type { Oven } from "./store.oven"
+
+export class Kitchen {
+  constructor(private oven: Oven, private ingredients: Ingredients) {}
+}
+
+// provider / factory
+import { IngredientsService } from "../services/ingredients-manager"
+import { Kitchen } from "../stores/store.kitchen"
+import { Oven } from "../stores/store.oven"
+
+export async function provideKitchenContainer() {
+  let oven = new Oven()
+  let ingredients = await IngredientsService.buySomeIngredients()
+  let kitchen = new Kitchen(oven, ingredients)
+
+  return {
+    oven: oven,
+    ingredients: ingredients,
+    kitchen: kitchen,
+  }
+}
+```
+
 Notable inspirations:
 
 - https://github.com/inversify/InversifyJS
 - https://github.com/microsoft/tsyringe
-  https://github.com/microsoft/tsyringe
-  https://github.com/typestack/typedi
-  https://github.com/nicojs/typed-inject
-  https://github.com/asvetliakov/Huject
+
+- https://github.com/nicojs/typed-inject
+- https://github.com/asvetliakov/Huject
+- https://github.com/typestack/typedi
 
 ## Getting Started
 
@@ -157,10 +219,10 @@ export function getMainMockAppContainer() {
 
 Snow-Splash has a good typescript support
 
-![Autocomplete](../docs/1.png)
-![Autocomplete](../docs/2.png)
-![Autocomplete](../docs/3.png)
-![Autocomplete](../docs/4.png)
+![Autocomplete](./docs/1.png)
+![Autocomplete](./docs/2.png)
+![Autocomplete](./docs/3.png)
+![Autocomplete](./docs/4.png)
 
 ## Docs
 
@@ -309,19 +371,3 @@ export const PizzaData = () => {
 **Can I have multiple application containers?**
 
 Yes, no problem at all. If you want, they can even share tokens and hence instances!
-
-## old notes
-
-Subjects:
-
-- event emitter: Rather domain scoped
-- hidden agenda / goal: share containeres and stores between projects
-
-Containers:
-
-- what about instances shared between multiple containers? No!
-- Can we create "combined" contaners? Ok!
-
-Notes:
-
-Sometimes we will need mobx transaction feature
