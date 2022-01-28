@@ -13,7 +13,7 @@
 - **lightweight:** doesn't rely on 'reflect-metadata' or decorators
 - **tiny:** ~1kB
 
-Snow-Splash relies Containers provide a usefull grouping and forms a DAG (directed acyclic graph) that initializes on demand.
+Snow-Splash relies containers provide usefull grouping. Containers form a DAG (directed acyclic graph) and nodes are initialized on request
 
 ## Usage
 
@@ -120,6 +120,39 @@ Notable inspirations:
 
 The best way to get started is to check a Pizza example
 
+Initial wiring
+
+```ts
+import { makeRoot, RootContainer } from "../../library.root-container"
+
+import { provideAContainer } from "./container.a"
+import { provideBContainer } from "./container.b"
+import { provideCContainer } from "./container.c"
+
+interface Registry {
+  aCont: () => ReturnType<typeof provideAContainer>
+  bCont: () => ReturnType<typeof provideBContainer>
+  cCont: () => ReturnType<typeof provideCContainer>
+}
+
+type Lib = (...args: any) => { [K in keyof Registry]: Registry[K] }
+export type MockAppContainer = RootContainer<Lib, ReturnType<Lib>>
+
+function getProviders(ctx: Registry, root: MockAppContainer) {
+  return {
+    aCont: async () => provideAContainer(),
+    bCont: async () => provideBContainer(await ctx.aCont()),
+    cCont: async () =>
+      provideCContainer(await ctx.aCont(), await ctx.bCont(), root),
+  }
+}
+
+export function getMainMockAppContainer() {
+  let x = makeRoot(getProviders)
+  return x
+}
+```
+
 ## Docs
 
 ### Tokens
@@ -130,6 +163,34 @@ Containers are an important unit.
 If you replace them, users will be notified. In react it happens automatically
 
 ## API documentation JS / TS
+
+### `makeRoot` Setting app root
+
+```ts
+import { makeRoot, RootContainer } from "../../library.root-container"
+export function getMainMockAppContainer() {
+  // check get providers above
+  return makeRoot(getProviders)
+}
+```
+
+### `containers` getter
+
+```ts
+let appRoot = getMainPizzaAppContainer()
+let kitchen = await appRoot.containers.kitchen
+kitchen.oven.pizzaCapacity // 4
+```
+
+### `getContainerSet`
+
+### `getContainerSetNew`
+
+### `replaceCointerInstantly`
+
+When containers are updated react is updated too via hooks
+
+### `replaceCointerAsync`
 
 ## API documentation React
 
@@ -203,7 +264,7 @@ import { useContainerSet } from "../containers/_container.hooks"
 import { generateEnsureContainerSet } from "snow-splash"
 
 const x = generateEnsureContainerSet(() =>
-  useContainerSet(["kitchen", "pizzaContainer", "auth"]),
+  useContainerSet(["kitchen", "pizzaContainer", "auth"])
 )
 export const EnsureNewKitchenConainer = x.EnsureWrapper
 export const useNewKitchenContext = x.contextHook
