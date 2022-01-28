@@ -41,5 +41,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "license": "MIT",
+  "authors": [
+    "Nick Olszanski <nick@dinosaurs-with-jetpacks.com>"
+  ],
+  "prettier": {
+    "semi": false,
+    "singleQuote": false,
+    "arrowParens": "always",
+    "trailingComma": "all"
   }
 }

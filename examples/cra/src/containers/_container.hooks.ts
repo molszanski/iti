@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { getContainerSetHooks } from "./_container.hook.gen"
+import { getContainerSetHooks } from "snow-splash"
 import { getProviders, PizzaAppContainer } from "./_root.store"
 
 export const RootStoreContext = React.createContext<PizzaAppContainer>(
