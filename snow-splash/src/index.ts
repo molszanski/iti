@@ -6,9 +6,4 @@ export { getContainerSetHooks } from "./react/library.hook-generator"
 export { useBetterGenericContainer } from "./react/library.hooks"
 export { wait } from "./_utils"
 
-export type {
-  GetContainerFormat,
-  UnPromisify,
-  GenericRegistry,
-  ApplicationContainer,
-} from "./_utils"
+export type { GetContainerFormat, UnPromisify } from "./_utils"
