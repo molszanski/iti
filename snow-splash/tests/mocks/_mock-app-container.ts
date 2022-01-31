@@ -1,4 +1,4 @@
-import { makeRoot, RootContainer } from "../../library.root-container"
+import { makeRoot, RootContainer } from "../../src/library.root-container"
 
 import { provideAContainer } from "./container.a"
 import { provideBContainer } from "./container.b"
@@ -13,7 +13,7 @@ interface Registry {
 type Lib = (...args: any) => { [K in keyof Registry]: Registry[K] }
 export type MockAppContainer = RootContainer<Lib, ReturnType<Lib>>
 
-function getProviders(ctx: Registry, root: MockAppContainer) {
+export function getProviders(ctx: Registry, root: MockAppContainer) {
   return {
     aCont: async () => provideAContainer(),
     bCont: async () => provideBContainer(await ctx.aCont()),
@@ -23,6 +23,5 @@ function getProviders(ctx: Registry, root: MockAppContainer) {
 }
 
 export function getMainMockAppContainer() {
-  let x = makeRoot(getProviders)
-  return x
+  return makeRoot(getProviders)
 }

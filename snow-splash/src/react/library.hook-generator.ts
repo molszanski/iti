@@ -27,7 +27,7 @@ export function getContainerSetHooks<
   getProviders: getProviderFunction,
   reactContext: React.Context<AppContanier>,
 ) {
-  const f: ContainerKeys<getProviderFunction> = null as any
+  const f: ContainerKeys<getProviderFunction> = undefined as any
 
   function useRoot() {
     let k = useContext(reactContext)
@@ -36,10 +36,10 @@ export function getContainerSetHooks<
 
   function useContainer() {
     const root = useRoot()
-    return useRootStores222(root.providerMap, root)
+    return useRootStores(root.providerMap, root)
   }
 
-  function useRootStores222<
+  function useRootStores<
     T extends keyof ContMap,
     ContMap extends {
       [CK in T]: ContMap[CK]
@@ -52,7 +52,7 @@ export function getContainerSetHooks<
      */
     ContainerGetter extends {
       [CK in T]: ContMap[CK] extends any
-        ? [UnPromisify<ReturnType<ContMap[CK]>>, any, CK]
+        ? [UnPromisify<ReturnType<ContMap[CK]>> | undefined, any, CK]
         : never
     },
   >(
@@ -84,7 +84,7 @@ export function getContainerSetHooks<
     TokenMap extends { [T in ContainerKeys<getProviderFunction>]: T },
   >(
     cb: (keyMap: TokenMap) => Token[],
-  ): ContainerSet<Token, getProviderFunction> {
+  ): ContainerSet<Token, getProviderFunction> | undefined {
     const root = useRoot()
     let tokenSet = root.getContainerSetCallback(cb)
     return useContainerSet(tokenSet)
@@ -94,7 +94,7 @@ export function getContainerSetHooks<
     Token extends ContainerKeys<getProviderFunction> & string,
   >(b: Token[]): ContainerSet<Token, getProviderFunction> {
     const [all, setAll] = useState<ContainerSet<Token, getProviderFunction>>(
-      null as any,
+      undefined as any,
     )
     const root = useRoot()
 
@@ -121,6 +121,6 @@ export function getContainerSetHooks<
     useContainer: useContainer,
     useContainerSet: useContainerSet,
     useContainerSetNew: useContainerSetNew,
-    useRootContainerMap: useRootStores222,
+    useRootContainerMap: useRootStores,
   }
 }
