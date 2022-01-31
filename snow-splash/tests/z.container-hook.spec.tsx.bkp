@@ -1,0 +1,114 @@
+
+
+
+THIS file is on hold because I am not that smart to test these react hooks
+
+
+
+
+
+
+
+
+
+import React from "react"
+import { renderHook, act } from "@testing-library/react-hooks/dom"
+// import { renderHook, } from '@testing-library/react-hooks"
+import { expectType, expectError } from "tsd"
+
+import {
+  useMockAppContainer,
+  useMockAppContainerSet,
+  useMockAppContainerSetNew,
+} from "./mocks/_mock-app-hooks"
+import { A_Container } from "./mocks/container.a"
+import { B_Container } from "./mocks/container.b"
+import { C_Container } from "./mocks/container.c"
+import { MockAppWrapper } from "./mocks/_mock-app-components"
+
+// it("should pass basic ts test", () => {
+//   let [authCont] = useContainer().auth
+//   expectType<AuthContainer>(authCont)
+// })
+
+// const App = () => <>learn react</>
+// // https://github.com/SamVerschueren/tsd
+
+// test("renders learn react link", () => {
+//   render(<App />)
+//   const linkElement = screen.getByText(/learn react/i)
+//   expect(linkElement).toBeInTheDocument()
+// })
+
+/**
+ * Testing react hooks is waste of time
+ */
+
+it.only("should pass basic ts test", (cb) => {
+  ;(async () => {
+    let a = 12
+    // <MockAppWrapper>
+    // result.current.increment()
+    const wrapper = (p) => <MockAppWrapper>{p.children}</MockAppWrapper>
+    const { result } = renderHook(() => useMockAppContainer(), {
+      wrapper,
+    })
+    console.log("rez", result)
+    console.log("rez", result.all)
+    console.log("rez", result.current)
+
+    await act(async () => {
+      return result.current.aCont
+    })
+    // const { result } = renderHook(() => useMockAppContainer().aCont)
+
+    expect(a).toBe(12)
+    cb()
+  })()
+
+  // let [aContainer] =
+  // let contSet = useMockAppContainerSetNew((c) => [c.aCont, c.bCont, c.cCont])
+
+  // // @ts-expect-error
+  // expectType<undefined>(aContainer) // because aContainer should be undefined on first render
+
+  // expect(() => {
+  //   // @ts-expect-error
+  //   expectError<B_Container>(contSet.cCont)
+  // }).toThrow()
+
+  // if (aContainer == null) return null
+  // if (contSet == null) return null
+
+  // expectType<A_Container>(aContainer)
+  // expectType<B_Container>(contSet.bCont)
+
+  // return null
+
+  // const App = () => {
+  //   let [aContainer] = useMockAppContainer().aCont
+  //   let contSet = useMockAppContainerSetNew((c) => [c.aCont, c.bCont, c.cCont])
+
+  //   // @ts-expect-error
+  //   expectType<undefined>(aContainer) // because aContainer should be undefined on first render
+
+  //   expect(() => {
+  //     // @ts-expect-error
+  //     expectError<B_Container>(contSet.cCont)
+  //   }).toThrow()
+
+  //   if (aContainer == null) return null
+  //   if (contSet == null) return null
+
+  //   expectType<A_Container>(aContainer)
+  //   expectType<B_Container>(contSet.bCont)
+
+  //   return null
+  // }
+
+  // render(
+  //   <MockAppWrapper>
+  //     <App />
+  //   </MockAppWrapper>,
+  // )
+})
