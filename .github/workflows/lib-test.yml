@@ -32,11 +32,11 @@ jobs:
       - name: Install Deps
         run: yarn install
 
-      - name: Run tests and check types
-        run: yarn test
-
       - name: Check types
         run: yarn tsd
+
+      - name: Run tests
+        run: yarn test
 
       - name: Check if builds
         run: yarn build
