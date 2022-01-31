@@ -1,6 +1,6 @@
 {
   "types": "dummy.d.ts",
   "tsd": {
-    "directory": "../src"
+    "directory": "../tests"
   }
 }
