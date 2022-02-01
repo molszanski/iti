@@ -17,9 +17,9 @@ it("should check getContainerSet types", async () => {
   expectType<A_Container>(containerSet.aCont)
 })
 
-it("should check getContainerSetNew  types", async () => {
+it("should check getContainerSet function types", async () => {
   const cont = getMainMockAppContainer()
-  let containerSet = await cont.getContainerSetNew((c) => [c.aCont, c.bCont])
+  let containerSet = await cont.getContainerSet((c) => [c.aCont, c.bCont])
   expectNotType<any>(containerSet)
   expectNotType<any>(containerSet.aCont)
   expectType<A_Container>(containerSet.aCont)
@@ -27,7 +27,7 @@ it("should check getContainerSetNew  types", async () => {
 
 it("should check subscribe types", async () => {
   const cont = getMainMockAppContainer()
-  cont.subscribeToContinerSetNew(
+  cont.subscribeToContinerSet(
     (c) => {
       expectNotType<any>(c)
       expectType<"aCont">(c.aCont)

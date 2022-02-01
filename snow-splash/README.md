@@ -269,8 +269,6 @@ kitchen.oven.pizzaCapacity // 4
 
 When containers are updated react is updated too via hooks
 
-### `replaceCointerAsync`
-
 ## API documentation React
 
 ### `getContainerSetHooks`
