@@ -76,37 +76,34 @@ export function getContainerSetHooks<
     return FFF
   }
 
-  function useContainerSetNew<
+  function useContainerSet<
     Token extends ContainerKeys<getProviderFunction> & string,
     TokenMap extends { [T in ContainerKeys<getProviderFunction>]: T },
   >(
-    cb: (keyMap: TokenMap) => Token[],
-  ): ContainerSet<Token, getProviderFunction> | undefined {
-    const root = useRoot()
-    let tokenSet = root.getContainerSetCallback(cb)
-    return useContainerSet(tokenSet)
-  }
-
-  function useContainerSet<
-    Token extends ContainerKeys<getProviderFunction> & string,
-  >(b: Token[]): ContainerSet<Token, getProviderFunction> {
+    tokensOrCallback: Token[] | ((keyMap: TokenMap) => Token[]),
+  ): ContainerSet<Token, getProviderFunction> {
     const [all, setAll] = useState<ContainerSet<Token, getProviderFunction>>(
       undefined as any,
     )
     const root = useRoot()
 
-    useEffect(() => {
-      root.getContainerSet(b).then((contSet) => {
-        setAll(contSet)
-      })
-    }, b)
+    const tokens =
+      typeof tokensOrCallback === "function"
+        ? root.getContainerSetCallback(tokensOrCallback)
+        : tokensOrCallback
 
     useEffect(() => {
-      const unsub = root.subscribeToContinerSet(b, (contSet) => {
+      root.getContainerSet(tokens).then((contSet) => {
+        setAll(contSet)
+      })
+    }, tokens)
+
+    useEffect(() => {
+      const unsub = root.subscribeToContinerSet(tokens, (contSet) => {
         setAll(contSet)
       })
       return unsub
-    }, b)
+    }, tokens)
 
     return all
   }
@@ -114,7 +111,6 @@ export function getContainerSetHooks<
     useRoot: useRoot,
     useContainer: useContainer,
     useContainerSet: useContainerSet,
-    useContainerSetNew: useContainerSetNew,
     useRootContainerMap: useRootStores,
   }
 }

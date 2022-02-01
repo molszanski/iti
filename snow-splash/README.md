@@ -2,7 +2,7 @@
 
 # Snow Splash
 
-> ~1kB inversion of control container for Typescript/Javascript with a focus on async flow
+> ~1kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
 
 - **fully async:** merges async and a constructor injection via an async functiom (asynchronous factory pattern)
 - **clean:** does not mix application logic with framework `extends`, library `@decorators` or other magic properties
@@ -285,14 +285,14 @@ export const MyRootCont = React.createContext(<PizzaAppContainer>{})
 
 let mega = getContainerSetHooks(getProviders, MyRootCont)
 export const useContainerSet = mega.useContainerSet
-export const useContainerSetNew = mega.useContainerSetNew
+export const useContainerSet = mega.useContainerSet
 ```
 
 ```tsx
 // PizzaData.tsx
 import { useContainerSet } from "./my-app-hooks"
 export const PizzaData = () => {
-  const containerSet = useContainerSetNew((containers) => [containers.kitchen])
+  const containerSet = useContainerSet((containers) => [containers.kitchen])
   console.log(containerSet)
   return 123
 }
@@ -317,7 +317,7 @@ Get multiple containers and autosubscribes to change.
 
 ```ts
 export const PizzaData = () => {
-  const containerSet = useContainerSetNew((containers) => [
+  const containerSet = useContainerSet((containers) => [
     containers.kitchen,
     containers.auth,
   ])

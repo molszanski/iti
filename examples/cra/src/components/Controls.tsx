@@ -1,10 +1,6 @@
 import React, { useContext, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
-import {
-  useContainerSet,
-  useContainer,
-  useContainerSetNew,
-} from "../containers/_container.hooks"
+import { useContainer, useContainerSet } from "../containers/_container.hooks"
 import { EnsureNewKitchenConainer, useNewKitchenContext } from "./EnsureKitchen"
 import s from "./Controls.module.css"
 
@@ -50,7 +46,7 @@ export const FatLibData = observer(() => {
 
 export const NewTestControls = observer(() => {
   const { auth, kitchen } = useContainer()
-  const cSet = useContainerSetNew((c) => [c.aCont])
+  const cSet = useContainerSet((c) => [c.aCont])
 
   if (!auth[0]) return <>AUTH is loading</>
   if (!kitchen[0]) return <>AUTH is loading</>
