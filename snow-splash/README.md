@@ -14,11 +14,12 @@
 - **split chunks:** enables [dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports) via a [one liner](#dynamic-imports) thanks to a fully async core
 - **typesafe:** works with typescript without [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
 - **lightweight:** doesn't rely on `reflect-metadata` or decorators
-- **no Babel config:** it doesn't need decorators so there are no need to waste time hacking decorator and `"decoratorMetadata"` support into Create React App, node.js, next.js, snowpack, esbuild etc.
+- **starter friendly:** works with starters like [Create React App](https://create-react-app.dev/) or [Next.js](https://nextjs.org/docs/getting-started) unlike [InversifyJS](https://github.com/inversify/InversifyJS) or [microsoft/tsyringe](https://github.com/microsoft/tsyringe)
+- **no Babel config:** it doesn't require `reflect-metadata` or decorators so there are no need in hacking decorator and `"decoratorMetadata"` support into Create React App, node.js, next.js, snowpack, esbuild etc.
 - **react:** has useful react bindings to help separate application logic and react view layer
 - **tiny:** less than 2kB
 
-Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns, so there is no need to learn complex API to use it in a full capacity.
+Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns. There is no need to learn complex API to use it in a full capacity.
 
 ## Usage
 
@@ -66,6 +67,8 @@ export const PizzaData = () => {
   return <>Pizzaz In Oven: {inOven}</>
 }
 ```
+
+If you don't want to wait for containers in every React component check `generateEnsureContainerSet` hook example.
 
 ## Why another library?
 
