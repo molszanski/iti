@@ -6,19 +6,27 @@
 
 # Snow Splash
 
-> ~2kB inversion of control constructor injection container for Typescript/Javascript with a focus on async flow
+> ~2kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
 
-- **fully async:** merges async and a constructor injection via an async function (asynchronous factory pattern)
+- **fully async:** merges async code and a constructor injection via async functions (asynchronous factory pattern)
 - **non-invasive:** does not require library `@decorators` or framework `extends` in your application logic
-- **lazy:** initializes your app modules and containers on demand
-- **split-chunks:** core is fully async and it provides a way to split application logic into chunks
+- **lazy:** initialises your app modules and containers on demand
+- **split chunks:** enables [dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports) via a [one liner](#dynamic-imports) thanks to a fully async core
 - **typesafe:** works with typescript without [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
-- **react:** has useful react bindings to help separate application logic and react view layer
 - **lightweight:** doesn't rely on `reflect-metadata` or decorators
-- **no Babel:** it doesn't need decorators so there are no need to waste time hacking decorator or `"decoratorMetadata"` support into node.js, next.js, snowpack, esbuild etc.
+- **no Babel config:** it doesn't need decorators so there are no need to waste time hacking decorator and `"decoratorMetadata"` support into Create React App, node.js, next.js, snowpack, esbuild etc.
+- **react:** has useful react bindings to help separate application logic and react view layer
 - **tiny:** less than 2kB
 
-Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns, so no need to learn complex API to be an IoC ninja.
+Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns, so there is no need to learn complex API to use it in full capacity.
+
+**Why another library?**
+
+Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata`.
+
+Firstly, decorators unnecessary couple your application logic with a framework.
+
+Secondly, it is very hard to use with starters like CRA, Next.js etc. To use `reflect-metadata` you need to configure your compiler (babel, typescrip, esbuild, swc etc.) configuratoin which is not trivial. So if you can’t use `reflect-metadata` you can't use inversify.
 
 ## Usage
 
@@ -26,7 +34,7 @@ Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/Inve
 npm install -S snow-splash
 ```
 
-### Basic
+### Basic Usage
 
 ```ts
 // Your application logic is clean
@@ -35,7 +43,7 @@ class Kitchen {
   constructor(public oven: Oven) {}
 }
 
-// Step 2: Wiring
+// Step 2: Connect your app to container and define tokens
 import { RootContainer } from "snow-splash"
 const ovenContainer = async () => ({
   oven: new Oven(),
@@ -47,6 +55,7 @@ const kitchenContainer = async ({ oven }) => {
   }
 }
 const kitchenApp = new RootContainer((ctx) => ({
+  // you can use tokens (`oven`, `kitchen`) here and later on
   oven: async () => ovenContainer(),
   kitchen: async () => kitchenContainer(await ctx.oven()),
 }))
@@ -65,95 +74,6 @@ export const PizzaData = () => {
   return <>Pizzaz In Oven: {inOven}</>
 }
 ```
-
-### Complex
-
-```js
-// STEP 1: Define Containers that group your application logic
-
-import { RootContainer } from "snow-splash"
-import { Oven, Kitchen, OrderManager } from "./kitchen/"
-import { PizzaPlace, DiningTables } from "./pizza-place/"
-
-// async function that returns object of any shape. Acts as async factory
-export async function provideKitchenContainer() {
-  const oven = new Oven()
-  await oven.preheat()
-
-  return {
-    oven: oven,
-    kitchen: new Kitchen(oven),
-  }
-}
-
-// pizzaContainer depenends on kitchenContainer.
-export async function providePizzaPlaceContainer(kitchenContainer) {
-  return {
-    pizzaPlace: new PizzaPlace(kitchenContainer.kitchen),
-    diningTables: new DiningTables(),
-  }
-}
-```
-
-```js
-// STEP 2: Wire containers and expose main application container
-
-// core function that wires containers into a DAG
-export function getProviders(ctx) {
-  return {
-    kitchen: async () => provideKitchenContainer(),
-    pizzaContainer: async () => providePizzaPlaceContainer(await ctx.kitchen()),
-  }
-}
-export function getMainPizzaAppContainer() {
-  return new RootContainer(getProviders)
-}
-```
-
-```js
-// STEP 3: Use inside your App - Node.js
-
-// -- Node.js
-
-import { getMainPizzaAppContainer } from "./app"
-const pizzaApp = getMainPizzaAppContainer()
-
-// lazilly init kithcen and pizza place containers
-const { pizzaContainer, kitchen } = await pizzaApp.containers
-pizzaContainer.orders.orderPizza()
-
-console.log(`In Oven: ${kitchen.oven.pizzasInOven()}`)
-```
-
-```js
-// STEP 3: Use inside your App - React - works via context
-
-export const PizzaData = () => {
-  const kitchenContainerSet = useContainerSet((c) => [
-    c.kitchen,
-    c.pizzaContainer,
-  ])
-  if (!kitchenContainerSet) return <>Kitchen is loading </>
-  const { pizzaContainer, kitchen } = kitchenContainerSet
-
-  return (
-    <div>
-      Pizzaz in Oven: {kitchen.oven.pizzasInOven()}
-      <button onClick={() => pizzaContainer.orders.orderPizza()}>
-        Order pizza
-      </button>
-    </div>
-  )
-}
-```
-
-**Why another library?**
-
-Javascript does not provide advanced OO primitives unlike Java or C#. Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata` to enable DI.
-
-This has a major downside as it "mixes" your application logic code with framework decorator imports or magic variables. This is can also be a downside since it provides a lock-in.
-
-If two teams in your organization pick two different IoC/DI libs, it would be hard to share code.
 
 ## Getting Started
 
@@ -390,7 +310,7 @@ export const PizzaData = () => {
 }
 ```
 
-## Comparison with `inversifyjs` and `tsyringe`
+## Comparison with `inversifyjs`, `tsyringe` and others
 
 Inversion of Control (IoC) is a great way to decouple the application and the most popular pattern of IoC is dependency injection (DI) [but it is not limited to one](https://martinfowler.com/articles/injection.html).
 
