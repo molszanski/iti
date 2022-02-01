@@ -1,13 +1,12 @@
 <a href="https://www.npmjs.org/package/snow-splash"><img src="https://img.shields.io/npm/v/snow-splash.svg" alt="npm"></a>
 ![CI](https://github.com/molszanski/snow-splash/actions/workflows/lib-test.yml/badge.svg)
 <a href="https://unpkg.com/snow-splash/dist/snow-splash.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/snow-splash/dist/snow-splash.modern.js?compression=gzip" alt="gzip size"></a>
-<a href="https://unpkg.com/snow-splash/dist/snow-splash.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/snow-splash/dist/snow-splash.modern.js?compression=brotli" alt="brotli size"></a>
 
 🚧 **library is in alpha dev mode** 🚧
 
 # Snow Splash
 
-> ~1kB inversion of control constructor injection container for Typescript/Javascript with a focus on async flow
+> ~2kB inversion of control constructor injection container for Typescript/Javascript with a focus on async flow
 
 - **fully async:** merges async and a constructor injection via an async function (asynchronous factory pattern)
 - **non-invasive:** does not force framework `extends` or library `@decorators` in your application logic
@@ -16,7 +15,7 @@
 - **typesafe:** works with typescript without [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
 - **react:** has useful react bindings to help separate application logic and react view layer
 - **lightweight:** doesn't rely on 'reflect-metadata' or decorators
-- **tiny:** less than 1kB
+- **tiny:** less than 2kB
 
 Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions and familiar patterns, so no need to learn complex API to be an IoC ninja.
 
