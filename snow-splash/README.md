@@ -9,21 +9,64 @@
 > ~2kB inversion of control constructor injection container for Typescript/Javascript with a focus on async flow
 
 - **fully async:** merges async and a constructor injection via an async function (asynchronous factory pattern)
-- **non-invasive:** does not force framework `extends` or library `@decorators` in your application logic
-- **lazy:** initializes your app modules on demand
+- **non-invasive:** does not require library `@decorators` or framework `extends` in your application logic
+- **lazy:** initializes your app modules and containers on demand
 - **split-chunks:** core is fully async and it provides a way to split application logic into chunks
 - **typesafe:** works with typescript without [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
 - **react:** has useful react bindings to help separate application logic and react view layer
-- **lightweight:** doesn't rely on 'reflect-metadata' or decorators
+- **lightweight:** doesn't rely on `reflect-metadata` or decorators
+- **no Babel:** it doesn't need decorators so there are no need to waste time hacking decorator or `"decoratorMetadata"` support into node.js, next.js, snowpack, esbuild etc.
 - **tiny:** less than 2kB
 
-Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions and familiar patterns, so no need to learn complex API to be an IoC ninja.
+Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns, so no need to learn complex API to be an IoC ninja.
 
 ## Usage
 
 ```
 npm install -S snow-splash
 ```
+
+### Basic
+
+```ts
+// Your application logic is clean
+class Oven {}
+class Kitchen {
+  constructor(public oven: Oven) {}
+}
+
+// Step 2: Wiring
+import { RootContainer } from "snow-splash"
+const ovenContainer = async () => ({
+  oven: new Oven(),
+})
+const kitchenContainer = async ({ oven }) => {
+  await oven.preheat()
+  return {
+    kitchen: new Kitchen(oven),
+  }
+}
+const kitchenApp = new RootContainer((ctx) => ({
+  oven: async () => ovenContainer(),
+  kitchen: async () => kitchenContainer(await ctx.oven()),
+}))
+
+// Step 3: Use it
+
+// Node.js
+const { oven, kitchen } = await kitchenApp.containers
+console.log(`In Oven: ${oven.pizzasInOven()}`)
+
+// React
+export const PizzaData = () => {
+  const kitchenSet = useContainerSet(["oven", "kitchen"])
+  if (!kitchenSet) return <>Kitchen is loading </>
+  let inOven = kitchenSet.oven.pizzasInOven()
+  return <>Pizzaz In Oven: {inOven}</>
+}
+```
+
+### Complex
 
 ```js
 // STEP 1: Define Containers that group your application logic
@@ -162,6 +205,7 @@ Snow-Splash has a good typescript support
 ### Single Instance (a.k.a. Singleton)
 
 ```ts
+import { Oven, Kitchen } from "./kitchen/"
 export async function provideKitchenContainer() {
   const oven = new Oven()
   await oven.preheat()
@@ -176,10 +220,28 @@ export async function provideKitchenContainer() {
 ### Transient
 
 ```ts
+import { Oven, Kitchen } from "./kitchen/"
 export async function provideKitchenContainer() {
   return {
     kitchen: () => new Kitchen(),
     oven: async () => {
+      const oven = new Oven()
+      await oven.preheat()
+      return oven
+    },
+  }
+}
+```
+
+### Dynamic Imports
+
+```ts
+export async function provideKitchenContainer() {
+  const { Kitchen } = await import("./kitchen/kitchen")
+  return {
+    kitchen: () => new Kitchen(),
+    oven: async () => {
+      const { Oven } = await import("./kitchen/oven")
       const oven = new Oven()
       await oven.preheat()
       return oven
