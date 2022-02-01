@@ -182,6 +182,39 @@ Snow-Splash has a good typescript support
 Containers are an important unit.
 If you replace them, users will be notified. In React it happens automatically
 
+### Events
+
+```ts
+const kitchenApp = new RootContainer((ctx) => ({
+  // you can use tokens (`oven`, `kitchen`) here and later on
+  oven: async () => ovenContainer(),
+  kitchen: async () => kitchenContainer(await ctx.oven()),
+}))
+
+kitchenApp.on("containerCreated", (event) => {
+  console.log(`event: 'containerCreated' ~~> token: '${event.key}'`)
+  // `event.container` is also avaliable here
+})
+
+kitchenApp.on("containerRequested", (event) => {
+  console.log(`event: 'containerRequested' ~~> token: '${event.key}' `)
+})
+
+kitchenApp.on("containerRemoved", (event) => {
+  console.log(`event: 'containerRemoved' ~~> token: '${event.key}' `)
+})
+
+await kitchenApp.containers.kitchen
+
+// event: 'containerRequested' ~~> token: 'kitchen'
+// event: 'containerRequested' ~~> token: 'oven'
+// event: 'containerCreated'   ~~> token: 'oven'
+// event: 'containerCreated'   ~~> token: 'kitchen'
+
+// Notice how oven was created before kitchen.
+// This is because kitcen depends on oven
+```
+
 ## API documentation JS / TS
 
 ### `makeRoot` Setting app root
