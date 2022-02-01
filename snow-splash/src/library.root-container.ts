@@ -177,7 +177,7 @@ export class RootContainer<
   /**
    * Clear first, then slowly recreate
    */
-  public async replaceCointerInstantly<T extends keyof R>(
+  public async replaceContainerInstantly<T extends keyof R>(
     key: T,
     containerProvider: R[T],
   ) {
