@@ -1,191 +1,79 @@
+<a href="https://www.npmjs.org/package/snow-splash"><img src="https://img.shields.io/npm/v/snow-splash.svg" alt="npm"></a>
+![CI](https://github.com/molszanski/snow-splash/actions/workflows/lib-test.yml/badge.svg)
+<a href="https://unpkg.com/snow-splash/dist/snow-splash.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/snow-splash/dist/snow-splash.modern.js?compression=gzip" alt="gzip size"></a>
+
 🚧 **library is in alpha dev mode** 🚧
 
 # Snow Splash
 
-> ~1kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
+> ~2kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
 
-- **fully async:** merges async and a constructor injection via an async functiom (asynchronous factory pattern)
-- **clean:** does not mix application logic with framework `extends`, library `@decorators` or other magic properties
-- **lazy:** initializes your app modules, packed into containers on demand
-- **split-chunks:** core is fully async and it provides a way to split application logic into chunks
-- **typesafe:** works well with typescript
+- **fully async:** merges async code and a constructor injection via async functions (asynchronous factory pattern)
+- **non-invasive:** does not require library `@decorators` or framework `extends` in your application logic
+- **lazy:** initialises your app modules and containers on demand
+- **split chunks:** enables [dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports) via a [one liner](#dynamic-imports) thanks to a fully async core
+- **typesafe:** works with typescript without [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
+- **lightweight:** doesn't rely on `reflect-metadata` or decorators
+- **no Babel config:** it doesn't need decorators so there are no need to waste time hacking decorator and `"decoratorMetadata"` support into Create React App, node.js, next.js, snowpack, esbuild etc.
 - **react:** has useful react bindings to help separate application logic and react view layer
-- **lightweight:** doesn't rely on 'reflect-metadata' or decorators
-- **tiny:** ~1kB
+- **tiny:** less than 2kB
 
-Snow-Splash relies on containers to provide usefull grouping. Containers group a couple of initialized instances together. Containers form a DAG (directed acyclic graph) and containers (nodes) are initialized on request and dependency tree is initialized automatically. This might resemble DI mechanisms
+Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns, so there is no need to learn complex API to use it in full capacity.
+
+**Why another library?**
+
+Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata`.
+
+Firstly, decorators unnecessary couple your application logic with a framework.
+
+Secondly, it is very hard to use with starters like CRA, Next.js etc. To use `reflect-metadata` you need to configure your compiler (babel, typescrip, esbuild, swc etc.) configuratoin which is not trivial. So if you can’t use `reflect-metadata` you can't use inversify.
 
 ## Usage
 
 ```
-npm install -S snow-splash`
+npm install -S snow-splash
 ```
 
-```js
-// STEP 1: Define Containers that group your application logic
+### Basic Usage
 
+```ts
+// Your application logic is clean
+class Oven {}
+class Kitchen {
+  constructor(public oven: Oven) {}
+}
+
+// Step 2: Connect your app to container and define tokens
 import { RootContainer } from "snow-splash"
-import { Oven, Kitchen, OrderManager } from "./kitchen/"
-import { PizzaPlace, DiningTables } from "./pizza-place/"
-
-// async function that returns object of any shape. Acts as async factory
-export async function provideKitchenContainer() {
-  const oven = new Oven()
+const ovenContainer = async () => ({
+  oven: new Oven(),
+})
+const kitchenContainer = async ({ oven }) => {
   await oven.preheat()
-
   return {
-    oven: oven,
     kitchen: new Kitchen(oven),
-    orderManager: new OrderManager(kitchen),
   }
 }
+const kitchenApp = new RootContainer((ctx) => ({
+  // you can use tokens (`oven`, `kitchen`) here and later on
+  oven: async () => ovenContainer(),
+  kitchen: async () => kitchenContainer(await ctx.oven()),
+}))
 
-// pizzaContainer depenends on kitchenContainer.
-export async function providePizzaPlaceContainer(kitchenContainer) {
-  return {
-    pizzaPlace: new PizzaPlace(kitchenContainer.kitchen),
-    diningTables: new DiningTables(),
-  }
-}
-```
+// Step 3: Use it
 
-```js
-// STEP 2: Wire containers and expose main application container
+// Node.js
+const { oven, kitchen } = await kitchenApp.containers
+console.log(`In Oven: ${oven.pizzasInOven()}`)
 
-// core function that wires containers into a DAG
-export function getProviders(ctx) {
-  return {
-    kitchen: async () => provideKitchenContainer(),
-    pizzaContainer: async () => providePizzaPlaceContainer(await ctx.kitchen()),
-  }
-}
-export function getMainPizzaAppContainer() {
-  return new RootContainer(getProviders)
-}
-```
-
-```js
-// STEP 3: Use inside your App - Node.js
-
-// -- Node.js
-
-import { getMainPizzaAppContainer } from "./app"
-const pizzaApp = getMainPizzaAppContainer()
-
-// lazilly init kithcen and pizza place containers
-const { pizzaContainer, kitchen } = await pizzaApp.containers
-pizzaContainer.orders.orderPizza()
-
-console.log(`In Oven: ${kitchen.oven.pizzasInOven()}`)
-```
-
-```js
-// STEP 3: Use inside your App - React - works via context
-
+// React
 export const PizzaData = () => {
-  const kitchenContainerSet = useContainerSet((c) => [
-    c.kitchen,
-    c.pizzaContainer,
-  ])
-  if (!kitchenContainerSet) return <>Kitchen is loading </>
-  const { pizzaContainer, kitchen } = kitchenContainerSet
-
-  return (
-    <div>
-      Pizzaz in Oven: {kitchen.oven.pizzasInOven()}
-      <button onClick={() => pizzaContainer.orders.orderPizza()}>
-        Order pizza
-      </button>
-    </div>
-  )
+  const kitchenSet = useContainerSet(["oven", "kitchen"])
+  if (!kitchenSet) return <>Kitchen is loading </>
+  let inOven = kitchenSet.oven.pizzasInOven()
+  return <>Pizzaz In Oven: {inOven}</>
 }
 ```
-
-## Motivation
-
-Inversion of Control (IoC) is a great way to decouple the application and the most popular pattern of IoC is dependency injection (DI) [but it is not limited to one](https://martinfowler.com/articles/injection.html).
-
-In JavaScript there is not way to create a dependency injection without mixing application logic with a specific IoC library code, or hacking a compiler.
-
-`snow-splash` provides a pattern to use constructor injection that works in async JS world with all the flexibility you might need at the cost of manually defining providers (async functions) for your code
-
-## Why another library? Alternatives
-
-Javascript does not provide advanced OO primitives unlike Java or C#. Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata` to enable DI.
-
-This has a major downside as it "mixes" your application logic code with framework decorator imports or magic variables. This is can also be a downside since it provides a lock-in.
-
-If two teams in your organization pick two different IoC/DI libs, it would be hard to share code.
-
-**`inversifyjs` and `tsyringe` use decorators and `reflect-metada`**
-
-```ts
-import { injectable } from "tsyringe"
-
-@injectable()
-class Foo {
-  constructor(private database: Database) {}
-}
-
-// some other file
-import "reflect-metadata"
-import { container } from "tsyringe"
-import { Foo } from "./foo"
-
-const instance = container.resolve(Foo)
-```
-
-**`typed-inject` uses magic properties and monkey-patching**
-
-```ts
-import { createInjector } from "typed-inject"
-function barFactory(foo: number) {
-  return foo + 1
-}
-barFactory.inject = ["foo"] as const
-class Baz {
-  constructor(bar: number) {
-    console.log(`bar is: ${bar}`)
-  }
-  static inject = ["bar"] as const
-}
-```
-
-With Snow-Splash your application logic is not mixed with the framework code
-
-```ts
-import type { Ingredients } from "./store.ingrediets"
-import type { Oven } from "./store.oven"
-
-export class Kitchen {
-  constructor(private oven: Oven, private ingredients: Ingredients) {}
-}
-
-// provider / factory
-import { IngredientsService } from "../services/ingredients-manager"
-import { Kitchen } from "../stores/store.kitchen"
-import { Oven } from "../stores/store.oven"
-
-export async function provideKitchenContainer() {
-  let oven = new Oven()
-  let ingredients = await IngredientsService.buySomeIngredients()
-  let kitchen = new Kitchen(oven, ingredients)
-
-  return {
-    oven: oven,
-    ingredients: ingredients,
-    kitchen: kitchen,
-  }
-}
-```
-
-Notable inspirations:
-
-- https://github.com/inversify/InversifyJS
-- https://github.com/microsoft/tsyringe
-- https://github.com/nicojs/typed-inject
-- https://github.com/asvetliakov/Huject
-- https://github.com/typestack/typedi
 
 ## Getting Started
 
@@ -231,6 +119,56 @@ Snow-Splash has a good typescript support
 ![Autocomplete](./docs/2.png)
 ![Autocomplete](./docs/3.png)
 ![Autocomplete](./docs/4.png)
+
+## Patterns
+
+### Single Instance (a.k.a. Singleton)
+
+```ts
+import { Oven, Kitchen } from "./kitchen/"
+export async function provideKitchenContainer() {
+  const oven = new Oven()
+  await oven.preheat()
+
+  return {
+    kitchen: new Kitchen(),
+    oven: oven,
+  }
+}
+```
+
+### Transient
+
+```ts
+import { Oven, Kitchen } from "./kitchen/"
+export async function provideKitchenContainer() {
+  return {
+    kitchen: () => new Kitchen(),
+    oven: async () => {
+      const oven = new Oven()
+      await oven.preheat()
+      return oven
+    },
+  }
+}
+```
+
+### Dynamic Imports
+
+```ts
+export async function provideKitchenContainer() {
+  const { Kitchen } = await import("./kitchen/kitchen")
+  return {
+    kitchen: () => new Kitchen(),
+    oven: async () => {
+      const { Oven } = await import("./kitchen/oven")
+      const oven = new Oven()
+      await oven.preheat()
+      return oven
+    },
+  }
+}
+```
 
 ## Docs
 
@@ -371,6 +309,82 @@ export const PizzaData = () => {
   )
 }
 ```
+
+## Comparison with `inversifyjs`, `tsyringe` and others
+
+Inversion of Control (IoC) is a great way to decouple the application and the most popular pattern of IoC is dependency injection (DI) [but it is not limited to one](https://martinfowler.com/articles/injection.html).
+
+In JavaScript there is not way to create a dependency injection without mixing application logic with a specific IoC library code or hacking a compiler (reflect-metadata).
+
+**`inversifyjs` and `tsyringe` use decorators and `reflect-metada`**
+
+```ts
+import { injectable } from "tsyringe"
+
+@injectable()
+class Foo {
+  constructor(private database: Database) {}
+}
+
+// some other file
+import "reflect-metadata"
+import { container } from "tsyringe"
+import { Foo } from "./foo"
+
+const instance = container.resolve(Foo)
+```
+
+**`typed-inject` uses monkey-patching**
+
+```ts
+import { createInjector } from "typed-inject"
+function barFactory(foo: number) {
+  return foo + 1
+}
+barFactory.inject = ["foo"] as const
+class Baz {
+  constructor(bar: number) {
+    console.log(`bar is: ${bar}`)
+  }
+  static inject = ["bar"] as const
+}
+```
+
+With Snow-Splash your application logic is not mixed with the framework code
+
+```ts
+import type { Ingredients } from "./store.ingrediets"
+import type { Oven } from "./store.oven"
+
+export class Kitchen {
+  constructor(private oven: Oven, private ingredients: Ingredients) {}
+}
+
+// provider / factory
+import { IngredientsService } from "../services/ingredients-manager"
+import { Kitchen } from "../stores/store.kitchen"
+import { Oven } from "../stores/store.oven"
+
+export async function provideKitchenContainer() {
+  let oven = new Oven()
+  let ingredients = await IngredientsService.buySomeIngredients()
+  let kitchen = new Kitchen(oven, ingredients)
+
+  return {
+    oven: oven,
+    ingredients: ingredients,
+    kitchen: kitchen,
+  }
+}
+```
+
+Notable inspirations:
+
+- https://github.com/inversify/InversifyJS
+- https://github.com/microsoft/tsyringe
+- https://github.com/nicojs/typed-inject
+- https://github.com/asvetliakov/Huject
+- https://github.com/typestack/typedi
 
 ## Questions and tips
 
