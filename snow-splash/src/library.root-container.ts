@@ -1,5 +1,5 @@
 import mitt from "mitt"
-import { UnPromisify } from "./_utils"
+import { addGetter, UnPromisify } from "./_utils"
 type ValueOf<T> = T[keyof T]
 
 /**
@@ -54,11 +54,25 @@ export class RootContainer<
     return () => this.off("containerUpdated", containerUpdateSubscription)
   }
 
+  public get containers() {
+    type ContainerGetter = {
+      [CK in keyof R]: Promise<GetContainer<R, CK>>
+    }
+    let containerMap = <ContainerGetter>{}
+    for (let key of this.tokens) {
+      addGetter(containerMap, key, () => this.providerMap[key]())
+    }
+    return containerMap
+  }
+
   /**
    * We can actually extract this into a wrapper class
    */
-  public async getContainerSet<T extends keyof R>(b: T[]) {
-    let fWithProm = b.map((containerKey) => this.providerMap[containerKey])
+  public async getContainerSet<T extends keyof R>(
+    tokensOrCb: T[] | ((keyMap: TokenKeyMap) => T[]),
+  ) {
+    let tokens = this.getTokensOverload(tokensOrCb)
+    let fWithProm = tokens.map((containerKey) => this.providerMap[containerKey])
 
     let allProm = fWithProm.map((el) => el())
 
@@ -68,49 +82,7 @@ export class RootContainer<
 
     const x = await Promise.all(allProm)
 
-    b.forEach((containerKey, index) => {
-      containerDecoratedMap[containerKey] = x[index]
-    })
-    return containerDecoratedMap
-  }
-
-  public get containers() {
-    type ContainerGetter = {
-      [CK in keyof R]: Promise<GetContainer<R, CK>>
-    }
-    let containerMap = <ContainerGetter>{}
-    let _this = this
-    for (let key of this.tokens) {
-      Object.defineProperty(containerMap, key, {
-        get() {
-          return _this.providerMap[key]()
-        },
-        enumerable: true,
-      })
-    }
-    return containerMap
-  }
-
-  public async getContainerSetNew<
-    T extends keyof R,
-    ConttainerGetter extends {
-      [CK in T]: GetContainer<R, CK>
-    },
-  >(cb: (keyMap: TokenKeyMap) => T[]): Promise<ConttainerGetter> {
-    let containerMap = <TokenKeyMap>{}
-
-    for (let key of this.tokens) {
-      // @ts-expect-error
-      containerMap[key] = key
-    }
-    let xb = cb(containerMap)
-
-    let fWithProm = xb.map((containerKey) => this.providerMap[containerKey])
-    let allProm = fWithProm.map((el) => el())
-    const x = await Promise.all(allProm)
-
-    let containerDecoratedMap = <ConttainerGetter>{}
-    xb.forEach((containerKey, index) => {
+    tokens.forEach((containerKey, index) => {
       containerDecoratedMap[containerKey] = x[index]
     })
     return containerDecoratedMap
@@ -127,35 +99,28 @@ export class RootContainer<
     return cb(containerMap)
   }
 
-  /**
-   * We can actually extract this into a wrapper class
-   */
-  public subscribeToContinerSetNew<T extends keyof R>(
-    sub: (keyMap: TokenKeyMap) => T[],
-    cb: (containerSet: {
-      [K in T]: GetContainer<R, K>
-    }) => void,
-  ): () => void {
-    const tokens = this.getContainerSetCallback(sub)
-    const containerSetSubscription = async (ev) => {
-      if (tokens.includes(ev.key)) {
-        let s = await this.getContainerSet(tokens)
-        cb(s)
-      }
+  private getTokensOverload<T extends keyof R>(
+    tokensOrCb: T[] | ((keyMap: TokenKeyMap) => T[]),
+  ) {
+    let tokens = tokensOrCb
+    if (typeof tokensOrCb === "function") {
+      tokens = this.getContainerSetCallback(tokensOrCb)
+    } else {
+      tokens = tokensOrCb
     }
-    this.on("containerUpdated", containerSetSubscription)
-    return () => this.off("containerUpdated", containerSetSubscription)
+    return tokens
   }
 
   /**
    * We can actually extract this into a wrapper class
    */
   public subscribeToContinerSet<T extends keyof R>(
-    tokens: T[],
+    tokensOrCb: T[] | ((keyMap: TokenKeyMap) => T[]),
     cb: (containerSet: {
       [K in T]: GetContainer<R, K>
     }) => void,
   ): () => void {
+    let tokens = this.getTokensOverload(tokensOrCb)
     const containerSetSubscription = async (ev) => {
       if (tokens.includes(ev.key)) {
         let s = await this.getContainerSet(tokens)
@@ -221,22 +186,6 @@ export class RootContainer<
     // @ts-expect-error
     return this.getGenericContainer(key, containerProvider)
   }
-
-  /**
-   * Kinda like stale while rewalidate
-   */
-  public async replaceCointerAsync<T extends ValueOf<R>>(
-    key: keyof R,
-    containerProvider: () => T,
-  ): Promise<T> {
-    const containerPromise = await containerProvider()
-    this.ee.emit("containerUpdated", {
-      key: key,
-      newContainer: containerPromise,
-    })
-    this.containerCache[key] = containerPromise
-    return containerPromise
-  }
 }
 
 export function makeRoot<getProv extends GenericProviderSignature>(
@@ -254,6 +203,22 @@ export function makeRoot<getProv extends GenericProviderSignature>(
 //     return false
 //   }
 //   return true
+// }
+
+/**
+ * Kinda like stale while rewalidate
+ */
+//  public async replaceCointerAsync<T extends ValueOf<R>>(
+//   key: keyof R,
+//   containerProvider: () => T,
+// ): Promise<T> {
+//   const containerPromise = await containerProvider()
+//   this.ee.emit("containerUpdated", {
+//     key: key,
+//     newContainer: containerPromise,
+//   })
+//   this.containerCache[key] = containerPromise
+//   return containerPromise
 // }
 
 // public async getContainer(
