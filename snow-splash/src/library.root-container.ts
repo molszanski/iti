@@ -50,8 +50,8 @@ export class RootContainer<
         cb(s)
       }
     }
-    this.on("containerUpdated", containerUpdateSubscription)
-    return () => this.off("containerUpdated", containerUpdateSubscription)
+    this.on("containerCreated", containerUpdateSubscription)
+    return () => this.off("containerCreated", containerUpdateSubscription)
   }
 
   public get containers() {
@@ -127,17 +127,23 @@ export class RootContainer<
         cb(s)
       }
     }
-    this.on("containerUpdated", containerSetSubscription)
-    return () => this.off("containerUpdated", containerSetSubscription)
+    this.on("containerCreated", containerSetSubscription)
+    return () => this.off("containerCreated", containerSetSubscription)
   }
 
   /**
    * EventEmitter Logic
    */
   private ee = mitt<{
-    containerUpdated: {
+    containerCreated: {
       key: keyof R
       newContainer: ValueOf<R>
+    }
+    containerRemoved: {
+      key: keyof R
+    }
+    containerRequested: {
+      key: keyof R
     }
   }>(allEvents)
   public on = this.ee.on
@@ -152,12 +158,19 @@ export class RootContainer<
     key: T,
     containerProvider: () => R[T],
   ): Promise<T> {
+    this.ee.emit("containerRequested", {
+      key: key,
+    })
     if (this.containerCache[key] == null) {
+      /**
+       * This is a first run on app init
+       * or it was replaced
+       */
       const containerPromise = containerProvider()
       this.containerCache[key] = containerPromise as any
 
       await containerPromise
-      this.ee.emit("containerUpdated", {
+      this.ee.emit("containerCreated", {
         key: key,
         newContainer: containerPromise as any,
       })
@@ -182,7 +195,10 @@ export class RootContainer<
     containerProvider: R[T],
   ) {
     delete this.containerCache[key]
-    // for some reasone we do
+    this.ee.emit("containerRemoved", {
+      key: key,
+    })
+    // for some reasone we do need it
     // @ts-expect-error
     return this.getGenericContainer(key, containerProvider)
   }
@@ -213,7 +229,7 @@ export function makeRoot<getProv extends GenericProviderSignature>(
 //   containerProvider: () => T,
 // ): Promise<T> {
 //   const containerPromise = await containerProvider()
-//   this.ee.emit("containerUpdated", {
+//   this.ee.emit("containerCreated", {
 //     key: key,
 //     newContainer: containerPromise,
 //   })
