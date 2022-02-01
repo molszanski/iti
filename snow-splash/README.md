@@ -18,7 +18,7 @@
 - **react:** has useful react bindings to help separate application logic and react view layer
 - **tiny:** less than 2kB
 
-Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns, so there is no need to learn complex API to use it in full capacity.
+Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns, so there is no need to learn complex API to use it in a full capacity.
 
 ## Usage
 
