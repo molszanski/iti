@@ -29,7 +29,7 @@ npm install -S snow-splash
 ### Basic Usage
 
 ```ts
-// Your application logic is clean
+// Step 1: Your application logic is stays clean
 class Oven {}
 class Kitchen {
   constructor(public oven: Oven) {}
@@ -74,51 +74,6 @@ Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata`
 Firstly, decorators unnecessary couple your application logic with a framework.
 
 Secondly, it is very hard to use with starters like CRA, Next.js etc. To use `reflect-metadata` you need to configure your compiler (babel, typescrip, esbuild, swc etc.) configuratoin which is not trivial. So if you can’t use `reflect-metadata` you can't use inversify.
-
-## Getting Started
-
-The best way to get started is to check a Pizza example
-
-Initial wiring
-
-```ts
-import { makeRoot, RootContainer } from "../../library.root-container"
-
-import { provideAContainer } from "./container.a"
-import { provideBContainer } from "./container.b"
-import { provideCContainer } from "./container.c"
-
-interface Registry {
-  aCont: () => ReturnType<typeof provideAContainer>
-  bCont: () => ReturnType<typeof provideBContainer>
-  cCont: () => ReturnType<typeof provideCContainer>
-}
-
-type Lib = (...args: any) => { [K in keyof Registry]: Registry[K] }
-export type MockAppContainer = RootContainer<Lib, ReturnType<Lib>>
-
-function getProviders(ctx: Registry, root: MockAppContainer) {
-  return {
-    aCont: async () => provideAContainer(),
-    bCont: async () => provideBContainer(await ctx.aCont()),
-    cCont: async () =>
-      provideCContainer(await ctx.aCont(), await ctx.bCont(), root),
-  }
-}
-
-export function getMainMockAppContainer() {
-  return makeRoot(getProviders)
-}
-```
-
-## Typescript
-
-Snow-Splash has a good typescript support
-
-![Autocomplete](./docs/1.png)
-![Autocomplete](./docs/2.png)
-![Autocomplete](./docs/3.png)
-![Autocomplete](./docs/4.png)
 
 ## Patterns
 
@@ -169,6 +124,51 @@ export async function provideKitchenContainer() {
   }
 }
 ```
+
+## Getting Started
+
+The best way to get started is to check [a CRA Pizza example](https://github.com/molszanski/snow-splash/tree/master/examples/cra/src/containers)
+
+Initial wiring
+
+```ts
+import { makeRoot, RootContainer } from "../../library.root-container"
+
+import { provideAContainer } from "./container.a"
+import { provideBContainer } from "./container.b"
+import { provideCContainer } from "./container.c"
+
+interface Registry {
+  aCont: () => ReturnType<typeof provideAContainer>
+  bCont: () => ReturnType<typeof provideBContainer>
+  cCont: () => ReturnType<typeof provideCContainer>
+}
+
+type Lib = (...args: any) => { [K in keyof Registry]: Registry[K] }
+export type MockAppContainer = RootContainer<Lib, ReturnType<Lib>>
+
+function getProviders(ctx: Registry, root: MockAppContainer) {
+  return {
+    aCont: async () => provideAContainer(),
+    bCont: async () => provideBContainer(await ctx.aCont()),
+    cCont: async () =>
+      provideCContainer(await ctx.aCont(), await ctx.bCont(), root),
+  }
+}
+
+export function getMainMockAppContainer() {
+  return makeRoot(getProviders)
+}
+```
+
+## Typescript
+
+Snow-Splash has a good typescript support
+
+![Autocomplete](./docs/1.png)
+![Autocomplete](./docs/2.png)
+![Autocomplete](./docs/3.png)
+![Autocomplete](./docs/4.png)
 
 ## Docs
 
