@@ -1,4 +1,4 @@
-name: Snow Splash tests
+name: CI
 
 on:
   push:
