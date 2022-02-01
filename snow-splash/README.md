@@ -20,14 +20,6 @@
 
 Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns, so there is no need to learn complex API to use it in full capacity.
 
-**Why another library?**
-
-Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata`.
-
-Firstly, decorators unnecessary couple your application logic with a framework.
-
-Secondly, it is very hard to use with starters like CRA, Next.js etc. To use `reflect-metadata` you need to configure your compiler (babel, typescrip, esbuild, swc etc.) configuratoin which is not trivial. So if you can’t use `reflect-metadata` you can't use inversify.
-
 ## Usage
 
 ```
@@ -74,6 +66,14 @@ export const PizzaData = () => {
   return <>Pizzaz In Oven: {inOven}</>
 }
 ```
+
+## Why another library?
+
+Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata`.
+
+Firstly, decorators unnecessary couple your application logic with a framework.
+
+Secondly, it is very hard to use with starters like CRA, Next.js etc. To use `reflect-metadata` you need to configure your compiler (babel, typescrip, esbuild, swc etc.) configuratoin which is not trivial. So if you can’t use `reflect-metadata` you can't use inversify.
 
 ## Getting Started
 
