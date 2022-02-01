@@ -17,28 +17,19 @@ export type ContainerGenericBettter<T> = [
 
 export function useBetterGenericContainer<T>(
   containerPromise: () => Promise<T>,
-  controls: {
-    onContainerUpdate(cb: (container: T) => void): void
-    unsubscribeFunction?: () => void
-    subscribeFunction?(cb: (container: T) => void): () => void
-    containerKey: string
-  },
+
+  subscribeFunction: (cb: (container: T) => void) => () => void,
+  containerKey: string,
 ): ContainerGenericBettter<T> {
   const [data, setData] = useState<any>(undefined)
   const [error, setError] = useState()
 
   // Update container
   useEffect(() => {
-    if (controls.onContainerUpdate) {
-      controls.onContainerUpdate((container) => {
-        setData(container)
-      })
-      return controls.unsubscribeFunction
+    if (subscribeFunction) {
+      return subscribeFunction((cont) => setData(cont))
     }
-    if (controls.subscribeFunction) {
-      return controls.subscribeFunction((cont) => setData(cont))
-    }
-  }, [controls])
+  }, [subscribeFunction])
 
   // We can add optimizations later.
   useEffect(() => {
@@ -49,5 +40,5 @@ export function useBetterGenericContainer<T>(
       .catch((e) => setError(e))
   }, [])
 
-  return [data, error, controls.containerKey]
+  return [data, error, containerKey]
 }
