@@ -14,9 +14,9 @@
 - **split chunks:** enables [dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports) via a [one liner](#dynamic-imports) thanks to a fully async core
 - **typesafe:** works with typescript without [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
 - **lightweight:** doesn't rely on `reflect-metadata` or decorators
-- **starter friendly:** works with starters like [Create React App](https://create-react-app.dev/) or [Next.js](https://nextjs.org/docs/getting-started) unlike [InversifyJS](https://github.com/inversify/InversifyJS) or [microsoft/tsyringe](https://github.com/microsoft/tsyringe)
-- **no Babel config:** it doesn't require `reflect-metadata` or decorators so there are no need in hacking decorator and `"decoratorMetadata"` support into Create React App, node.js, next.js, snowpack, esbuild etc.
-- **react:** has useful react bindings to help separate application logic and react view layer
+- **starter friendly:** works with starters like [Create React App](https://create-React-app.dev/) or [Next.js](https://nextjs.org/docs/getting-started) unlike [InversifyJS](https://github.com/inversify/InversifyJS) or [microsoft/tsyringe](https://github.com/microsoft/tsyringe)
+- **no Babel config:** it doesn't require `reflect-metadata` or decorators so there are no need to hack in decorator and `"decoratorMetadata"` support into Create React App, node.js, next.js, snowpack, esbuild etc.
+- **React support:** has useful React bindings to help separate application logic and React view layer
 - **tiny:** less than 2kB
 
 Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns. There is no need to learn complex API to use it in a full capacity.
@@ -180,7 +180,7 @@ Snow-Splash has a good typescript support
 ### Containers
 
 Containers are an important unit.
-If you replace them, users will be notified. In react it happens automatically
+If you replace them, users will be notified. In React it happens automatically
 
 ## API documentation JS / TS
 
@@ -208,7 +208,7 @@ kitchen.oven.pizzaCapacity // 4
 
 ### `replaceContainerInstantly`
 
-When containers are updated react is updated too via hooks
+When containers are updated React is updated too via hooks
 
 ## API documentation React
 
