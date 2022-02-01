@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react"
 import { useBetterGenericContainer } from "./library.hooks"
-import { UnPromisify } from "../_utils"
+import { addGetter, UnPromisify } from "../_utils"
 
 type ContainerGetter<
   providerFun extends (...args: any) => any,
@@ -58,22 +58,19 @@ export function getContainerSetHooks<
   >(
     providerMap: ContMap,
     //@ts-ignore
-    root2: RootContainer,
+    appRoot: RootContainer,
   ) {
     // let root2 = useRoot()
     let FFF = <ContainerGetter>{}
-    for (let contKey of root2.tokens) {
-      Object.defineProperty(FFF, contKey, {
-        get() {
-          return useBetterGenericContainer(() => root2.containers[contKey], {
-            // @ts-expect-error
-            subscribeFunction: (cb: () => any) =>
-              root2.subscribeToContiner(contKey, cb),
-            containerKey: contKey,
-          })
-        },
-        configurable: true,
-      })
+    for (let contKey of appRoot.tokens) {
+      addGetter(FFF, contKey, () =>
+        useBetterGenericContainer(
+          () => appRoot.containers[contKey],
+          //@ts-expect-error
+          (cb: () => any) => appRoot.subscribeToContiner(contKey, cb),
+          contKey,
+        ),
+      )
     }
 
     return FFF
@@ -113,10 +110,7 @@ export function getContainerSetHooks<
 
     return all
   }
-  let m: AppContanier = 1 as any
   return {
-    m,
-    f,
     useRoot: useRoot,
     useContainer: useContainer,
     useContainerSet: useContainerSet,
