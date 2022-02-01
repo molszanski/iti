@@ -18,7 +18,7 @@ export async function provideCContainer(
   const c2 = new C2(a.a1, b.b2, 5)
 
   async function replacer(ovenSize = 10) {
-    return await root.replaceCointerInstantly("cCont", async () => {
+    return await root.replaceContainerInstantly("cCont", async () => {
       const c1 = new C1(a.a2)
       const c2 = new C2(a.a1, b.b2, ovenSize)
       return {

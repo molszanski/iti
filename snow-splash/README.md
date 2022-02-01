@@ -265,7 +265,7 @@ kitchen.oven.pizzaCapacity // 4
 
 ### `getContainerSetNew`
 
-### `replaceCointerInstantly`
+### `replaceContainerInstantly`
 
 When containers are updated react is updated too via hooks
 

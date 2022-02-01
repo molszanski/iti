@@ -16,7 +16,7 @@ export async function provideKitchenManipulatorContainer(
   let ksc = new KitchenSizeUIController({
     onKitchenResize: async () => {
       const currentKitchen = await root.providerMap.kitchen()
-      return await root.replaceCointerInstantly("kitchen", () =>
+      return await root.replaceContainerInstantly("kitchen", () =>
         provideUpgradedKitchenContainer(currentKitchen),
       )
     },
