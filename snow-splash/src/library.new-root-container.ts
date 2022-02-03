@@ -24,13 +24,17 @@ type T4 = UnpackObject<{ a: 1; b: () => Promise<3> }>
 abstract class NodePublic<NodeContext extends object> {
   constructor() {}
 
-  // protected abstract thisContext: NodeContext
+  // public get containers(){
+  //   const tokens = this.getTokens()
 
-  public tokens<Token extends keyof NodeContext>(): Token[] {
-    // console.log(this.thisContext)
+  //   return {}
+  // }
 
-    return ["a" as any, "b" as any] as any
-  }
+  /**
+   * Recursive function to get all tokens up the tree
+   * @returns something like { token1: "token1", token2: "token2" }
+   */
+  public abstract getTokens(): { [T in keyof NodeContext]: T }
 }
 
 abstract class AbstractNode<
@@ -51,23 +55,12 @@ abstract class AbstractNode<
     return this.resolve(token)
   }
 
+  // Hidden
   protected abstract resolve<Token extends keyof NodeContext>(
     token: Token,
   ): UnpackFunction<NodeContext[Token]>
 
   abstract lol<Token extends keyof NodeContext>(token: Token): Token
-}
-
-class RootNode extends AbstractNode<{}> {
-  //@ts-ignore
-  protected override thisContext: never
-  public override resolve(token: never): never {
-    throw new Error(`nope`)
-  }
-
-  public override lol(): never {
-    throw new Error(`nope`)
-  }
 }
 
 class Node<
@@ -119,10 +112,48 @@ class Node<
     }
   }
 
+  public override getTokens(): {
+    [T in keyof ParentNodeContext | keyof ThisNodeContext]: T
+  } {
+    let tokens = this.myTokens()
+    if (this.parent instanceof RootNode) {
+      return this.myTokens()
+    }
+    return Object.assign(tokens, this.parent.getTokens())
+  }
+
   override lol<
     SearchToken extends keyof ThisNodeContext | keyof ParentNodeContext,
   >(token: SearchToken): SearchToken {
     return 1 as SearchToken
+  }
+
+  /**
+   * { a: 1, b: "b" } => { a: "a", b: "b" }
+   * @returns
+   */
+  private myTokens(): {
+    [T in keyof ParentNodeContext | keyof ThisNodeContext]: T
+  } {
+    let tokens = {} as any
+    for (let k in this.thisContext) {
+      tokens[k] = k
+    }
+    return tokens
+  }
+}
+
+class RootNode extends AbstractNode<{}> {
+  public override resolve(token: never): never {
+    throw new Error(`nope`)
+  }
+
+  public override lol(): never {
+    throw new Error(`nope`)
+  }
+
+  public override getTokens(): never {
+    throw new Error(`nope`)
   }
 }
 
