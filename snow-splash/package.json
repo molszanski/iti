@@ -18,7 +18,8 @@
     "test": "yarn jest && yarn tsd",
     "jest": "jest",
     "tsd": "tsd tsd_project",
-    "prepare-not": "install-peers"
+    "prepare-not": "install-peers",
+    "tsc": "tsc -b"
   },
   "dependencies": {
     "mitt": "^3.0.0",
@@ -32,6 +33,7 @@
     "install-peers-cli": "^2.2.0",
     "jest": "^27.4.7",
     "microbundle": "^0.14.2",
+    "nodemon": "^2.0.15",
     "ts-jest": "^27.1.3",
     "tsd": "^0.19.1",
     "typescript": "^4.5.5"
