@@ -68,6 +68,12 @@ type full = Prettify<M>
 let a333: full = 1 as any
 console.log(a333)
 
+///----
+
+type Point = { x: number; y: number }
+type Point2 = { x: number; b: number }
+type P = keyof Point | keyof Point2
+type full23 = Prettify<P>
 /// T2
 // _.assign      ({ a: 'a' }, { a: 'bb' }) // => { a: "bb" }
 // _.defaults    ({ a: 'a' }, { a: 'bb' }) // => { a: "a"  }
@@ -76,9 +82,7 @@ type ExtendObjecttAssign<
   OldContext extends object,
   NewContext extends object,
 > = {
-  [Token in keyof (OldContext & {
-    [NT in keyof NewContext]: never
-  })]: Token extends keyof NewContext
+  [Token in keyof OldContext | keyof NewContext]: Token extends keyof NewContext
     ? NewContext[Token]
     : Token extends keyof OldContext
     ? OldContext[Token]
@@ -86,10 +90,11 @@ type ExtendObjecttAssign<
 }
 
 type A1 = { a: 1; b: "2" }
-type A2 = { b: 1; d: "2" }
+type A2 = { b: 2; c: "3" }
 
 type M2 = ExtendObjecttAssign<A1, A2>
 type full2 = Prettify<M2>
+
 let a444: full2 = 1 as any
 console.log(a444)
 
