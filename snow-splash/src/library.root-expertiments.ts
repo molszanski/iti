@@ -1,10 +1,12 @@
+import { Assign } from "utility-types"
+
 type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
 
 /**
  * Can we add same tokens? Should the last be resolved? Both?
  *
  */
-type ExtendContext<
+type ExtendObjectt<
   OldContext extends {},
   newToken extends string,
   newTokenType,
@@ -13,7 +15,7 @@ declare function extend<Context extends {}, Token extends string, newType>(
   context: Context,
   token: Token,
   type: newType,
-): ExtendContext<Context, Token, newType>
+): ExtendObjectt<Context, Token, newType>
 
 const first = {
   a: 1,
@@ -33,7 +35,7 @@ console.log(e1, e2, e3)
 
 // Extend objects -------------------
 
-// type ExtendContext2<OldContext extends {}, NewContext extends {}> = {
+// type ExtendObjectt2<OldContext extends {}, NewContext extends {}> = {
 //   [Token in keyof (OldContext &
 //     NewContext)]: Token extends keyof OldContext
 //     ? OldContext[Token]
@@ -42,10 +44,13 @@ console.log(e1, e2, e3)
 //     : never
 // }
 
-// _.assign      ({}, { a: 'a' }, { a: 'bb' }) // => { a: "bb" }
-// _.defaults    ({}, { a: 'a' }, { a: 'bb' }) // => { a: "a"  }
+// _.assign      ({ a: 'a' }, { a: 'bb' }) // => { a: "bb" }
+// _.defaults    ({ a: 'a' }, { a: 'bb' }) // => { a: "a"  }
 // Extend
-type ExtendContextDefaults<OldContext extends {}, NewContext extends {}> = {
+type ExtendObjecttDefaults<
+  OldContext extends object,
+  NewContext extends object,
+> = {
   [Token in keyof (OldContext & {
     [NT in keyof NewContext]: never
   })]: Token extends keyof OldContext
@@ -58,16 +63,19 @@ type ExtendContextDefaults<OldContext extends {}, NewContext extends {}> = {
 type C1 = { a: 1; b: "2" }
 type C2 = { b: 1; d: "2" }
 
-type M = ExtendContextDefaults<C1, C2>
+type M = ExtendObjecttDefaults<C1, C2>
 type full = Prettify<M>
 let a333: full = 1 as any
 console.log(a333)
 
 /// T2
-// _.assign      ({}, { a: 'a' }, { a: 'bb' }) // => { a: "bb" }
-// _.defaults    ({}, { a: 'a' }, { a: 'bb' }) // => { a: "a"  }
+// _.assign      ({ a: 'a' }, { a: 'bb' }) // => { a: "bb" }
+// _.defaults    ({ a: 'a' }, { a: 'bb' }) // => { a: "a"  }
 // ASSIGN
-type ExtendContextAssign<OldContext extends {}, NewContext extends {}> = {
+type ExtendObjecttAssign<
+  OldContext extends object,
+  NewContext extends object,
+> = {
   [Token in keyof (OldContext & {
     [NT in keyof NewContext]: never
   })]: Token extends keyof NewContext
@@ -80,16 +88,23 @@ type ExtendContextAssign<OldContext extends {}, NewContext extends {}> = {
 type A1 = { a: 1; b: "2" }
 type A2 = { b: 1; d: "2" }
 
-type M2 = ExtendContextAssign<A1, A2>
+type M2 = ExtendObjecttAssign<A1, A2>
 type full2 = Prettify<M2>
 let a444: full2 = 1 as any
 console.log(a444)
+
+// lib
+// https://github.com/piotrwitek/utility-types#assignt-u
+type M3 = Assign<A1, A2>
+type full3 = Prettify<M3>
+let a555: full3 = 1 as any
+console.log(a555)
 
 // declare function extend<Context extends {}, Token extends string, newType>(
 //   context: Context,
 //   token: Token,
 //   type: newType,
-// ): ExtendContext2<Context, Token, newType>
+// ): ExtendObjectt2<Context, Token, newType>
 
 // const first2 = {
 //   a: 1,
