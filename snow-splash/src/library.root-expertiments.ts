@@ -105,32 +105,9 @@ type full3 = Prettify<M3>
 let a555: full3 = 1 as any
 console.log(a555)
 
-// declare function extend<Context extends {}, Token extends string, newType>(
-//   context: Context,
-//   token: Token,
-//   type: newType,
-// ): ExtendObjectt2<Context, Token, newType>
-
-// const first2 = {
-//   a: 1,
-//   b: "strs",
-// }
-
-// let ee1 = extend(first, "c", "num")
-// type ee1 = Prettify<typeof ee1>
-
-// let ee2 = extend(first, "d", 123)
-// type ee2 = Prettify<typeof ee2>
-
-// let ee3 = extend(first, "d", () => 123)
-// type ee3 = Prettify<typeof ee3>
-
-// console.log(ee1, ee2, ee3)
-
 //
-//
-//
-//
-// Stop
 
-export const a = { a: 1 }
+// type T1 = "a" | "b"
+// type T2 = "b" | "c" | "d"
+// type T3 = T1 | T2
+// type T4 = Prettify<T3>

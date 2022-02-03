@@ -21,13 +21,24 @@ type UnpackObject<T> = {
 type T3 = UnpackObject<{ a: 1; b: 2 }>
 type T4 = UnpackObject<{ a: 1; b: () => Promise<3> }>
 
-abstract class NodeApi<NodeContext extends object> {
-  public helloWorld() {
-    return "123"
+abstract class NodePublic<NodeContext extends object> {
+  constructor() {}
+
+  // protected abstract thisContext: NodeContext
+
+  public tokens<Token extends keyof NodeContext>(): Token[] {
+    // console.log(this.thisContext)
+
+    return ["a" as any, "b" as any] as any
   }
 }
 
-abstract class AbstractNode<NodeContext extends object> {
+abstract class AbstractNode<
+  NodeContext extends object,
+> extends NodePublic<NodeContext> {
+  constructor() {
+    super()
+  }
   public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
     newContext: NewContext,
   ): AbstractNode<Assign<NodeContext, NewContext>> {
@@ -48,6 +59,8 @@ abstract class AbstractNode<NodeContext extends object> {
 }
 
 class RootNode extends AbstractNode<{}> {
+  //@ts-ignore
+  protected override thisContext: never
   public override resolve(token: never): never {
     throw new Error(`nope`)
   }
@@ -57,11 +70,6 @@ class RootNode extends AbstractNode<{}> {
   }
 }
 
-// type T1 = "a" | "b"
-// type T2 = "b" | "c" | "d"
-// type T3 = T1 | T2
-// type T4 = Prettify<T3>
-
 class Node<
   ParentNodeContext extends object,
   ThisNodeContext extends object,
@@ -69,8 +77,8 @@ class Node<
   private cached: { [K in keyof ThisNodeContext]?: any }
 
   constructor(
-    readonly parent: AbstractNode<ParentNodeContext>,
-    readonly thisContext: ThisNodeContext,
+    protected readonly parent: AbstractNode<ParentNodeContext>,
+    protected readonly thisContext: ThisNodeContext,
   ) {
     super()
     this.cached = {}

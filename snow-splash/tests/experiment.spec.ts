@@ -18,11 +18,8 @@ it.only("should test stuff", () => {
       b: 2,
       c: 3,
     })
-
-    // console.log(node2.containers)
-
-    let a2 = node2.get("a")
-    console.log("a2", a2, "| type: ", typeof a2)
+    // node2.get("")
+    console.log("tok", node2.tokens())
 
     expect(a).toBe(12)
   })()
