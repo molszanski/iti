@@ -8,7 +8,7 @@
     "default": "./dist/snow-splash.modern.js"
   },
   "main": "./dist/snow-splash.cjs",
-  "module": "./dist/snow-splash.modern.js",
+  "module": "./dist/snow-splash.module.js",
   "typings": "./dist/index.d.ts",
   "files": [
     "dist"

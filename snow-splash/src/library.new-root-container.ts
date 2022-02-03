@@ -135,10 +135,9 @@ class Node<
   private myTokens(): {
     [T in keyof ParentNodeContext | keyof ThisNodeContext]: T
   } {
-    let tokens = {} as any
-    for (let k in this.thisContext) {
-      tokens[k] = k
-    }
+    let tokens = Object.fromEntries(
+      Object.keys(this.thisContext).map((el) => [el, el]),
+    ) as any
     return tokens
   }
 }
