@@ -34,24 +34,25 @@ console.log(e1, e2, e3)
 // Extend objects -------------------
 
 // type ExtendContext2<OldContext extends {}, NewContext extends {}> = {
-//   [SomeToken in keyof (OldContext &
-//     NewContext)]: SomeToken extends keyof OldContext
-//     ? OldContext[SomeToken]
-//     : SomeToken extends keyof NewContext
-//     ? NewContext[SomeToken]
+//   [Token in keyof (OldContext &
+//     NewContext)]: Token extends keyof OldContext
+//     ? OldContext[Token]
+//     : Token extends keyof NewContext
+//     ? NewContext[Token]
 //     : never
 // }
 
 // _.assign      ({}, { a: 'a' }, { a: 'bb' }) // => { a: "bb" }
 // _.defaults    ({}, { a: 'a' }, { a: 'bb' }) // => { a: "a"  }
+// Extend
 type ExtendContextDefaults<OldContext extends {}, NewContext extends {}> = {
-  [SomeToken in keyof (OldContext & {
-    [NT in keyof NewContext]: any
-  })]: SomeToken extends keyof OldContext
-    ? OldContext[SomeToken]
-    : SomeToken extends keyof NewContext
-    ? NewContext[SomeToken]
-    : null
+  [Token in keyof (OldContext & {
+    [NT in keyof NewContext]: never
+  })]: Token extends keyof OldContext
+    ? OldContext[Token]
+    : Token extends keyof NewContext
+    ? NewContext[Token]
+    : never
 }
 
 type C1 = { a: 1; b: "2" }
@@ -61,6 +62,29 @@ type M = ExtendContextDefaults<C1, C2>
 type full = Prettify<M>
 let a333: full = 1 as any
 console.log(a333)
+
+/// T2
+// _.assign      ({}, { a: 'a' }, { a: 'bb' }) // => { a: "bb" }
+// _.defaults    ({}, { a: 'a' }, { a: 'bb' }) // => { a: "a"  }
+// ASSIGN
+type ExtendContextAssign<OldContext extends {}, NewContext extends {}> = {
+  [Token in keyof (OldContext & {
+    [NT in keyof NewContext]: never
+  })]: Token extends keyof NewContext
+    ? NewContext[Token]
+    : Token extends keyof OldContext
+    ? OldContext[Token]
+    : never
+}
+
+type A1 = { a: 1; b: "2" }
+type A2 = { b: 1; d: "2" }
+
+type M2 = ExtendContextAssign<A1, A2>
+type full2 = Prettify<M2>
+let a444: full2 = 1 as any
+console.log(a444)
+
 // declare function extend<Context extends {}, Token extends string, newType>(
 //   context: Context,
 //   token: Token,
