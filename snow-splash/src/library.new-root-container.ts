@@ -1,75 +1,123 @@
 // import { Assign } from "utility-types"
 import mitt from "mitt"
-
+type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
 type Assign<OldContext extends object, NewContext extends object> = {
-  [Token in keyof (OldContext & {
-    [NT in keyof NewContext]: never
-  })]: Token extends keyof OldContext
-    ? OldContext[Token]
-    : Token extends keyof NewContext
+  [Token in keyof OldContext | keyof NewContext]: Token extends keyof NewContext
     ? NewContext[Token]
+    : Token extends keyof OldContext
+    ? OldContext[Token]
     : never
 }
 
+type UnpackFunction<T> = T extends (...args: any) => infer U ? U : T
+
+type T1 = UnpackFunction<() => string>
+type T2 = UnpackFunction<number>
+
+type UnpackObject<T> = {
+  [K in keyof T]: UnpackFunction<T[K]>
+}
+
+type T3 = UnpackObject<{ a: 1; b: 2 }>
+type T4 = UnpackObject<{ a: 1; b: () => Promise<3> }>
+
+abstract class NodeApi<NodeContext extends object> {
+  public helloWorld() {
+    return "123"
+  }
+}
+
 abstract class AbstractNode<NodeContext extends object> {
-  public addValue<Token extends string, ProvidedTokenType>(
-    token: Token,
-    value: ProvidedTokenType,
-  ): AbstractNode<Assign<NodeContext, { [T in Token]: ProvidedTokenType }>> {
-    return new Node(this, { [token]: value }) as any
+  public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
+    newContext: NewContext,
+  ): AbstractNode<Assign<NodeContext, NewContext>> {
+    return new Node(this, newContext)
   }
 
   public get<Token extends keyof NodeContext>(
     token: Token,
-  ): NodeContext[Token] {
+  ): UnpackFunction<NodeContext[Token]> {
     return this.resolve(token)
   }
 
   protected abstract resolve<Token extends keyof NodeContext>(
     token: Token,
-  ): NodeContext[Token]
+  ): UnpackFunction<NodeContext[Token]>
+
+  abstract lol<Token extends keyof NodeContext>(token: Token): Token
 }
 
 class RootNode extends AbstractNode<{}> {
   public override resolve(token: never): never {
     throw new Error(`nope`)
   }
+
+  public override lol(): never {
+    throw new Error(`nope`)
+  }
 }
+
+// type T1 = "a" | "b"
+// type T2 = "b" | "c" | "d"
+// type T3 = T1 | T2
+// type T4 = Prettify<T3>
 
 class Node<
   ParentNodeContext extends object,
-  ChildNodeContext extends object,
-> extends AbstractNode<Assign<ParentNodeContext, ChildNodeContext>> {
+  ThisNodeContext extends object,
+> extends AbstractNode<Assign<ParentNodeContext, ThisNodeContext>> {
+  private cached: { [K in keyof ThisNodeContext]?: any }
+
   constructor(
     readonly parent: AbstractNode<ParentNodeContext>,
-    readonly child: ChildNodeContext,
+    readonly thisContext: ThisNodeContext,
   ) {
     super()
+    this.cached = {}
   }
 
   protected override resolve<
-    SearchToken extends keyof Assign<ParentNodeContext, ChildNodeContext>,
+    SearchToken extends keyof ThisNodeContext | keyof ParentNodeContext,
   >(
     token: SearchToken,
-  ): Assign<ParentNodeContext, ChildNodeContext>[SearchToken] {
-    const thisNodeContext = this.child as any
+  ): UnpackFunction<Assign<ParentNodeContext, ThisNodeContext>[SearchToken]> {
+    // Type Hack: sorry, don't know how to solve it
+    // TODO: Make an issue at a typescript repo
+    const thisNodeContext = this.thisContext as any
     if (thisNodeContext[token] != null) {
-      let value = thisNodeContext[token]
-      return value
+      // Type Hack: sorry, don't know how to solve it
+      let thisNodeToken = token as any as keyof ThisNodeContext
+
+      // Case 1: If this token was a funtion / provider it might be in a cache
+      const cachedValue = this.cached[thisNodeToken]
+      if (cachedValue != null) {
+        return cachedValue
+      }
+
+      const tokenValue = thisNodeContext[token]
+
+      // Case 2: If this token is a function we must launch and cache it
+      if (typeof tokenValue === "function") {
+        const providedValue = tokenValue()
+        this.cached[thisNodeToken] = providedValue
+        return providedValue
+      }
+
+      // Case 3: This is a simple literal so we just send it
+      return tokenValue
     } else {
+      // Type Hack: sorry, don't know how to solve it
       return this.parent.get(token as any)
     }
+  }
+
+  override lol<
+    SearchToken extends keyof ThisNodeContext | keyof ParentNodeContext,
+  >(token: SearchToken): SearchToken {
+    return 1 as SearchToken
   }
 }
 
 export function makeRoot() {
   return new RootNode()
 }
-
-let r = makeRoot()
-const node1 = r.addValue("a", 1)
-const node2 = node1.addValue("b", "b")
-
-const v1 = node2.get("a")
-const v2 = node2.get("b")
-// const v3 = node1.get("b")
