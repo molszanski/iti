@@ -18,7 +18,7 @@ it("should return correct tokens", () => {
   })
 })
 
-it.only("should test stuff", () => {
+it("should test stuff", () => {
   let a = 12
 
   let r = makeRoot()
@@ -27,8 +27,6 @@ it.only("should test stuff", () => {
     aPrime: () => "optimus",
     a: 123,
   })
-
-  console.log("node1", node1)
 
   let node2 = node1.addNode({
     a: () => "updated lol",
