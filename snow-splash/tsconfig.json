@@ -7,7 +7,6 @@
       "dom.iterable",
       "esnext"
     ],
-    "types": ["@types/jest"],
     "noImplicitAny": false,
     "experimentalDecorators": true,
     "allowJs": true,
