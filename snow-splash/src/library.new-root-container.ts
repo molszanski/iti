@@ -141,7 +141,7 @@ class NodeApi<
 
   public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
     newContext: NewContext,
-  ): NodeApi<ThisNodeContext, NewContext> {
+  ): NodeApi<Assign4<ParentNodeContext, ThisNodeContext>, NewContext> {
     return new NodeApi(this as any, newContext)
   }
 
@@ -149,7 +149,7 @@ class NodeApi<
     NewContext extends { [T in keyof NewContext]: NewContext[T] },
   >(
     cb: (self: NodeApi<ParentNodeContext, ThisNodeContext>) => NewContext,
-  ): NodeApi<ThisNodeContext, NewContext> {
+  ): NodeApi<Assign4<ParentNodeContext, ThisNodeContext>, NewContext> {
     let newContext = cb(this)
     return new NodeApi(this as any, newContext)
   }

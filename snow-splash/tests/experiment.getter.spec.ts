@@ -59,6 +59,7 @@ describe("Node addNode", () => {
       .addNode({ c: "C" })
       .addNode({ d: "D" })
 
+    expect(r.get("a")).toBe("A")
     expect(r.get("c")).toBe("C")
   })
 
