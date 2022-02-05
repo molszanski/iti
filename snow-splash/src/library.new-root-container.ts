@@ -31,7 +31,7 @@ abstract class AbstractNode<Context extends object> {
   //   return new NodeApi(this, newContext)
   // }
 
-  public abstract resolve<T extends keyof Context>(
+  public abstract get<T extends keyof Context>(
     token: T,
   ): UnpackFunction<Context[T]>
 
@@ -52,7 +52,7 @@ class Node<
     this.cached = {}
   }
 
-  public resolve<
+  public get<
     SearchToken extends keyof ({
       [K in keyof ParentNodeContext]: ParentNodeContext[K]
     } & {
@@ -88,7 +88,7 @@ class Node<
     } else {
       if (this.parentNode != null) {
         // Type Hack: sorry, don't know how to solve it
-        return this.parentNode.resolve(token as any)
+        return this.parentNode.get(token as any)
       } else {
         throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
       }
@@ -136,17 +136,6 @@ class NodeApi<
     return new NodeApi(this, newContext)
   }
 
-  public get<
-    SearchToken extends keyof ThisNodeContext | keyof ParentNodeContext,
-  >(token: SearchToken) {
-    return this.resolve(token)
-  }
-  public getTokens(): {
-    [T in keyof ParentNodeContext | keyof ThisNodeContext]: T
-  } {
-    return this.getTokens()
-  }
-
   public getViaCb<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
     cb: (keyMap: {
       [T in keyof Assign4<ParentNodeContext, ThisNodeContext>]: T
@@ -179,4 +168,5 @@ export function makeRoot() {
 let node1 = makeRoot()
   .addNode({ token: "123" })
   .addNode({ token: 123, happy: () => "lol" })
+let a = node1.get("happy")
 let f = node1.getViaCb((c) => c.token)
