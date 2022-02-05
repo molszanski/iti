@@ -10,19 +10,19 @@ describe("Node.get()", () => {
   })
 
   it("should return a value as a value", () => {
-    let node = root.addNode({
+    const node = root.addNode({
       a: 123,
     })
     expect(node.get("a")).toBe(123)
   })
   it("should return function result and not a function", () => {
-    let node = root.addNode({
+    const node = root.addNode({
       functionTOken: () => "optimus",
     })
     expect(node.get("functionTOken")).toBe("optimus")
   })
   it("should return correct tokens for merged and overriden nodes", () => {
-    let node = root
+    const node = root
       .addNode({
         optimus: () => "prime",
         a: 123,
@@ -37,47 +37,46 @@ describe("Node.get()", () => {
   })
 
   it("should return cached value of a function", () => {
-    let node = makeRoot().addNode({
+    const node = root.addNode({
       optimus: () => "prime",
     })
     expect(node.get("optimus")).toBe("prime")
   })
-})
 
-it("should resolve async stuff", (cb) => {
-  // This is silly
-  ;(async () => {
-    let a = 12
+  it("should return promises of async functions", (cb) => {
+    ;(async () => {
+      const node = root.addNode({
+        optimus: async () => "prime",
+      })
+      expect(await node.get("optimus")).toBe("prime")
+      cb()
+    })()
+  })
 
-    let r = makeRoot()
+  it("should call container provider once, but container token twice", () => {
+    const fn1 = jest.fn()
+    const fn2 = jest.fn()
 
-    let node1 = r.addNode({
-      aPrime: () => "optimus",
-      a: 123,
-      f: async () => {
-        console.log("calling me")
+    const node = root.addNode({
+      autobots: () => {
+        fn1()
         return {
-          data: 123,
-          newData: () => {
-            console.log("calling me every time")
-            return "123"
+          optimus: () => {
+            fn2()
+            return "autobots assemble"
           },
+          bumblebee: "bumblebee",
+          jazz: "jazz",
         }
       },
     })
+    expect(fn1).not.toBeCalled()
+    expect(fn2).not.toBeCalled()
 
-    let z = node1.get("aPrime")
-    printTokenValue("aPrime", z)
+    node.get("autobots").optimus()
+    node.get("autobots").optimus()
 
-    let m = await node1.get("f")
-    printTokenValue("f", m)
-
-    let m2 = await node1.get("f")
-    printTokenValue("f", m2)
-    let nd = m2.newData()
-    let nd2 = m2.newData()
-
-    expect(a).toBe(12)
-    cb()
-  })()
+    expect(fn1).toHaveBeenCalledTimes(1)
+    expect(fn2).toHaveBeenCalledTimes(2)
+  })
 })
