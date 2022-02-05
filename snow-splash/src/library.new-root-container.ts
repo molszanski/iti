@@ -1,6 +1,7 @@
 // import { Assign } from "utility-types"
 import mitt from "mitt"
 import { SnowSplashResolveError } from "./library.new-root-errors"
+import { Assign4 } from "./library.root-expertiments"
 type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
 type Assign<OldContext extends object, NewContext extends object> = {
   [Token in keyof OldContext | keyof NewContext]: Token extends keyof NewContext
@@ -39,7 +40,7 @@ abstract class AbstractNode<Context extends object> {
 class Node<
   ParentNodeContext extends object,
   ThisNodeContext extends object,
-> extends AbstractNode<Assign<ParentNodeContext, ThisNodeContext>> {
+> extends AbstractNode<Assign4<ParentNodeContext, ThisNodeContext>> {
   private cached: { [K in keyof ThisNodeContext]?: any }
 
   constructor(
@@ -51,10 +52,14 @@ class Node<
   }
 
   public resolve<
-    SearchToken extends keyof ParentNodeContext | keyof ThisNodeContext,
+    SearchToken extends keyof ({
+      [K in keyof ParentNodeContext]: ParentNodeContext[K]
+    } & {
+      [K in keyof ThisNodeContext]: ThisNodeContext[K]
+    }),
   >(
     token: SearchToken,
-  ): UnpackFunction<Assign<ParentNodeContext, ThisNodeContext>[SearchToken]> {
+  ): UnpackFunction<Assign4<ParentNodeContext, ThisNodeContext>[SearchToken]> {
     // Type Hack: sorry, don't know how to solve it
     // TODO: Make an issue at a typescript repo
     const thisNodeContext = this.providedContext as any

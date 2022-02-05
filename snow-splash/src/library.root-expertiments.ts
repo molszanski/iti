@@ -1,5 +1,3 @@
-import { Assign } from "utility-types"
-
 type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
 
 /**
@@ -100,10 +98,10 @@ console.log(a444)
 
 // lib
 // https://github.com/piotrwitek/utility-types#assignt-u
-type M3 = Assign<A1, A2>
-type full3 = Prettify<M3>
-let a555: full3 = 1 as any
-console.log(a555)
+// type M3 = Assign<A1, A2>
+// type full3 = Prettify<M3>?
+// let a555: full3 = 1 as any
+// console.log(a555)
 
 //
 
@@ -111,3 +109,48 @@ console.log(a555)
 // type T2 = "b" | "c" | "d"
 // type T3 = T1 | T2
 // type T4 = Prettify<T3>
+
+///
+
+export type AssignString<
+  TParentContext,
+  TProvided,
+  CurrentToken extends string,
+> = {
+  [K in keyof (TParentContext & {
+    [K in CurrentToken]: TProvided
+  })]: K extends CurrentToken
+    ? TProvided
+    : K extends keyof TParentContext
+    ? TParentContext[K]
+    : never
+}
+
+export type Assign4<OldContext extends object, NewContext extends object> = {
+  [Token in keyof ({
+    [K in keyof OldContext]: OldContext[K]
+  } & {
+    [K in keyof NewContext]: NewContext[K]
+  })]: Token extends keyof NewContext
+    ? NewContext[Token]
+    : Token extends keyof OldContext
+    ? OldContext[Token]
+    : never
+}
+
+type B1 = { a: 1; b: "2" }
+type B2 = { b: 2; c: "3" }
+
+type K1 = AssignString<B1, string, "lol">
+let f: K1 = {
+  a: 1,
+  b: "2",
+  lol: "123",
+}
+
+type K2 = Assign4<B1, { lol: 123 }>
+let f2: K2 = {
+  a: 1,
+  b: "2",
+  lol: 123,
+}
