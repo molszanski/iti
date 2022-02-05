@@ -22,18 +22,36 @@ type UnpackObject<T> = {
 type T3 = UnpackObject<{ a: 1; b: 2 }>
 type T4 = UnpackObject<{ a: 1; b: () => Promise<3> }>
 
-class Node<ParentNodeContext extends object, ThisNodeContext extends object> {
+abstract class AbstractNode<Context extends object> {
+  // public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
+  //   newContext: NewContext,
+  // ): NodeApi<Context, NewContext> {
+  //   return new NodeApi(this, newContext)
+  // }
+
+  public abstract resolve<T extends keyof Context>(
+    token: T,
+  ): UnpackFunction<Context[T]>
+
+  public abstract getTokens<T extends keyof Context>(): { [M in T]: T }
+}
+
+class Node<
+  ParentNodeContext extends object,
+  ThisNodeContext extends object,
+> extends AbstractNode<Assign<ParentNodeContext, ThisNodeContext>> {
   private cached: { [K in keyof ThisNodeContext]?: any }
 
   constructor(
-    protected readonly parentNode: Node<ParentNodeContext, {}> | null,
-    protected readonly providedContext: ThisNodeContext,
+    private readonly parentNode: AbstractNode<ParentNodeContext> | null,
+    private readonly providedContext: ThisNodeContext,
   ) {
+    super()
     this.cached = {}
   }
 
-  protected resolve<
-    SearchToken extends keyof ThisNodeContext | keyof ParentNodeContext,
+  public resolve<
+    SearchToken extends keyof ParentNodeContext | keyof ThisNodeContext,
   >(
     token: SearchToken,
   ): UnpackFunction<Assign<ParentNodeContext, ThisNodeContext>[SearchToken]> {
@@ -78,6 +96,7 @@ class Node<ParentNodeContext extends object, ThisNodeContext extends object> {
     if (this.parentNode == null) {
       return this.myTokens()
     }
+    //@ts-ignore
     return Object.assign(tokens, this.parentNode.getTokens())
   }
 
@@ -98,27 +117,30 @@ class Node<ParentNodeContext extends object, ThisNodeContext extends object> {
 class NodeApi<
   ParentNodeContext extends object,
   ThisNodeContext extends object,
-> extends Node<ParentNodeContext, ThisNodeContext> {
+> {
+  private readonly hiddenNode: Node<ParentNodeContext, ThisNodeContext>
   constructor(
-    protected readonly parentNode: NodeApi<
-      ParentNodeContext,
-      ThisNodeContext
-    > | null,
+    protected readonly parentNode: Node<{}, ParentNodeContext> | null,
     protected readonly providedContext: ThisNodeContext,
   ) {
-    super(parentNode, providedContext)
+    this.hiddenNode = new Node(parentNode, providedContext)
   }
 
   public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
     newContext: NewContext,
   ): NodeApi<ThisNodeContext, NewContext> {
-    return new NodeApi(this as any, newContext)
+    return new NodeApi(this.hiddenNode, newContext)
   }
 
   public get<
     SearchToken extends keyof ThisNodeContext | keyof ParentNodeContext,
   >(token: SearchToken) {
-    return this.resolve(token)
+    return this.hiddenNode.resolve(token)
+  }
+  public getTokens(): {
+    [T in keyof ParentNodeContext | keyof ThisNodeContext]: T
+  } {
+    return this.hiddenNode.getTokens()
   }
 }
 
@@ -126,3 +148,7 @@ export function makeRoot() {
   const lol = new NodeApi(null, {})
   return lol
 }
+
+let node1 = makeRoot().addNode({ token: "123" })
+
+let z = node1.get("token")
