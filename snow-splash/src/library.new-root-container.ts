@@ -97,11 +97,10 @@ class Node<
   public getTokens(): {
     [T in keyof ParentNodeContext | keyof ThisNodeContext]: T
   } {
-    let tokens = this.myTokens()
+    let tokens = this.myTokens() as any
     if (this.parentNode == null) {
-      return this.myTokens()
+      return tokens
     }
-    //@ts-ignore
     return Object.assign(tokens, this.parentNode.getTokens())
   }
 
@@ -110,7 +109,7 @@ class Node<
    * @returns
    */
   private myTokens(): {
-    [T in keyof ParentNodeContext | keyof ThisNodeContext]: T
+    [T in keyof ThisNodeContext]: T
   } {
     let tokens = Object.fromEntries(
       Object.keys(this.providedContext).map((el) => [el, el]),
@@ -154,6 +153,6 @@ export function makeRoot() {
   return lol
 }
 
-let node1 = makeRoot().addNode({ token: "123" })
+let node1 = makeRoot().addNode({ token: "123" }).addNode({ token: "123" })
 
 let z = node1.get("token")
