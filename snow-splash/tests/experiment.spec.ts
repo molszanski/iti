@@ -3,29 +3,44 @@ function printTokenValue(token, value) {
   console.log(`Token: ${token}  | ${value}  -- of ${typeof value}`)
 }
 describe("Node.get()", () => {
+  let root: ReturnType<typeof makeRoot>
+
+  beforeEach(() => {
+    root = makeRoot()
+  })
+
+  it("should return a value as a value", () => {
+    let node = root.addNode({
+      a: 123,
+    })
+    expect(node.get("a")).toBe(123)
+  })
   it("should return function result and not a function", () => {
-    let node = makeRoot().addNode({
+    let node = root.addNode({
       functionTOken: () => "optimus",
     })
-
     expect(node.get("functionTOken")).toBe("optimus")
   })
-})
-it("should return correct tokens for an overriden node container token", () => {
-  let node1 = makeRoot().addNode({
-    aPrime: () => "optimus",
-    a: 123,
+  it("should return correct tokens for merged and overriden nodes", () => {
+    let node = root
+      .addNode({
+        optimus: () => "prime",
+        a: 123,
+      })
+      .addNode({
+        a: "123",
+      })
+    expect(node.getTokens()).toMatchObject({
+      optimus: "optimus",
+      a: "a",
+    })
   })
-  let node2 = node1.addNode({
-    a: () => "updated lol",
-    b: 2,
-    c: 3,
-  })
-  expect(node2.getTokens()).toMatchObject({
-    a: "a",
-    b: "b",
-    c: "c",
-    aPrime: "aPrime",
+
+  it("should return cached value of a function", () => {
+    let node = makeRoot().addNode({
+      optimus: () => "prime",
+    })
+    expect(node.get("optimus")).toBe("prime")
   })
 })
 
