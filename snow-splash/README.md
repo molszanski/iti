@@ -431,3 +431,33 @@ Yes, no problem at all. If you want, they can even share tokens and hence instan
 **Why `getContainerSet` and others are always async?**
 
 This is temporary(?) limitation to keep typescript happy and typescript types reasonable sane
+
+**Why do I need to use `seal` / `resolve` to close `addNode` chain?**
+
+Basically, there are two options: chain and pipe. Implementing `pipe` to be typesafe
+
+```js
+// Syntax 1
+let n1 = await Node()
+  .addNode({ a: "A", b: "B" })
+  .addNode((node) => ({
+    ab: node.get("a") + node.get("b"),
+    c: async () => "C",
+  }))
+  .addNode(async (node) => ({
+    ac: node.get("a") + (await node.get(c)),
+  }))
+  .seal()
+
+// Syntax 2
+let n2 = await Node().pipe(
+  { a: "A", b: "B" },
+  (node) => ({
+    ab: node.get("a") + node.get("b"),
+    c: async () => "C",
+  }),
+  async (node) => ({
+    ac: node.get("a") + (await node.get(c)),
+  }),
+)
+```
