@@ -1,5 +1,6 @@
 // import { Assign } from "utility-types"
 import mitt from "mitt"
+import { UnPromisify } from "."
 import { SnowSplashResolveError } from "./library.new-root-errors"
 import { Assign4 } from "./library.root-expertiments"
 import { addGetter } from "./_utils"
@@ -23,6 +24,14 @@ type UnpackObject<T> = {
 
 type T3 = UnpackObject<{ a: 1; b: 2 }>
 type T4 = UnpackObject<{ a: 1; b: () => Promise<3> }>
+
+type UnpromisifyObject<T> = {
+  [K in keyof T]: UnPromisify<T[K]>
+}
+
+type AssignAndUnpack<O1 extends object, O2 extends object> = UnpromisifyObject<
+  UnpackObject<Assign4<O1, O2>>
+>
 
 abstract class AbstractNode<Context extends object> {
   // public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
@@ -133,7 +142,7 @@ class NodeApi<
   public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
     newContext: NewContext,
   ): NodeApi<ThisNodeContext, NewContext> {
-    return new NodeApi(this, newContext)
+    return new NodeApi(this as any, newContext)
   }
 
   public getViaCb<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
@@ -143,6 +152,44 @@ class NodeApi<
   ) {
     let searchedToken = cb(this.getTokens())
     return this.get(searchedToken)
+  }
+  // public get<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
+  //   t: T,
+  // ) {
+  //   return super.get(t)
+  // }
+
+  /**
+   * We can actually extract this into a wrapper class
+   */
+  public async getContainerSet<
+    T extends keyof Assign4<ParentNodeContext, ThisNodeContext>,
+  >(tokens: T[]) {
+    let promiseTokens: T[] = []
+    let allPromises: any = []
+    for (let token of tokens) {
+      if (this.containers[token] instanceof Promise) {
+        promiseTokens.push(token)
+        allPromises.push(this.containers[token])
+      }
+    }
+
+    let containerDecoratedMap: {
+      [K in T]: AssignAndUnpack<ParentNodeContext, ThisNodeContext>[K]
+    } = {} as any
+
+    // Step 1: Assign all values
+    tokens.forEach((token) => {
+      containerDecoratedMap[token as any] = this.containers[token]
+    })
+
+    // Step 2: Overwrite Promise like values with promise results
+    const rez = await Promise.all(allPromises)
+    promiseTokens.forEach((token, index) => {
+      containerDecoratedMap[token] = rez[index]
+    })
+
+    return containerDecoratedMap
   }
 
   public get containers() {
@@ -164,9 +211,3 @@ export function makeRoot() {
   const lol = new NodeApi(null, {})
   return lol
 }
-
-let node1 = makeRoot()
-  .addNode({ token: "123" })
-  .addNode({ token: 123, happy: () => "lol" })
-let a = node1.get("happy")
-let f = node1.getViaCb((c) => c.token)

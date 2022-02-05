@@ -427,3 +427,7 @@ Notable inspirations:
 **Can I have multiple application containers?**
 
 Yes, no problem at all. If you want, they can even share tokens and hence instances!
+
+**Why `getContainerSet` and others are always async?**
+
+This is temporary(?) limitation to keep typescript happy and typescript types reasonable sane
