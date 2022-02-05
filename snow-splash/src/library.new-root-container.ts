@@ -52,10 +52,11 @@ class Node<
   ThisNodeContext extends object,
 > extends AbstractNode<Assign4<ParentNodeContext, ThisNodeContext>> {
   private cached: { [K in keyof ThisNodeContext]?: any }
+  protected promisedContext: Promise<any> | undefined
 
   constructor(
-    private readonly parentNode: AbstractNode<ParentNodeContext> | null,
-    private readonly providedContext: ThisNodeContext,
+    protected readonly parentNode: AbstractNode<ParentNodeContext> | null,
+    public providedContext: ThisNodeContext,
   ) {
     super()
     this.cached = {}
@@ -133,7 +134,7 @@ class NodeApi<
   ThisNodeContext extends object,
 > extends Node<ParentNodeContext, ThisNodeContext> {
   constructor(
-    parentNode: Node<{}, ParentNodeContext> | null,
+    parentNode: NodeApi<{}, ParentNodeContext> | null,
     providedContext: ThisNodeContext,
   ) {
     super(parentNode, providedContext)
@@ -152,6 +153,62 @@ class NodeApi<
   ): NodeApi<Assign4<ParentNodeContext, ThisNodeContext>, NewContext> {
     let newContext = cb(this)
     return new NodeApi(this as any, newContext)
+  }
+
+  public addPromise<
+    NewContext extends { [T in keyof NewContext]: NewContext[T] },
+  >(
+    cb: (
+      self: NodeApi<ParentNodeContext, ThisNodeContext>,
+    ) => Promise<NewContext>,
+  ): NodeApi<Assign4<ParentNodeContext, ThisNodeContext>, NewContext> {
+    let r = cb(this)
+    if (r instanceof Promise) {
+      // this.promisedContext = r
+      let node = new NodeApi(this as any, { empty: "now" } as any)
+      node.promisedContext = r
+      return node as any
+    } else {
+      let newContext = cb(this)
+      return new NodeApi(this as any, newContext as any)
+    }
+  }
+
+  /**
+   * Warning both getPromisesRecursive and setPromisesRecursive
+   */
+  private getPromisesRecursive(p: Promise<any>[]) {
+    if (this.parentNode == null) {
+      return p
+    }
+    if (this.promisedContext != null) {
+      p.push(this.promisedContext)
+    }
+    // @ts-ignore
+    return this.parentNode.getPromisesRecursive(p)
+  }
+  private setPromisesRecursive(p: any[]) {
+    if (this.parentNode == null) {
+      return
+    }
+    // Here is some magic. We rely on order of nodes, so this works
+    if (this.promisedContext != null) {
+      this.providedContext = p[p.length - 1]
+      p.pop()
+    }
+    // @ts-ignore
+    return this.parentNode.setPromisesRecursive(p)
+  }
+
+  public async seal<
+    NewContext extends { [T in keyof NewContext]: NewContext[T] },
+  >(): Promise<NodeApi<ParentNodeContext, ThisNodeContext>> {
+    const promises = this.getPromisesRecursive([])
+    const lol = await Promise.all(promises)
+
+    this.setPromisesRecursive(lol)
+
+    return this
   }
 
   public getViaCb<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(

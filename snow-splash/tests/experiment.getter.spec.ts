@@ -79,6 +79,42 @@ describe("Node addNode", () => {
     expect(r.get("f")).toBe("F")
   })
 
+  it("should be able to add an async node", (cb) => {
+    // We need to test if typescript throws a type error here
+    enum UniqueResult {
+      A,
+      B,
+      F,
+    }
+    ;(async () => {
+      let node = await root
+        .addNode({
+          a: UniqueResult.A,
+          b: () => UniqueResult.B,
+        })
+        .addPromise(async () => ({
+          f: () => UniqueResult.F,
+        }))
+        .seal()
+
+      expect(node.get("f")).toBe(UniqueResult.F)
+      // @ts-expect-error
+      let a: UniqueResult.A = node.get("f")
+      cb()
+    })()
+  })
+
+  it.skip("should be able to add an async with a callback pattern", (cb) => {
+    ;(async () => {
+      console.log("~~~> ")
+
+      /// end
+      let a = 12
+      expect(a).toBe(12)
+      cb()
+    })()
+  })
+
   // it.only("should test long chain", () => {
   //   let r = root
   //     .addNode({ a: "A" })

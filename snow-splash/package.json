@@ -16,7 +16,6 @@
   "scripts": {
     "build": "microbundle build",
     "test": "yarn jest && yarn tsd",
-    "jest": "jest",
     "jestWatch": "jest --watch --verbose",
     "tsd": "tsd tsd_project",
     "prepare-not": "install-peers",
