@@ -2,6 +2,7 @@
 import mitt from "mitt"
 import { SnowSplashResolveError } from "./library.new-root-errors"
 import { Assign4 } from "./library.root-expertiments"
+import { addGetter } from "./_utils"
 type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
 type Assign<OldContext extends object, NewContext extends object> = {
   [Token in keyof OldContext | keyof NewContext]: Token extends keyof NewContext
@@ -146,6 +147,29 @@ class NodeApi<
   } {
     return this.hiddenNode.getTokens()
   }
+
+  public getViaCb<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
+    cb: (keyMap: {
+      [T in keyof Assign4<ParentNodeContext, ThisNodeContext>]: T
+    }) => T,
+  ) {
+    let searchedToken = cb(this.getTokens())
+    return this.get(searchedToken)
+  }
+
+  public get containers() {
+    type ContainerGetter = {
+      [CK in keyof Assign4<ParentNodeContext, ThisNodeContext>]: Assign4<
+        ParentNodeContext,
+        ThisNodeContext
+      >[CK]
+    }
+    let containerMap = <ContainerGetter>{}
+    for (let key in this.getTokens()) {
+      addGetter(containerMap, key, () => this.get(key as any))
+    }
+    return containerMap
+  }
 }
 
 export function makeRoot() {
@@ -153,6 +177,7 @@ export function makeRoot() {
   return lol
 }
 
-let node1 = makeRoot().addNode({ token: "123" }).addNode({ token: "123" })
-
-let z = node1.get("token")
+let node1 = makeRoot()
+  .addNode({ token: "123" })
+  .addNode({ token: 123, happy: () => "lol" })
+let f = node1.getViaCb((c) => c.token)
