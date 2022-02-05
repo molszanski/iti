@@ -122,30 +122,29 @@ class Node<
 class NodeApi<
   ParentNodeContext extends object,
   ThisNodeContext extends object,
-> {
-  private readonly hiddenNode: Node<ParentNodeContext, ThisNodeContext>
+> extends Node<ParentNodeContext, ThisNodeContext> {
   constructor(
-    protected readonly parentNode: Node<{}, ParentNodeContext> | null,
-    protected readonly providedContext: ThisNodeContext,
+    parentNode: Node<{}, ParentNodeContext> | null,
+    providedContext: ThisNodeContext,
   ) {
-    this.hiddenNode = new Node(parentNode, providedContext)
+    super(parentNode, providedContext)
   }
 
   public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
     newContext: NewContext,
   ): NodeApi<ThisNodeContext, NewContext> {
-    return new NodeApi(this.hiddenNode, newContext)
+    return new NodeApi(this, newContext)
   }
 
   public get<
     SearchToken extends keyof ThisNodeContext | keyof ParentNodeContext,
   >(token: SearchToken) {
-    return this.hiddenNode.resolve(token)
+    return this.resolve(token)
   }
   public getTokens(): {
     [T in keyof ParentNodeContext | keyof ThisNodeContext]: T
   } {
-    return this.hiddenNode.getTokens()
+    return this.getTokens()
   }
 
   public getViaCb<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
