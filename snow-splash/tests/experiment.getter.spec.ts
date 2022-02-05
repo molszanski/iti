@@ -33,6 +33,72 @@ describe("Node getter", () => {
   })
 })
 
+describe("Node addNode", () => {
+  let root: ReturnType<typeof makeRoot>
+  let node = mockNode()
+
+  function mockNode() {
+    return makeRoot().addNode({
+      a: "A",
+      b: () => "B",
+      c: async () => "C",
+      d: async () => "D",
+    })
+  }
+  beforeEach(() => {
+    root = makeRoot()
+    node = mockNode()
+
+    let f = root.addNode({ a: "A" }).addNode({ k: "A" }).addNode({ m: "A" })
+  })
+
+  it("should be able to chain multiple nodes", () => {
+    let r = root
+      .addNode({ a: "A" })
+      .addNode({ b: "B" })
+      .addNode({ c: "C" })
+      .addNode({ d: "D" })
+
+    expect(r.get("c")).toBe("C")
+  })
+
+  it("should accept callback function that provides current node", () => {
+    let r = root
+      .addNode({ a: "A" })
+      .addNode({ k: "A" })
+      .addSuperNode((c) => {
+        expect(c.get("a")).toBe("A")
+        return { b: "B", c: "C" }
+      })
+      .addSuperNode((c) => {
+        expect(c.get("b")).toBe("B")
+        return { f: "F", g: "G" }
+      })
+
+    expect(r.get("f")).toBe("F")
+  })
+
+  // it.only("should test long chain", () => {
+  //   let r = root
+  //     .addNode({ a: "A" })
+  //     .addNode({ k: "A" })
+  //     .addSuperNode((c) => {
+  //       expect(c.get("a")).toBe("A")
+  //       return { b: "B", c: "C" }
+  //     })
+  //     .addSuperNode((c) => {
+  //       expect(c.get("b")).toBe("B")
+  //       return { f: "F", g: "G" }
+  //     })
+
+  //   expect(r.get("f")).toBe("F")
+
+  //   // @ts-ignore
+  //   console.log("a ~~> ", r.get("a"))
+  //   console.log("lol", r)
+  // })
+})
+
 describe("Node getContainerSet", () => {
   let root: ReturnType<typeof makeRoot>
   let node = mockNode()

@@ -145,6 +145,15 @@ class NodeApi<
     return new NodeApi(this as any, newContext)
   }
 
+  public addSuperNode<
+    NewContext extends { [T in keyof NewContext]: NewContext[T] },
+  >(
+    cb: (self: NodeApi<ParentNodeContext, ThisNodeContext>) => NewContext,
+  ): NodeApi<ThisNodeContext, NewContext> {
+    let newContext = cb(this)
+    return new NodeApi(this as any, newContext)
+  }
+
   public getViaCb<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
     cb: (keyMap: {
       [T in keyof Assign4<ParentNodeContext, ThisNodeContext>]: T
