@@ -28,6 +28,11 @@ try nano emitter from evil martians but check if they support multiple subscribe
 
 add node should TS throw if pass async. TYpescirpt should lookup return type and dissallow promise return type
 
+### Disable overrides for `addNode`
+
+we can TS throw if we see that user has provided a duplicate token.
+Dublicate tokens maybe then could be added via `overrideNode`
+
 ### Add options for `addNode`
 
 - first option is a lookup table of tokens
