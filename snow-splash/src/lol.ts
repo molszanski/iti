@@ -38,7 +38,7 @@ let b = new MicroNode(2, {})
   .addNode({ a: 1, b: 2 })
   .addNode({ c: 1, d: 2 })
   .addNodeFunction((n) => {
-    console.log("-->", n.keys.c)
+    console.log("-->", n.keys.c)q
     return { e: 1 }
   })
   .add(3)

@@ -29,9 +29,11 @@ type UnpromisifyObject<T> = {
   [K in keyof T]: UnPromisify<T[K]>
 }
 
-type AssignAndUnpack<O1 extends {}, O2 extends {}> = UnpromisifyObject<
+type AssignAndUnpackObjects<O1 extends {}, O2 extends {}> = UnpromisifyObject<
   UnpackObject<Assign4<O1, O2>>
 >
+
+type AssignAndUnpackObject<T extends {}> = UnpromisifyObject<UnpackObject<T>>
 
 abstract class AbstractNode<Context extends {}> {
   // public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
@@ -50,7 +52,6 @@ abstract class AbstractNode<Context extends {}> {
 class Node<Context extends {}> extends AbstractNode<Context> {
   private cached: { [K in keyof Context]?: any }
   protected promisedContext: Promise<any>[] = []
-  public mergedContext: Context = <Context>{}
   public providedContext: Context = <Context>{}
 
   constructor() {
@@ -95,7 +96,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     [T in keyof Context]: T
   } {
     let tokens = Object.fromEntries(
-      Object.keys(this.mergedContext).map((el) => [el, el]),
+      Object.keys(this.providedContext).map((el) => [el, el]),
     ) as any
     return tokens
   }
@@ -109,7 +110,6 @@ class NodeApi<Context extends {}> extends Node<Context> {
   public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
     newContext: NewContext,
   ): NodeApi<Assign4<Context, NewContext>> {
-    Object.assign(this.mergedContext, newContext)
     Object.assign(this.providedContext, newContext)
     return this as any
   }
@@ -133,38 +133,13 @@ class NodeApi<Context extends {}> extends Node<Context> {
     return this as any
   }
 
-  /**
-   * Warning both getPromisesRecursive and setPromisesRecursive
-   */
-  // private getPromisesRecursive(p: Promise<any>[]) {
-  //   if (this.parentNode == null) {
-  //     return p
-  //   }
-  //   if (this.promisedContext != null) {
-  //     p.push(this.promisedContext)
-  //   }
-  //   // @ts-ignore
-  //   return this.parentNode.getPromisesRecursive(p)
-  // }
-  // private setPromisesRecursive(p: any[]) {
-  //   if (this.parentNode == null) {
-  //     return
-  //   }
-  //   // Here is some magic. We rely on order of nodes, so this works
-  //   if (this.promisedContext != null) {
-  //     this.providedContext = p[p.length - 1]
-  //     p.pop()
-  //   }
-  //   // @ts-ignore
-  //   return this.parentNode.setPromisesRecursive(p)
-  // }
-
   public async seal<
     NewContext extends { [T in keyof NewContext]: NewContext[T] },
   >(): Promise<NodeApi<Context>> {
     const promises = this.promisedContext
     const lol = await Promise.all(promises)
 
+    // for(let i in promises)
     lol.forEach((el) => {
       this.addNode(el)
     })
@@ -180,6 +155,7 @@ class NodeApi<Context extends {}> extends Node<Context> {
   //   let searchedToken = cb(this.getTokens())
   //   return this.get(searchedToken)
   // }
+
   // public get<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
   //   t: T,
   // ) {
@@ -189,35 +165,33 @@ class NodeApi<Context extends {}> extends Node<Context> {
   /**
    * We can actually extract this into a wrapper class
    */
-  // public async getContainerSet<
-  //   T extends keyof Assign4<ParentNodeContext, ThisNodeContext>,
-  // >(tokens: T[]) {
-  //   let promiseTokens: T[] = []
-  //   let allPromises: any = []
-  //   for (let token of tokens) {
-  //     if (this.containers[token] instanceof Promise) {
-  //       promiseTokens.push(token)
-  //       allPromises.push(this.containers[token])
-  //     }
-  //   }
+  public async getContainerSet<T extends keyof Context>(tokens: T[]) {
+    let promiseTokens: T[] = []
+    let allPromises: any = []
+    for (let token of tokens) {
+      if (this.containers[token] instanceof Promise) {
+        promiseTokens.push(token)
+        allPromises.push(this.containers[token])
+      }
+    }
 
-  //   let containerDecoratedMap: {
-  //     [K in T]: AssignAndUnpack<ParentNodeContext, ThisNodeContext>[K]
-  //   } = {} as any
+    let containerDecoratedMap: {
+      [K in T]: AssignAndUnpackObject<Context>[K]
+    } = {} as any
 
-  //   // Step 1: Assign all values
-  //   tokens.forEach((token) => {
-  //     containerDecoratedMap[token as any] = this.containers[token]
-  //   })
+    // Step 1: Assign all values
+    tokens.forEach((token) => {
+      containerDecoratedMap[token as any] = this.containers[token]
+    })
 
-  //   // Step 2: Overwrite Promise like values with promise results
-  //   const rez = await Promise.all(allPromises)
-  //   promiseTokens.forEach((token, index) => {
-  //     containerDecoratedMap[token] = rez[index]
-  //   })
+    // Step 2: Overwrite Promise like values with promise results
+    const rez = await Promise.all(allPromises)
+    promiseTokens.forEach((token, index) => {
+      containerDecoratedMap[token] = rez[index]
+    })
 
-  //   return containerDecoratedMap
-  // }
+    return containerDecoratedMap
+  }
 
   public get containers() {
     type ContainerGetter = {
