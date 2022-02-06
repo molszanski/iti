@@ -147,16 +147,16 @@ class NodeApi<Context extends {}> extends Node<Context> {
     return this as any
   }
 
-  public async seal(): Promise<NodeApi<Context>> {
-    const promises = this.promisedContext.map((el) => el(this))
-    const lol = await Promise.all(promises)
-    // TODO: add for in
-    // for(let i in promises)
-    lol.forEach((el) => {
-      this.addNode(el)
-    })
-    return this
-  }
+  // public async seal(): Promise<NodeApi<Context>> {
+  //   const promises = this.promisedContext.map((el) => el(this))
+  //   const lol = await Promise.all(promises)
+  //   // TODO: add for in
+  //   // for(let i in promises)
+  //   lol.forEach((el) => {
+  //     this.addNode(el)
+  //   })
+  //   return this
+  // }
 
   private _extractTokens<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,

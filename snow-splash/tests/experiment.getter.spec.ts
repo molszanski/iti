@@ -112,7 +112,6 @@ describe("Node addNode", () => {
         await expect(c.get("b")).resolves.toBe("B")
         return { f: "F", g: "G" }
       })
-      .seal()
     let b = await r.get("f")
     // console.log("b -- ", b)
     await expect(r.get("f")).resolves.toBe("F")
@@ -134,7 +133,6 @@ describe("Node addNode", () => {
         .addPromise(async () => ({
           f: () => UniqueResult.F,
         }))
-        .seal()
 
       await expect(node.get("f")).resolves.toBe(UniqueResult.F)
       // @ts-expect-error
@@ -181,7 +179,6 @@ describe("Node addNode", () => {
             d: () => "D",
           }
         })
-        .seal()
 
       let r =
         (await node.get("a")) + (await node.get("c")) + (await node.get("d"))
@@ -206,7 +203,6 @@ describe("Node addNode", () => {
             d: () => "D",
           }
         })
-        .seal()
 
       let r = (await node.get("c")) + (await node.get("d"))
       expect(r).toBe("ACD")
