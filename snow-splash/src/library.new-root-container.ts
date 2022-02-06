@@ -90,6 +90,21 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     /**
      * FLOW B: We have this is in a promised context
      */
+    if (this.promisedContext.length != 0) {
+      let container = this.promisedContext.shift()
+      // console.log("container -- ", container, typeof container)
+      if (container == null) {
+        this.promisedContext = []
+      } else {
+        // TODO: we can Omit<> some node API props
+        // in the addPromise type to get rid of this any
+        let context = await container(this as any)
+        // console.log("context -- ", context)
+        // NOTE: This replicates nodeAdd API
+        Object.assign(this.context, context)
+        return this.get(token)
+      }
+    }
 
     throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
   }

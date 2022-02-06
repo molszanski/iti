@@ -1,10 +1,44 @@
 import { makeRoot } from "../src/library.new-root-container"
 
-it("test", () => {})
-export const a = 1
 import { provideAContainer } from "./mocks/container.a"
 import { provideBContainer } from "./mocks/container.b"
 import { provideCContainer } from "./mocks/container.c"
+
+describe.only("Node long chain async", () => {
+  let root: ReturnType<typeof makeRoot>
+
+  beforeEach(() => {
+    root = makeRoot()
+  })
+  it("should test long chain", (cb) => {
+    ;(async () => {
+      let r = root
+        .addNode({ a: "A" })
+        .addNode({ k: "A" })
+        .addPromise(async (c) => {
+          await expect(c.get("a")).resolves.toBe("A")
+          return { b: "B", c: "C" }
+        })
+        .addPromise(async (c) => {
+          await expect(c.get("a")).resolves.toBe("A")
+          return { b: "B", c: "C" }
+        })
+        .addPromise(async (c) => {
+          await expect(c.get("b")).resolves.toBe("B")
+          return { f: "F", g: "G" }
+        })
+
+      await expect(r.get("f")).resolves.toBe("F")
+      await expect(r.get("a")).resolves.toBe("A")
+
+      // r.addNode({ a: "new A" })
+      // await expect(r.get("a")).resolves.toBe("new A")
+      cb()
+    })()
+  }, 100)
+
+  it.skip("should test overrides for async long chains, because of cached values", (cb) => {})
+})
 
 describe("Node getter", () => {
   let root: ReturnType<typeof makeRoot>

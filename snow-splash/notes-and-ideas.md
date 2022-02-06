@@ -23,3 +23,12 @@ let n = makeRoot()
 ### Nano emitter
 
 try nano emitter from evil martians but check if they support multiple subscribes gracefully via `node lol.js`
+
+### Disable promise for `addNode`
+
+add node should TS throw if pass async. TYpescirpt should lookup return type and dissallow promise return type
+
+### Add options for `addNode`
+
+- first option is a lookup table of tokens
+- second idea would be a force override parameter when you want to force flush changes
