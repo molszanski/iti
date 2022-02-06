@@ -44,7 +44,7 @@ abstract class AbstractNode<Context extends {}> {
 
   public abstract get<T extends keyof Context>(
     token: T,
-  ): UnpackFunction<Context[T]>
+  ): Promise<UnpackFunction<Context[T]>>
 
   public abstract getTokens<T extends keyof Context>(): { [M in T]: T }
 }
@@ -59,11 +59,11 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     this.cached = {}
   }
   // TODO: add flow for lazy context evluation
-  public get<
+  public async get<
     SearchToken extends keyof {
       [K in keyof Context]: Context[K]
     },
-  >(token: SearchToken): UnpackFunction<Context[SearchToken]> {
+  >(token: SearchToken): Promise<UnpackFunction<Context[SearchToken]>> {
     /**
      * FLOW A: We have this is in a current context
      */
@@ -140,7 +140,6 @@ class NodeApi<Context extends {}> extends Node<Context> {
     lol.forEach((el) => {
       this.addNode(el)
     })
-
     return this
   }
 

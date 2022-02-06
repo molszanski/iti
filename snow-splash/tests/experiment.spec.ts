@@ -2,24 +2,24 @@ import { makeRoot } from "../src/library.new-root-container"
 function printTokenValue(token, value) {
   console.log(`Token: ${token}  | ${value}  -- of ${typeof value}`)
 }
-describe("Node.get()", () => {
+describe.only("Node.get()", () => {
   let root: ReturnType<typeof makeRoot>
 
   beforeEach(() => {
     root = makeRoot()
   })
 
-  it("should return a value as a value", () => {
+  it("should return a value as a value", async () => {
     const node = root.addNode({
       a: 123,
     })
-    expect(node.get("a")).toBe(123)
+    await expect(node.get("a")).resolves.toBe(123)
   })
-  it("should return function result and not a function", () => {
+  it("should return function result and not a function", async () => {
     const node = root.addNode({
       functionTOken: () => "optimus",
     })
-    expect(node.get("functionTOken")).toBe("optimus")
+    await expect(node.get("functionTOken")).resolves.toBe("optimus")
   })
   it("should return correct tokens for merged and overriden nodes", () => {
     const node = root
@@ -36,11 +36,11 @@ describe("Node.get()", () => {
     })
   })
 
-  it("should return cached value of a function", () => {
+  it("should return cached value of a function", async () => {
     const node = root.addNode({
       optimus: () => "prime",
     })
-    expect(node.get("optimus")).toBe("prime")
+    await expect(node.get("optimus")).resolves.toBe("prime")
   })
 
   it("should return promises of async functions", (cb) => {
@@ -53,30 +53,34 @@ describe("Node.get()", () => {
     })()
   })
 
-  it("should call container provider once, but container token twice", () => {
-    const fn1 = jest.fn()
-    const fn2 = jest.fn()
+  it("should call container provider once, but container token twice", (cb) => {
+    ;(async () => {
+      const fn1 = jest.fn()
+      const fn2 = jest.fn()
 
-    const node = root.addNode({
-      autobots: () => {
-        fn1()
-        return {
-          optimus: () => {
-            fn2()
-            return "autobots assemble"
-          },
-          bumblebee: "bumblebee",
-          jazz: "jazz",
-        }
-      },
-    })
-    expect(fn1).not.toBeCalled()
-    expect(fn2).not.toBeCalled()
+      const node = root.addNode({
+        autobots: () => {
+          fn1()
+          return {
+            optimus: () => {
+              fn2()
+              return "autobots assemble"
+            },
+            bumblebee: "bumblebee",
+            jazz: "jazz",
+          }
+        },
+      })
+      expect(fn1).not.toBeCalled()
+      expect(fn2).not.toBeCalled()
 
-    node.get("autobots").optimus()
-    node.get("autobots").optimus()
-
-    expect(fn1).toHaveBeenCalledTimes(1)
-    expect(fn2).toHaveBeenCalledTimes(2)
+      let a1 = await node.get("autobots")
+      a1.optimus()
+      let a2 = await node.get("autobots")
+      a2.optimus()
+      expect(fn1).toHaveBeenCalledTimes(1)
+      expect(fn2).toHaveBeenCalledTimes(2)
+      cb()
+    })()
   })
 })
