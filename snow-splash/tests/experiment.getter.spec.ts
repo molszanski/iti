@@ -197,10 +197,23 @@ describe("Node getContainerSet", () => {
       a: "A",
       b: "B",
     })
+    await expect(
+      node.getContainerSet((c) => [c.a, c.b]),
+    ).resolves.toMatchObject({
+      a: "A",
+      b: "B",
+    })
   })
 
   it("should get container set of only resolved promises", async () => {
     await expect(node.getContainerSet(["c", "d"])).resolves.toMatchObject({
+      c: "C",
+      d: "D",
+    })
+
+    await expect(
+      node.getContainerSet((c) => [c.c, c.d]),
+    ).resolves.toMatchObject({
       c: "C",
       d: "D",
     })
@@ -211,5 +224,21 @@ describe("Node getContainerSet", () => {
       a: "A",
       c: "C",
     })
+
+    await expect(
+      node.getContainerSet((c) => [c.a, c.c]),
+    ).resolves.toMatchObject({
+      a: "A",
+      c: "C",
+    })
   })
+
+  it("should get container set via callback API", async () => {
+    await expect(
+      node.getContainerSet((c) => [c.a, c.c]),
+    ).resolves.toMatchObject({
+      a: "A",
+      c: "C",
+    })
+  }, 100)
 })

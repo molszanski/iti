@@ -104,6 +104,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
   }
 }
 
+type ReduceToKeys<T extends {}> = { [K in keyof T]: K }
 class NodeApi<Context extends {}> extends Node<Context> {
   constructor() {
     super()
@@ -146,6 +147,18 @@ class NodeApi<Context extends {}> extends Node<Context> {
     return this
   }
 
+  private _getTokensOverload<T extends keyof Context>(
+    tokensOrCb: T[] | ((keyMap: ReduceToKeys<Context>) => T[]),
+  ): T[] {
+    let tokens = tokensOrCb
+    if (typeof tokensOrCb === "function") {
+      tokens = tokensOrCb(this.getTokens())
+    } else {
+      tokens = tokensOrCb
+    }
+    return tokens
+  }
+
   // public getViaCb<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
   //   cb: (keyMap: {
   //     [T in keyof Assign4<ParentNodeContext, ThisNodeContext>]: T
@@ -164,7 +177,16 @@ class NodeApi<Context extends {}> extends Node<Context> {
   /**
    * We can actually extract this into a wrapper class
    */
-  public async getContainerSet<T extends keyof Context>(tokens: T[]) {
+  public async getContainerSet<T extends keyof Context>(
+    tokenOrCb: T[] | ((t: ReduceToKeys<Context>) => T[]),
+  ) {
+    let tokens: T[] = []
+    if (typeof tokenOrCb === "function") {
+      tokens = tokenOrCb(this.getTokens())
+    } else {
+      tokens = tokenOrCb
+    }
+
     let promiseTokens: T[] = []
     let allPromises: any = []
     for (let token of tokens) {
