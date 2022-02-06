@@ -5,7 +5,7 @@ import { SnowSplashResolveError } from "./library.new-root-errors"
 import { Assign4 } from "./library.root-expertiments"
 import { addGetter } from "./_utils"
 type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
-type Assign<OldContext extends object, NewContext extends object> = {
+type Assign<OldContext extends {}, NewContext extends {}> = {
   [Token in keyof OldContext | keyof NewContext]: Token extends keyof NewContext
     ? NewContext[Token]
     : Token extends keyof OldContext
@@ -29,11 +29,11 @@ type UnpromisifyObject<T> = {
   [K in keyof T]: UnPromisify<T[K]>
 }
 
-type AssignAndUnpack<O1 extends object, O2 extends object> = UnpromisifyObject<
+type AssignAndUnpack<O1 extends {}, O2 extends {}> = UnpromisifyObject<
   UnpackObject<Assign4<O1, O2>>
 >
 
-abstract class AbstractNode<Context extends object> {
+abstract class AbstractNode<Context extends {}> {
   // public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
   //   newContext: NewContext,
   // ): NodeApi<Context, NewContext> {
@@ -47,36 +47,28 @@ abstract class AbstractNode<Context extends object> {
   public abstract getTokens<T extends keyof Context>(): { [M in T]: T }
 }
 
-class Node<
-  ParentNodeContext extends object,
-  ThisNodeContext extends object,
-> extends AbstractNode<Assign4<ParentNodeContext, ThisNodeContext>> {
-  private cached: { [K in keyof ThisNodeContext]?: any }
-  protected promisedContext: Promise<any> | undefined
+class Node<Context extends {}> extends AbstractNode<Context> {
+  private cached: { [K in keyof Context]?: any }
+  protected promisedContext: Promise<any>[] = []
+  public mergedContext: Context = <Context>{}
+  public providedContext: Context = <Context>{}
 
-  constructor(
-    protected readonly parentNode: AbstractNode<ParentNodeContext> | null,
-    public providedContext: ThisNodeContext,
-  ) {
+  constructor() {
     super()
     this.cached = {}
   }
 
   public get<
-    SearchToken extends keyof ({
-      [K in keyof ParentNodeContext]: ParentNodeContext[K]
-    } & {
-      [K in keyof ThisNodeContext]: ThisNodeContext[K]
-    }),
-  >(
-    token: SearchToken,
-  ): UnpackFunction<Assign4<ParentNodeContext, ThisNodeContext>[SearchToken]> {
+    SearchToken extends keyof {
+      [K in keyof Context]: Context[K]
+    },
+  >(token: SearchToken): UnpackFunction<Context[SearchToken]> {
     // Type Hack: sorry, don't know how to solve it
     // TODO: Make an issue at a typescript repo
     const thisNodeContext = this.providedContext as any
     if (thisNodeContext[token] != null) {
       // Type Hack: sorry, don't know how to solve it
-      let thisNodeToken = token as any as keyof ThisNodeContext
+      let thisNodeToken = token as any as keyof Context
 
       // Case 1: If this token was a funtion / provider it might be in a cache
       const cachedValue = this.cached[thisNodeToken]
@@ -95,130 +87,99 @@ class Node<
 
       // Case 3: This is a simple literal so we just send it
       return tokenValue
-    } else {
-      if (this.parentNode != null) {
-        // Type Hack: sorry, don't know how to solve it
-        return this.parentNode.get(token as any)
-      } else {
-        throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
-      }
     }
+    throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
   }
 
   public getTokens(): {
-    [T in keyof ParentNodeContext | keyof ThisNodeContext]: T
-  } {
-    let tokens = this.myTokens() as any
-    if (this.parentNode == null) {
-      return tokens
-    }
-    return Object.assign(tokens, this.parentNode.getTokens())
-  }
-
-  /**
-   * { a: 1, b: "b" } => { a: "a", b: "b" }
-   * @returns
-   */
-  private myTokens(): {
-    [T in keyof ThisNodeContext]: T
+    [T in keyof Context]: T
   } {
     let tokens = Object.fromEntries(
-      Object.keys(this.providedContext).map((el) => [el, el]),
+      Object.keys(this.mergedContext).map((el) => [el, el]),
     ) as any
     return tokens
   }
 }
 
-class NodeApi<
-  ParentNodeContext extends object,
-  ThisNodeContext extends object,
-> extends Node<ParentNodeContext, ThisNodeContext> {
-  constructor(
-    parentNode: NodeApi<{}, ParentNodeContext> | null,
-    providedContext: ThisNodeContext,
-  ) {
-    super(parentNode, providedContext)
+class NodeApi<Context extends {}> extends Node<Context> {
+  constructor() {
+    super()
   }
 
   public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
     newContext: NewContext,
-  ): NodeApi<Assign4<ParentNodeContext, ThisNodeContext>, NewContext> {
-    return new NodeApi(this as any, newContext)
+  ): NodeApi<Assign4<Context, NewContext>> {
+    Object.assign(this.mergedContext, newContext)
+    Object.assign(this.providedContext, newContext)
+    return this as any
   }
 
   public addSuperNode<
     NewContext extends { [T in keyof NewContext]: NewContext[T] },
-  >(
-    cb: (self: NodeApi<ParentNodeContext, ThisNodeContext>) => NewContext,
-  ): NodeApi<Assign4<ParentNodeContext, ThisNodeContext>, NewContext> {
+  >(cb: (self: NodeApi<Context>) => NewContext) {
     let newContext = cb(this)
-    return new NodeApi(this as any, newContext)
+    return this.addNode(newContext)
   }
 
   public addPromise<
     NewContext extends { [T in keyof NewContext]: NewContext[T] },
   >(
-    cb: (
-      self: NodeApi<ParentNodeContext, ThisNodeContext>,
-    ) => Promise<NewContext>,
-  ): NodeApi<Assign4<ParentNodeContext, ThisNodeContext>, NewContext> {
+    cb: (self: NodeApi<Context>) => Promise<NewContext>,
+  ): NodeApi<Assign4<Context, NewContext>> {
     let r = cb(this)
     if (r instanceof Promise) {
-      // this.promisedContext = r
-      let node = new NodeApi(this as any, { empty: "now" } as any)
-      node.promisedContext = r
-      return node as any
-    } else {
-      let newContext = cb(this)
-      return new NodeApi(this as any, newContext as any)
+      this.promisedContext.push(r)
     }
+    return this as any
   }
 
   /**
    * Warning both getPromisesRecursive and setPromisesRecursive
    */
-  private getPromisesRecursive(p: Promise<any>[]) {
-    if (this.parentNode == null) {
-      return p
-    }
-    if (this.promisedContext != null) {
-      p.push(this.promisedContext)
-    }
-    // @ts-ignore
-    return this.parentNode.getPromisesRecursive(p)
-  }
-  private setPromisesRecursive(p: any[]) {
-    if (this.parentNode == null) {
-      return
-    }
-    // Here is some magic. We rely on order of nodes, so this works
-    if (this.promisedContext != null) {
-      this.providedContext = p[p.length - 1]
-      p.pop()
-    }
-    // @ts-ignore
-    return this.parentNode.setPromisesRecursive(p)
-  }
+  // private getPromisesRecursive(p: Promise<any>[]) {
+  //   if (this.parentNode == null) {
+  //     return p
+  //   }
+  //   if (this.promisedContext != null) {
+  //     p.push(this.promisedContext)
+  //   }
+  //   // @ts-ignore
+  //   return this.parentNode.getPromisesRecursive(p)
+  // }
+  // private setPromisesRecursive(p: any[]) {
+  //   if (this.parentNode == null) {
+  //     return
+  //   }
+  //   // Here is some magic. We rely on order of nodes, so this works
+  //   if (this.promisedContext != null) {
+  //     this.providedContext = p[p.length - 1]
+  //     p.pop()
+  //   }
+  //   // @ts-ignore
+  //   return this.parentNode.setPromisesRecursive(p)
+  // }
 
   public async seal<
     NewContext extends { [T in keyof NewContext]: NewContext[T] },
-  >(): Promise<NodeApi<ParentNodeContext, ThisNodeContext>> {
-    const promises = this.getPromisesRecursive([])
+  >(): Promise<NodeApi<Context>> {
+    const promises = this.promisedContext
     const lol = await Promise.all(promises)
 
-    this.setPromisesRecursive(lol)
+    lol.forEach((el) => {
+      this.addNode(el)
+    })
 
     return this
   }
 
-  public getViaCb<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
-    cb: (keyMap: {
-      [T in keyof Assign4<ParentNodeContext, ThisNodeContext>]: T
-    }) => T,
-  ) {
-    let searchedToken = cb(this.getTokens())
-    return this.get(searchedToken)
-  }
+  // public getViaCb<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
+  //   cb: (keyMap: {
+  //     [T in keyof Assign4<ParentNodeContext, ThisNodeContext>]: T
+  //   }) => T,
+  // ) {
+  //   let searchedToken = cb(this.getTokens())
+  //   return this.get(searchedToken)
+  // }
   // public get<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
   //   t: T,
   // ) {
@@ -228,42 +189,39 @@ class NodeApi<
   /**
    * We can actually extract this into a wrapper class
    */
-  public async getContainerSet<
-    T extends keyof Assign4<ParentNodeContext, ThisNodeContext>,
-  >(tokens: T[]) {
-    let promiseTokens: T[] = []
-    let allPromises: any = []
-    for (let token of tokens) {
-      if (this.containers[token] instanceof Promise) {
-        promiseTokens.push(token)
-        allPromises.push(this.containers[token])
-      }
-    }
+  // public async getContainerSet<
+  //   T extends keyof Assign4<ParentNodeContext, ThisNodeContext>,
+  // >(tokens: T[]) {
+  //   let promiseTokens: T[] = []
+  //   let allPromises: any = []
+  //   for (let token of tokens) {
+  //     if (this.containers[token] instanceof Promise) {
+  //       promiseTokens.push(token)
+  //       allPromises.push(this.containers[token])
+  //     }
+  //   }
 
-    let containerDecoratedMap: {
-      [K in T]: AssignAndUnpack<ParentNodeContext, ThisNodeContext>[K]
-    } = {} as any
+  //   let containerDecoratedMap: {
+  //     [K in T]: AssignAndUnpack<ParentNodeContext, ThisNodeContext>[K]
+  //   } = {} as any
 
-    // Step 1: Assign all values
-    tokens.forEach((token) => {
-      containerDecoratedMap[token as any] = this.containers[token]
-    })
+  //   // Step 1: Assign all values
+  //   tokens.forEach((token) => {
+  //     containerDecoratedMap[token as any] = this.containers[token]
+  //   })
 
-    // Step 2: Overwrite Promise like values with promise results
-    const rez = await Promise.all(allPromises)
-    promiseTokens.forEach((token, index) => {
-      containerDecoratedMap[token] = rez[index]
-    })
+  //   // Step 2: Overwrite Promise like values with promise results
+  //   const rez = await Promise.all(allPromises)
+  //   promiseTokens.forEach((token, index) => {
+  //     containerDecoratedMap[token] = rez[index]
+  //   })
 
-    return containerDecoratedMap
-  }
+  //   return containerDecoratedMap
+  // }
 
   public get containers() {
     type ContainerGetter = {
-      [CK in keyof Assign4<ParentNodeContext, ThisNodeContext>]: Assign4<
-        ParentNodeContext,
-        ThisNodeContext
-      >[CK]
+      [CK in keyof Context]: Context[CK]
     }
     let containerMap = <ContainerGetter>{}
     for (let key in this.getTokens()) {
@@ -274,6 +232,6 @@ class NodeApi<
 }
 
 export function makeRoot() {
-  const lol = new NodeApi(null, {})
+  const lol = new NodeApi()
   return lol
 }

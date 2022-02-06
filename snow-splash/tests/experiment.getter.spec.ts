@@ -1,5 +1,7 @@
 import { makeRoot } from "../src/library.new-root-container"
 
+it("test", () => {})
+export const a = 1
 import { provideAContainer } from "./mocks/container.a"
 import { provideBContainer } from "./mocks/container.b"
 import { provideCContainer } from "./mocks/container.c"
@@ -104,16 +106,16 @@ describe("Node addNode", () => {
     })()
   })
 
-  it.skip("should be able to add an async with a callback pattern", (cb) => {
-    ;(async () => {
-      console.log("~~~> ")
+  // it("should be able to add an async with a callback pattern", (cb) => {
+  //   ;(async () => {
+  //     console.log("~~~> ")
 
-      /// end
-      let a = 12
-      expect(a).toBe(12)
-      cb()
-    })()
-  })
+  //     /// end
+  //     let a = 12
+  //     expect(a).toBe(12)
+  //     cb()
+  //   })()
+  // })
 
   // it.only("should test long chain", () => {
   //   let r = root
@@ -136,41 +138,41 @@ describe("Node addNode", () => {
   // })
 })
 
-describe("Node getContainerSet", () => {
-  let root: ReturnType<typeof makeRoot>
-  let node = mockNode()
+// describe("Node getContainerSet", () => {
+//   let root: ReturnType<typeof makeRoot>
+//   let node = mockNode()
 
-  function mockNode() {
-    return makeRoot().addNode({
-      a: "A",
-      b: () => "B",
-      c: async () => "C",
-      d: async () => "D",
-    })
-  }
-  beforeEach(() => {
-    root = makeRoot()
-    node = mockNode()
-  })
+//   function mockNode() {
+//     return makeRoot().addNode({
+//       a: "A",
+//       b: () => "B",
+//       c: async () => "C",
+//       d: async () => "D",
+//     })
+//   }
+//   beforeEach(() => {
+//     root = makeRoot()
+//     node = mockNode()
+//   })
 
-  it("should get container set based of primitive values", async () => {
-    await expect(node.getContainerSet(["a", "b"])).resolves.toMatchObject({
-      a: "A",
-      b: "B",
-    })
-  })
+//   it("should get container set based of primitive values", async () => {
+//     await expect(node.getContainerSet(["a", "b"])).resolves.toMatchObject({
+//       a: "A",
+//       b: "B",
+//     })
+//   })
 
-  it("should get container set of only resolved promises", async () => {
-    await expect(node.getContainerSet(["c", "d"])).resolves.toMatchObject({
-      c: "C",
-      d: "D",
-    })
-  })
+//   it("should get container set of only resolved promises", async () => {
+//     await expect(node.getContainerSet(["c", "d"])).resolves.toMatchObject({
+//       c: "C",
+//       d: "D",
+//     })
+//   })
 
-  it("should get container set based literals and resolved promises", async () => {
-    await expect(node.getContainerSet(["a", "c"])).resolves.toMatchObject({
-      a: "A",
-      c: "C",
-    })
-  })
-})
+//   it("should get container set based literals and resolved promises", async () => {
+//     await expect(node.getContainerSet(["a", "c"])).resolves.toMatchObject({
+//       a: "A",
+//       c: "C",
+//     })
+//   })
+// })
