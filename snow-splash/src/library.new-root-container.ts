@@ -1,5 +1,5 @@
 import mitt from "mitt"
-// import { Assign } from "utility-types"
+import { createNanoEvents } from "./ee/ee"
 import { UnPromisify } from "."
 import { SnowSplashResolveError } from "./library.new-root-errors"
 import { Assign4 } from "./library.root-expertiments"
@@ -54,6 +54,18 @@ class Node<Context extends {}> extends AbstractNode<Context> {
   protected promisedContext: Array<(c: NodeApi<Context>) => Promise<any>> = []
   public context: Context = <Context>{}
 
+  /**
+   * EventEmitter Logic
+   */
+  private ee = createNanoEvents<{
+    containerCreated: (payload: {
+      key: keyof Context
+      newContainer: Context[keyof Context]
+    }) => void
+    containerRemoved: (payload: { key: keyof Context }) => void
+    containerRequested: (payload: { key: keyof Context }) => void
+  }>()
+
   constructor() {
     super()
     this.cached = {}
@@ -74,16 +86,25 @@ class Node<Context extends {}> extends AbstractNode<Context> {
         return cachedValue
       }
 
-      const tokenValue = this.context[token]
+      const storeInCache = (token: SearchToken, v: any) => {
+        this.cached[token] = v
+        this.ee.emit("containerCreated", {
+          key: token,
+          newContainer: v,
+        })
+      }
 
+      const tokenValue = this.context[token]
+      // console.log("tok", token, typeof tokenValue, tokenValue)
       // Case 2: If this token is a function we must launch and cache it
       if (typeof tokenValue === "function") {
         const providedValue = tokenValue()
-        this.cached[token] = providedValue
+        storeInCache(token, providedValue)
         return providedValue
       }
 
       // Case 3: This is a simple literal so we just send it
+      // storeInCache(token, tokenValue) // We store it send events too
       return tokenValue as any
     }
 
@@ -107,6 +128,17 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     }
 
     throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
+  }
+
+  public subscribeToContiner<T extends keyof Context>(
+    token: T,
+    cb: (container: UnpackFunction<Context[T]>) => void,
+  ): () => void {
+    return this.ee.on("containerCreated", async (ev) => {
+      if (token === ev.key) {
+        cb(await this.get(token))
+      }
+    })
   }
 
   public getTokens(): {

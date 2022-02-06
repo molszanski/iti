@@ -40,6 +40,45 @@ describe("Node long chain async", () => {
   it.skip("should test overrides for async long chains, because of cached values", (cb) => {})
 })
 
+describe("Node subscribeToContiner", () => {
+  let root: ReturnType<typeof makeRoot>
+
+  beforeEach(() => {
+    root = makeRoot()
+  })
+
+  it("should subscribe to async container creation", (cb) => {
+    const node = root.addPromise(async () => ({
+      a: async () => "A",
+      b: async () => "B",
+    }))
+    node.subscribeToContiner("a", async (container) => {
+      expect(await container).toBe("A")
+      cb()
+    })
+    node.get("a")
+  })
+
+  it("should not fire an event on a sync node", (cb) => {
+    ;(async () => {
+      const node = root.addNode({
+        a: async () => "A",
+        b: "B",
+      })
+      let f1 = jest.fn()
+      let f2 = jest.fn()
+      node.subscribeToContiner("a", f1)
+      node.subscribeToContiner("b", f2)
+
+      await node.get("a")
+      await node.get("b")
+      expect(f1).toBeCalled()
+      expect(f2).not.toBeCalled()
+      cb()
+    })()
+  })
+})
+
 describe("Node getter", () => {
   let root: ReturnType<typeof makeRoot>
 
