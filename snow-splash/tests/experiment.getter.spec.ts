@@ -4,7 +4,7 @@ import { provideAContainer } from "./mocks/container.a"
 import { provideBContainer } from "./mocks/container.b"
 import { provideCContainer } from "./mocks/container.c"
 
-describe.only("Node long chain async", () => {
+describe("Node long chain async", () => {
   let root: ReturnType<typeof makeRoot>
 
   beforeEach(() => {
@@ -97,7 +97,7 @@ describe("Node addNode", () => {
     await expect(r.get("c")).resolves.toBe("C")
   })
 
-  it.skip("should accept callback function that provides current node", async () => {
+  it("should accept callback function that provides current node", async () => {
     let r = await root
       .addNode({ a: "A" })
       .addNode({ k: "A" })
@@ -106,9 +106,7 @@ describe("Node addNode", () => {
         return { b: "B", c: "C" }
       })
       .addPromise(async (c) => {
-        console.log("two")
         let m = await c.get("b")
-        console.log("m", m)
         await expect(c.get("b")).resolves.toBe("B")
         return { f: "F", g: "G" }
       })
@@ -145,15 +143,14 @@ describe("Node addNode", () => {
     let r = root
       .addNode({ a: "A" })
       .addNode({ k: "A" })
-      .addNode(async (c) => {
+      .addPromise(async (c) => {
         await expect(c.get("a")).resolves.toBe("A")
         return { b: "B", c: "C" }
       })
-    // .addNode(async (c) => {
-    //   c.get('')
-    //   await expect(await c.get("b")).resolves.toBe("B")
-    //   return { f: "F", g: "G" }
-    // })
+      .addPromise(async (c) => {
+        await expect(c.get("b")).resolves.toBe("B")
+        return { f: "F", g: "G" }
+      })
 
     // await expect(r.get("f")).resolves.toBe("F")
     await expect(r.get("a")).resolves.toBe("A")
@@ -188,24 +185,33 @@ describe("Node addNode", () => {
     })()
   })
 
-  it.skip("SKIP should handle async node with out of order execution", (cb) => {
+  it("should handle async node with out of order execution", (cb) => {
     ;(async () => {
       let node = await root
+        .addNode((c) => {
+          return {
+            a: () => "A",
+            b: () => "B",
+          }
+        })
         .addPromise(async (c) => {
           return {
             c: () => "C",
           }
         })
         .addPromise(async (c) => {
-          // this will throw
-          c.get("c")
+          let c2 = await c.get("c")
           return {
             d: () => "D",
+            cd: () => c2 + "D",
           }
         })
 
-      let r = (await node.get("c")) + (await node.get("d"))
+      let r =
+        (await node.get("a")) + (await node.get("c")) + (await node.get("d"))
       expect(r).toBe("ACD")
+      let r2 = (await node.get("b")) + (await node.get("cd"))
+      expect(r2).toBe("BCD")
 
       cb()
     })()
