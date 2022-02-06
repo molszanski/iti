@@ -1,5 +1,5 @@
-// import { Assign } from "utility-types"
 import mitt from "mitt"
+// import { Assign } from "utility-types"
 import { UnPromisify } from "."
 import { SnowSplashResolveError } from "./library.new-root-errors"
 import { Assign4 } from "./library.root-expertiments"
@@ -51,44 +51,46 @@ abstract class AbstractNode<Context extends {}> {
 
 class Node<Context extends {}> extends AbstractNode<Context> {
   private cached: { [K in keyof Context]?: any }
-  protected promisedContext: Promise<any>[] = []
-  public providedContext: Context = <Context>{}
+  protected promisedContext: Array<(c: NodeApi<Context>) => Promise<any>> = []
+  public context: Context = <Context>{}
 
   constructor() {
     super()
     this.cached = {}
   }
-
+  // TODO: add flow for lazy context evluation
   public get<
     SearchToken extends keyof {
       [K in keyof Context]: Context[K]
     },
   >(token: SearchToken): UnpackFunction<Context[SearchToken]> {
-    // Type Hack: sorry, don't know how to solve it
-    // TODO: Make an issue at a typescript repo
-    const thisNodeContext = this.providedContext as any
-    if (thisNodeContext[token] != null) {
-      // Type Hack: sorry, don't know how to solve it
-      let thisNodeToken = token as any as keyof Context
-
+    /**
+     * FLOW A: We have this is in a current context
+     */
+    if (this.context[token] != null) {
       // Case 1: If this token was a funtion / provider it might be in a cache
-      const cachedValue = this.cached[thisNodeToken]
+      const cachedValue = this.cached[token]
       if (cachedValue != null) {
         return cachedValue
       }
 
-      const tokenValue = thisNodeContext[token]
+      const tokenValue = this.context[token]
 
       // Case 2: If this token is a function we must launch and cache it
       if (typeof tokenValue === "function") {
         const providedValue = tokenValue()
-        this.cached[thisNodeToken] = providedValue
+        this.cached[token] = providedValue
         return providedValue
       }
 
       // Case 3: This is a simple literal so we just send it
-      return tokenValue
+      return tokenValue as any
     }
+
+    /**
+     * FLOW B: We have this is in a promised context
+     */
+
     throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
   }
 
@@ -96,7 +98,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     [T in keyof Context]: T
   } {
     let tokens = Object.fromEntries(
-      Object.keys(this.providedContext).map((el) => [el, el]),
+      Object.keys(this.context).map((el) => [el, el]),
     ) as any
     return tokens
   }
@@ -110,7 +112,7 @@ class NodeApi<Context extends {}> extends Node<Context> {
   public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
     newContext: NewContext,
   ): NodeApi<Assign4<Context, NewContext>> {
-    Object.assign(this.providedContext, newContext)
+    Object.assign(this.context, newContext)
     return this as any
   }
 
@@ -126,19 +128,16 @@ class NodeApi<Context extends {}> extends Node<Context> {
   >(
     cb: (self: NodeApi<Context>) => Promise<NewContext>,
   ): NodeApi<Assign4<Context, NewContext>> {
-    let r = cb(this)
-    if (r instanceof Promise) {
-      this.promisedContext.push(r)
-    }
+    this.promisedContext.push(cb)
     return this as any
   }
 
   public async seal<
     NewContext extends { [T in keyof NewContext]: NewContext[T] },
   >(): Promise<NodeApi<Context>> {
-    const promises = this.promisedContext
+    const promises = this.promisedContext.map((el) => el(this))
     const lol = await Promise.all(promises)
-
+    // TODO: add for in
     // for(let i in promises)
     lol.forEach((el) => {
       this.addNode(el)

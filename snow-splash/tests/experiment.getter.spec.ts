@@ -50,8 +50,6 @@ describe("Node addNode", () => {
   beforeEach(() => {
     root = makeRoot()
     node = mockNode()
-
-    let f = root.addNode({ a: "A" }).addNode({ k: "A" }).addNode({ m: "A" })
   })
 
   it("should be able to chain multiple nodes", () => {
@@ -126,16 +124,55 @@ describe("Node addNode", () => {
     expect(r.get("a")).toBe("new A")
   })
 
-  it.skip("should be able to add an async with a callback pattern", (cb) => {
+  it("should be able to add an async with a callback pattern", (cb) => {
     ;(async () => {
-      console.log("~~~> ")
+      let node = await root
+        .addNode({
+          a: "A",
+          b: () => "B",
+        })
+        .addPromise(async (c) => {
+          return {
+            c: () => "C",
+          }
+        })
+        .addPromise(async (c) => {
+          return {
+            d: () => "D",
+          }
+        })
+        .seal()
 
-      /// end
-      let a = 12
-      expect(a).toBe(12)
+      let r = node.get("a") + node.get("c") + node.get("d")
+      expect(r).toBe("ACD")
+
       cb()
     })()
   })
+
+  it.skip("should handle async node with out of order execution", (cb) => {
+    ;(async () => {
+      let node = await root
+        .addPromise(async (c) => {
+          return {
+            c: () => "C",
+          }
+        })
+        .addPromise(async (c) => {
+          // this will throw
+          c.get("c")
+          return {
+            d: () => "D",
+          }
+        })
+        .seal()
+
+      let r = node.get("c") + node.get("d")
+      expect(r).toBe("ACD")
+
+      cb()
+    })()
+  }, 100)
 })
 
 describe("Node getContainerSet", () => {

@@ -315,7 +315,7 @@ import { useContainerSet } from "../containers/_container.hooks"
 import { generateEnsureContainerSet } from "snow-splash"
 
 const x = generateEnsureContainerSet(() =>
-  useContainerSet(["kitchen", "pizzaContainer", "auth"]),
+  useContainerSet(["kitchen", "pizzaContainer", "auth"])
 )
 export const EnsureNewKitchenConainer = x.EnsureWrapper
 export const useNewKitchenContext = x.contextHook
@@ -458,6 +458,25 @@ let n2 = await Node().pipe(
   }),
   async (node) => ({
     ac: node.get("a") + (await node.get(c)),
-  }),
+  })
 )
+```
+
+**Why nodes run twice?**
+
+```ts
+let node = await makeRoot()
+  .addPromise(async () => ({
+    a: "A",
+  }))
+  .addPromise(async (c) => {
+    console.log("containers:", c.get("a"))
+    return {
+      c: () => "C",
+    }
+  })
+  .seal()
+// prints: "containers: undefined"
+
+node.get("c") // prints: "containers: defined"
 ```
