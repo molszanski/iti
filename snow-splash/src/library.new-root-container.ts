@@ -106,8 +106,8 @@ class Node<Context extends {}> extends AbstractNode<Context> {
 
 type ReduceToKeys<T extends {}> = { [K in keyof T]: K }
 type KeysOrCb<Context extends {}> =
-  | keyof Context
-  | ((t: ReduceToKeys<Context>) => keyof Context)
+  | Array<keyof Context>
+  | ((t: { [K in keyof Context]: K }) => Array<keyof Context>)
 
 class NodeApi<Context extends {}> extends Node<Context> {
   constructor() {
@@ -152,7 +152,7 @@ class NodeApi<Context extends {}> extends Node<Context> {
   }
 
   private _extractTokens<T extends keyof Context>(
-    tokensOrCb: T[] | ((keyMap: ReduceToKeys<Context>) => T[]),
+    tokensOrCb: KeysOrCb<Context>,
   ): T[] {
     let tokens = tokensOrCb
     if (typeof tokensOrCb === "function") {
@@ -160,7 +160,7 @@ class NodeApi<Context extends {}> extends Node<Context> {
     } else {
       tokens = tokensOrCb
     }
-    return tokens
+    return tokens as any
   }
 
   // public get<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
@@ -173,9 +173,9 @@ class NodeApi<Context extends {}> extends Node<Context> {
    * We can actually extract this into a wrapper class
    */
   public async getContainerSet<T extends keyof Context>(
-    tokenOrCb: T[] | ((keyMap: ReduceToKeys<Context>) => T[]),
+    tokenOrCb: KeysOrCb<Context>,
   ) {
-    let tokens = this._extractTokens(tokenOrCb)
+    let tokens: T[] = this._extractTokens(tokenOrCb)
 
     let promiseTokens: T[] = []
     let allPromises: any = []
