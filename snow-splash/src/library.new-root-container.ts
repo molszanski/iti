@@ -33,7 +33,7 @@ type AssignAndUnpackObjects<O1 extends {}, O2 extends {}> = UnpromisifyObject<
   UnpackObject<Assign4<O1, O2>>
 >
 
-type AssignAndUnpackObject<T extends {}> = UnpromisifyObject<UnpackObject<T>>
+type FullyUnpackObject<T extends {}> = UnpromisifyObject<UnpackObject<T>>
 
 abstract class AbstractNode<Context extends {}> {
   // public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
@@ -182,7 +182,7 @@ class NodeApi<Context extends {}> extends Node<Context> {
     }
 
     let containerDecoratedMap: {
-      [K in T]: AssignAndUnpackObject<Context>[K]
+      [K in T]: FullyUnpackObject<Context>[K]
     } = {} as any
 
     // Step 1: Assign all values
