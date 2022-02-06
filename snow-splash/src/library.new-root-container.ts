@@ -115,22 +115,14 @@ class NodeApi<Context extends {}> extends Node<Context> {
     super()
   }
 
-  private _addNodeInternal<NewContext extends {}>(
-    newContext: NewContext,
-  ): NodeApi<Assign4<Context, NewContext>> {
-    Object.assign(this.context, newContext)
-
-    return this as any
-  }
-
   // SAVE: NewContext extends {! [T in keyof NewContext]: NewContext[T] }
   public addNode<NewContext extends {}>(
     newContext: NewContext | ((self: NodeApi<Context>) => NewContext),
   ): NodeApi<Assign4<Context, NewContext>> {
     // @ts-expect-error
     let nc = typeof newContext === "function" ? newContext(this) : newContext
-
-    return this._addNodeInternal(nc) as any
+    Object.assign(this.context, nc)
+    return this as any
   }
 
   public addPromise<NewContext extends {}>(
