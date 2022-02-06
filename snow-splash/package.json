@@ -18,8 +18,7 @@
     "test": "yarn jest && yarn tsd",
     "jestWatch": "jest --watch --verbose",
     "tsd": "tsd tsd_project",
-    "prepare-not": "install-peers",
-    "tsc": "tsc -b"
+    "prepare-not": "install-peers"
   },
   "dependencies": {
     "mitt": "^3.0.0",
