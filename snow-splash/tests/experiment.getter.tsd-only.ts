@@ -21,7 +21,7 @@ enum UniqueResult {
     .seal()
 
   expectType<UniqueResult>(node.get("a"))
-  expectType<UniqueResult>(node.get("b"))
+  expectType<UniqueResult.B>(node.get("b"))
   expectType<UniqueResult.C>(node.get("c"))
 
   expectNotType<any>(node)

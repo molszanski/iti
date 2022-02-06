@@ -54,6 +54,7 @@ export class RootContainer<
     return () => this.off("containerCreated", containerUpdateSubscription)
   }
 
+  // DONE
   public get containers() {
     type ContainerGetter = {
       [CK in keyof R]: Promise<GetContainer<R, CK>>
@@ -65,9 +66,7 @@ export class RootContainer<
     return containerMap
   }
 
-  /**
-   * We can actually extract this into a wrapper class
-   */
+  // DONE
   public async getContainerSet<T extends keyof R>(
     tokensOrCb: T[] | ((keyMap: TokenKeyMap) => T[]),
   ) {
@@ -87,7 +86,7 @@ export class RootContainer<
     })
     return containerDecoratedMap
   }
-
+  // DONE
   public getContainerSetCallback<T extends keyof R>(
     cb: (keyMap: TokenKeyMap) => T[],
   ): T[] {
@@ -98,7 +97,7 @@ export class RootContainer<
     }
     return cb(containerMap)
   }
-
+  // DONE
   private getTokensOverload<T extends keyof R>(
     tokensOrCb: T[] | ((keyMap: TokenKeyMap) => T[]),
   ) {
@@ -153,7 +152,7 @@ export class RootContainer<
    * Cache
    */
   private containerCache: Partial<R> = allCache
-
+  // DONE
   public async getGenericContainer<T extends keyof R>(
     key: T,
     containerProvider: () => R[T],
@@ -187,9 +186,7 @@ export class RootContainer<
     throw new Error("Should not reach here")
   }
 
-  /**
-   * Clear first, then slowly recreate
-   */
+  // DONE
   public async replaceContainerInstantly<T extends keyof R>(
     key: T,
     containerProvider: R[T],

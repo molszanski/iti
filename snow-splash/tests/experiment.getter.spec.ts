@@ -67,11 +67,11 @@ describe("Node addNode", () => {
     let r = root
       .addNode({ a: "A" })
       .addNode({ k: "A" })
-      .addSuperNode((c) => {
+      .addNode((c) => {
         expect(c.get("a")).toBe("A")
         return { b: "B", c: "C" }
       })
-      .addSuperNode((c) => {
+      .addNode((c) => {
         expect(c.get("b")).toBe("B")
         return { f: "F", g: "G" }
       })
@@ -108,11 +108,11 @@ describe("Node addNode", () => {
     let r = root
       .addNode({ a: "A" })
       .addNode({ k: "A" })
-      .addSuperNode((c) => {
+      .addNode((c) => {
         expect(c.get("a")).toBe("A")
         return { b: "B", c: "C" }
       })
-      .addSuperNode((c) => {
+      .addNode((c) => {
         expect(c.get("b")).toBe("B")
         return { f: "F", g: "G" }
       })

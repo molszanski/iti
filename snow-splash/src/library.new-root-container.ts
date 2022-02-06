@@ -108,38 +108,39 @@ type ReduceToKeys<T extends {}> = { [K in keyof T]: K }
 type KeysOrCb<Context extends {}> =
   | Array<keyof Context>
   | ((t: { [K in keyof Context]: K }) => Array<keyof Context>)
+type KeysOrCbWIthArg<Context, ARG> = Context | ((t: ARG) => Context)
 
 class NodeApi<Context extends {}> extends Node<Context> {
   constructor() {
     super()
   }
 
-  public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
+  private _addNodeInternal<NewContext extends {}>(
     newContext: NewContext,
   ): NodeApi<Assign4<Context, NewContext>> {
     Object.assign(this.context, newContext)
+
     return this as any
   }
 
-  public addSuperNode<
-    NewContext extends { [T in keyof NewContext]: NewContext[T] },
-  >(cb: (self: NodeApi<Context>) => NewContext) {
-    let newContext = cb(this)
-    return this.addNode(newContext)
+  // SAVE: NewContext extends {! [T in keyof NewContext]: NewContext[T] }
+  public addNode<NewContext extends {}>(
+    newContext: NewContext | ((self: NodeApi<Context>) => NewContext),
+  ): NodeApi<Assign4<Context, NewContext>> {
+    // @ts-expect-error
+    let nc = typeof newContext === "function" ? newContext(this) : newContext
+
+    return this._addNodeInternal(nc) as any
   }
 
-  public addPromise<
-    NewContext extends { [T in keyof NewContext]: NewContext[T] },
-  >(
+  public addPromise<NewContext extends {}>(
     cb: (self: NodeApi<Context>) => Promise<NewContext>,
   ): NodeApi<Assign4<Context, NewContext>> {
     this.promisedContext.push(cb)
     return this as any
   }
 
-  public async seal<
-    NewContext extends { [T in keyof NewContext]: NewContext[T] },
-  >(): Promise<NodeApi<Context>> {
+  public async seal(): Promise<NodeApi<Context>> {
     const promises = this.promisedContext.map((el) => el(this))
     const lol = await Promise.all(promises)
     // TODO: add for in
@@ -162,12 +163,6 @@ class NodeApi<Context extends {}> extends Node<Context> {
     }
     return tokens as any
   }
-
-  // public get<T extends keyof Assign4<ParentNodeContext, ThisNodeContext>>(
-  //   t: T,
-  // ) {
-  //   return super.get(t)
-  // }
 
   /**
    * We can actually extract this into a wrapper class
