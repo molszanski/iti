@@ -70,7 +70,6 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     super()
     this.cached = {}
   }
-  // TODO: add flow for lazy context evluation
   public async get<
     SearchToken extends keyof {
       [K in keyof Context]: Context[K]
@@ -116,39 +115,25 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       return tokenValue as any
     }
 
-    /**
-     * FLOW B: We have this is in a promised context
-     */
-    // if (this.promisedContext.length != 0) {
-    //   let container = this.promisedContext.shift()
-    //   // console.log("container -- ", container, typeof container)
-    //   if (container == null) {
-    //     this.promisedContext = []
-    //   } else {
-    //     // TODO: we can Omit<> some node API props
-    //     // in the addPromise type to get rid of this any
-    //     let context = await container(this as any)
-    //     // console.log("context -- ", context)
-    //     // NOTE: This replicates nodeAdd API
-    //     Object.assign(this.context, context)
-    //     return this.get(token)
-    //   }
-    // }
-
     throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
   }
 
-  public async seal() {
-    // console.log("sealing")
-    for await (const node of this.promisedContext) {
-      // TODO: we can Omit<> some node API props
-      // in the addPromise type to get rid of this any
-      let context = await node(this as any)
-      // NOTE: This replicates nodeAdd API
-      Object.assign(this.context, context)
-    }
-    this.promisedContext = []
-    return this as any as NodeApi<Context>
+  public seal(): Promise<NodeApi<Context>> {
+    return new Promise(async (resolve, reject) => {
+      let sealRecursive = async (err: any) => {
+        let node = this.promisedContext.shift()
+        if (node == null) {
+          let me = this as any as NodeApi<Context>
+          resolve(me)
+        } else {
+          node(this as any).then((context) => {
+            Object.assign(this.context, context)
+            sealRecursive(null)
+          })
+        }
+      }
+      sealRecursive(null)
+    })
   }
 
   public subscribeToContiner<T extends keyof Context>(
@@ -266,7 +251,9 @@ class NodeApi<Context extends {}> extends Node<Context> {
     }
     let containerMap = <ContainerGetter>{}
     for (let key in this.getTokens()) {
-      addGetter(containerMap, key, () => this.get(key as any))
+      addGetter(containerMap, key, () => {
+        return this.get(key as any)
+      })
     }
     return containerMap
   }
