@@ -57,7 +57,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
   /**
    * EventEmitter Logic
    */
-  private ee = createNanoEvents<{
+  protected ee = createNanoEvents<{
     containerCreated: (payload: {
       key: keyof Context
       newContainer: Context[keyof Context]
@@ -76,6 +76,14 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       [K in keyof Context]: Context[K]
     },
   >(token: SearchToken): Promise<UnpackFunction<Context[SearchToken]>> {
+    /**
+     * This might be controversial, but this will greatly simplify
+     * mental modal for the userland code.
+     * This might create an issue if antipattern is used, but it will
+     * clear so many other potentiall issues for users
+     */
+    await this.seal()
+
     /**
      * FLOW A: We have this is in a current context
      */
@@ -111,23 +119,36 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     /**
      * FLOW B: We have this is in a promised context
      */
-    if (this.promisedContext.length != 0) {
-      let container = this.promisedContext.shift()
-      // console.log("container -- ", container, typeof container)
-      if (container == null) {
-        this.promisedContext = []
-      } else {
-        // TODO: we can Omit<> some node API props
-        // in the addPromise type to get rid of this any
-        let context = await container(this as any)
-        // console.log("context -- ", context)
-        // NOTE: This replicates nodeAdd API
-        Object.assign(this.context, context)
-        return this.get(token)
-      }
-    }
+    // if (this.promisedContext.length != 0) {
+    //   let container = this.promisedContext.shift()
+    //   // console.log("container -- ", container, typeof container)
+    //   if (container == null) {
+    //     this.promisedContext = []
+    //   } else {
+    //     // TODO: we can Omit<> some node API props
+    //     // in the addPromise type to get rid of this any
+    //     let context = await container(this as any)
+    //     // console.log("context -- ", context)
+    //     // NOTE: This replicates nodeAdd API
+    //     Object.assign(this.context, context)
+    //     return this.get(token)
+    //   }
+    // }
 
     throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
+  }
+
+  public async seal() {
+    // console.log("sealing")
+    for await (const node of this.promisedContext) {
+      // TODO: we can Omit<> some node API props
+      // in the addPromise type to get rid of this any
+      let context = await node(this as any)
+      // NOTE: This replicates nodeAdd API
+      Object.assign(this.context, context)
+    }
+    this.promisedContext = []
+    return this as any as NodeApi<Context>
   }
 
   public subscribeToContiner<T extends keyof Context>(
@@ -179,17 +200,6 @@ class NodeApi<Context extends {}> extends Node<Context> {
     return this as any
   }
 
-  // public async seal(): Promise<NodeApi<Context>> {
-  //   const promises = this.promisedContext.map((el) => el(this))
-  //   const lol = await Promise.all(promises)
-  //   // TODO: add for in
-  //   // for(let i in promises)
-  //   lol.forEach((el) => {
-  //     this.addNode(el)
-  //   })
-  //   return this
-  // }
-
   private _extractTokens<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,
   ): T[] {
@@ -202,14 +212,27 @@ class NodeApi<Context extends {}> extends Node<Context> {
     return tokens as any
   }
 
+  public subscribeToContinerSet<T extends keyof Context>(
+    tokensOrCb: KeysOrCb<Context>,
+    cb: (container: {
+      [K in T]: FullyUnpackObject<Context>[K]
+    }) => void,
+  ): () => void {
+    let tokens = this._extractTokens(tokensOrCb)
+    return this.ee.on("containerCreated", async (ev) => {
+      if (tokens.includes(ev.key)) {
+        cb(await this.getContainerSet(tokens))
+      }
+    })
+  }
+
   /**
    * We can actually extract this into a wrapper class
    */
   public async getContainerSet<T extends keyof Context>(
-    tokenOrCb: KeysOrCb<Context>,
+    tokensOrCb: KeysOrCb<Context>,
   ) {
-    let tokens: T[] = this._extractTokens(tokenOrCb)
-
+    let tokens: T[] = this._extractTokens(tokensOrCb)
     let promiseTokens: T[] = []
     let allPromises: any = []
     for (let token of tokens) {

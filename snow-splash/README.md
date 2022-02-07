@@ -78,7 +78,7 @@ Firstly, decorators unnecessary couple your application logic with a framework.
 
 Secondly, it is very hard to use with starters like CRA, Next.js etc. To use `reflect-metadata` you need to configure your compiler (babel, typescrip, esbuild, swc etc.) configuratoin which is not trivial. So if you can’t use `reflect-metadata` you can't use inversify.
 
-## Patterns
+## Patterns and tips
 
 ### Single Instance (a.k.a. Singleton)
 
@@ -126,6 +126,67 @@ export async function provideKitchenContainer() {
     },
   }
 }
+```
+
+### Tip: Prefer callbacks over of strings (in progress)
+
+If you use callback pattern across your app, you will be able to mass rename your containerKeys using typescript. With strings, you will have to manually go through the app. On the bright side, compiler will not compile until you fix your rename manually across the app.
+
+```ts
+const node = makeRoot().addNode({
+  a: "A",
+  b: "B",
+})
+
+await node.get((containerKeys) => containerKeys.a) // BEST!!!
+await node.get("a") // it will work but...
+```
+
+### Tip: Prefer sealing your node
+
+This will help resolve some very exotic race conditions with subscriptions and container updates. We internally `seal()` our node on every `get` request but you can do it too before non trivial operations
+
+```ts
+await makeRoot()
+  .addPromise(async () => ({
+    a: "A",
+    b: "B",
+  }))
+  .seal() // Good
+```
+
+## Anti Patterns
+
+### Doing expensive computation in an `addNode`
+
+if you add
+
+```ts
+const node = makeRoot()
+  .addPromise(async () => ({
+    a: async () => "A",
+    b: async () => "B",
+  }))
+  .addPromise(async (node) => {
+    await wait(500) // Antipattern!
+    return {
+      c: async () => "C",
+    }
+  })
+  // GOOD: This node is clean, and async code is moved into container internals
+   .addPromise(async (node) => {
+    return {
+      cd: async () => (await node.get("c")) + "D",,
+    }
+  })
+   .addPromise(async (node) => {
+    console.log('saving last node') // not a big deal, but pointless
+    return {
+      f: async () => "F"
+    }
+  })
+
+
 ```
 
 ## Getting Started
@@ -315,7 +376,7 @@ import { useContainerSet } from "../containers/_container.hooks"
 import { generateEnsureContainerSet } from "snow-splash"
 
 const x = generateEnsureContainerSet(() =>
-  useContainerSet(["kitchen", "pizzaContainer", "auth"])
+  useContainerSet(["kitchen", "pizzaContainer", "auth"]),
 )
 export const EnsureNewKitchenConainer = x.EnsureWrapper
 export const useNewKitchenContext = x.contextHook
@@ -458,7 +519,7 @@ let n2 = await Node().pipe(
   }),
   async (node) => ({
     ac: node.get("a") + (await node.get(c)),
-  })
+  }),
 )
 ```
 
