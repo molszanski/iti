@@ -118,21 +118,29 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
   }
 
+  private sealLock: boolean = false
   public seal(): Promise<NodeApi<Context>> {
     return new Promise(async (resolve, reject) => {
-      let sealRecursive = async (err: any) => {
-        let node = this.promisedContext.shift()
-        if (node == null) {
-          let me = this as any as NodeApi<Context>
-          resolve(me)
-        } else {
-          node(this as any).then((context) => {
-            Object.assign(this.context, context)
-            sealRecursive(null)
-          })
+      if (this.sealLock === true) {
+        let me = this as any as NodeApi<Context>
+        resolve(me)
+      } else {
+        this.sealLock = true
+        let sealRecursive = async (err: any) => {
+          let node = this.promisedContext.shift()
+          if (node == null) {
+            let me = this as any as NodeApi<Context>
+            this.sealLock = false
+            resolve(me)
+          } else {
+            node(this as any).then((context) => {
+              Object.assign(this.context, context)
+              sealRecursive(null)
+            })
+          }
         }
+        sealRecursive(null)
       }
-      sealRecursive(null)
     })
   }
 
