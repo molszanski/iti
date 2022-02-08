@@ -1,14 +1,12 @@
 import React, { useContext, useEffect, useState } from "react"
 import { useBetterGenericContainer } from "./library.hooks"
 import { addGetter, UnPromisify } from "../_utils"
+import { NodeApi } from "../library.new-root-container"
 
 type ContainerGetter<
   providerFun extends (...args: any) => any,
   token extends string,
 > = UnPromisify<ReturnType<ReturnType<providerFun>[token]>>
-
-type ContainerKeys<providerFun extends (...args: any) => any> =
-  keyof ReturnType<providerFun>
 
 type ContainerSet<
   Token extends string,
@@ -17,18 +15,10 @@ type ContainerSet<
   [S in Token]: ContainerGetter<providerFun, S>
 }
 
-type getAppRootContainer<providerFun extends (a1: any, a2: any) => any> =
-  Parameters<providerFun>[1]
-
 export function getContainerSetHooks<
   getProviderFunction extends (...args) => { [k: string]: () => Promise<any> },
-  AppContanier extends getAppRootContainer<getProviderFunction>,
->(
-  getProviders: getProviderFunction,
-  reactContext: React.Context<AppContanier>,
-) {
-  const f: ContainerKeys<getProviderFunction> = undefined as any
-
+  Context extends object,
+>(reactContext: React.Context<NodeApi<Context>>) {
   function useRoot() {
     let k = useContext(reactContext)
     return k
@@ -36,7 +26,7 @@ export function getContainerSetHooks<
 
   function useContainer() {
     const root = useRoot()
-    return useRootStores(root.providerMap, root)
+    return useRootStores(root)
   }
 
   function useRootStores<
@@ -55,30 +45,33 @@ export function getContainerSetHooks<
         ? [UnPromisify<ReturnType<ContMap[CK]>> | undefined, any, CK]
         : never
     },
-  >(
-    providerMap: ContMap,
-    //@ts-ignore
-    appRoot: RootContainer,
-  ) {
+  >(appRoot: NodeApi<Context>) {
+    console.log("node app", appRoot.getTokens())
+    console.log("node app", appRoot)
     // let root2 = useRoot()
     let FFF = <ContainerGetter>{}
-    for (let contKey of appRoot.tokens) {
+    let tokens = appRoot.getTokens()
+    console.log("herer")
+    //@ts-ignore
+    for (let contKey in tokens) {
+      console.log("kkk", contKey)
       addGetter(FFF, contKey, () =>
         useBetterGenericContainer(
-          () => appRoot.containers[contKey],
+          () => appRoot.containers[contKey as any],
           //@ts-expect-error
           (cb: () => any) => appRoot.subscribeToContiner(contKey, cb),
           contKey,
         ),
       )
     }
+    console.log("!@#!@#!@#!@")
 
     return FFF
   }
 
   function useContainerSet<
-    Token extends ContainerKeys<getProviderFunction> & string,
-    TokenMap extends { [T in ContainerKeys<getProviderFunction>]: T },
+    Token extends keyof Context & string,
+    TokenMap extends { [T in keyof Context]: T },
   >(
     tokensOrCallback: Token[] | ((keyMap: TokenMap) => Token[]),
   ): ContainerSet<Token, getProviderFunction> {
@@ -87,20 +80,21 @@ export function getContainerSetHooks<
     )
     const root = useRoot()
 
-    const tokens =
-      typeof tokensOrCallback === "function"
-        ? root.getContainerSetCallback(tokensOrCallback)
-        : tokensOrCallback
+    // const tokens =
+    //   typeof tokensOrCallback === "function"
+    //     ? root.getContainerSetCallback(tokensOrCallback)
+    //     : tokensOrCallback
 
+    let tokens = tokensOrCallback as any
     useEffect(() => {
       root.getContainerSet(tokens).then((contSet) => {
-        setAll(contSet)
+        setAll(contSet as any)
       })
     }, tokens)
 
     useEffect(() => {
       const unsub = root.subscribeToContinerSet(tokens, (contSet) => {
-        setAll(contSet)
+        setAll(contSet as any)
       })
       return unsub
     }, tokens)

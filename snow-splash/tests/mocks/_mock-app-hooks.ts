@@ -1,12 +1,13 @@
 import React, { useContext } from "react"
 import { getContainerSetHooks } from "../../src/react/library.hook-generator"
-import { getProviders, MockAppContainer } from "./_mock-app-container"
+import { MockAppNode } from "./_mock-app-container"
 
-export const MyRootCont = React.createContext(<MockAppContainer>{})
+export const MyRootCont = React.createContext(<MockAppNode>{})
 
-let mega = getContainerSetHooks(getProviders, MyRootCont)
+let mega = getContainerSetHooks(MyRootCont)
 export const useMockAppContainerSet = mega.useContainerSet
 export function useMockAppContainer() {
   const root = useContext(MyRootCont)
-  return mega.useRootContainerMap(root.providerMap, root)
+  //@ts-ignore
+  return mega.useRootContainerMap(root)
 }

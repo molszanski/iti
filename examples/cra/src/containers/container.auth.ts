@@ -1,6 +1,6 @@
 import { Authorization } from "../stores/store.authorization"
 import { Auth } from "../stores/store.auth"
-import { wait } from "snow-splash"
+import { wait } from "./_utils"
 
 export interface AuthContainer {
   auth: Auth
