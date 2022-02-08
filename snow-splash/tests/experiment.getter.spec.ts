@@ -1,9 +1,7 @@
 import { makeRoot } from "../src/library.new-root-container"
-import { wait } from "./_utils"
 
 import { provideAContainer } from "./mocks/container.a"
 import { provideBContainer } from "./mocks/container.b"
-import { provideCContainer } from "./mocks/container.c"
 
 describe("Node long chain async", () => {
   let root: ReturnType<typeof makeRoot>
