@@ -5,34 +5,33 @@ import { provideAContainer } from "./mocks/container.a"
 import { provideBContainer } from "./mocks/container.b"
 import { provideCContainer } from "./mocks/container.c"
 
-describe.skip("Node long chain async", () => {
+describe("Node long chain async", () => {
   let root: ReturnType<typeof makeRoot>
 
   beforeEach(() => {
     root = makeRoot()
   })
+
   it("should test long chain", (cb) => {
     ;(async () => {
       let r = await root
         .addNode({ a: "A" })
         .addNode({ k: "A" })
         .addPromise(async (c) => {
-          console.log("--> ", c.containers.a)
-
-          // await expect(c.get("a")).resolves.toBe("A")
+          await expect(c.get("a")).resolves.toBe("A")
           return { b: "B", c: "C" }
         })
         .addPromise(async (c) => {
-          // await expect(c.get("a")).resolves.toBe("A")
+          await expect(c.get("a")).resolves.toBe("A")
           return { b: "B", c: "C" }
         })
         .addPromise(async (c) => {
-          // await expect(c.get("b")).resolves.toBe("B")
+          await expect(c.get("a")).resolves.toBe("A")
+          await expect(c.get("b")).resolves.toBe("B")
           return { f: "F", g: "G" }
         })
         .seal()
 
-      // console.log("a", await r.get("a"))
       await expect(r.get("f")).resolves.toBe("F")
       await expect(r.get("a")).resolves.toBe("A")
 
@@ -41,8 +40,11 @@ describe.skip("Node long chain async", () => {
       cb()
     })()
   }, 100)
-
-  it.skip("should test overrides for async long chains, because of cached values", (cb) => {})
+  it.todo("should test if I can overwrite token")
+  it.todo("should test if I can overwrite token and request it inside node")
+  it.todo(
+    "should test overrides for async long chains, because of cached values",
+  )
 })
 
 describe("Node subscribeToContiner", () => {
@@ -183,7 +185,7 @@ describe("Node addNode", () => {
     await expect(r.get("c")).resolves.toBe("C")
   })
 
-  it.skip("should accept callback function that provides current node", async () => {
+  it("should accept callback function that provides current node", async () => {
     let r = await root
       .addNode({ a: "A" })
       .addNode({ k: "A" })
@@ -196,8 +198,6 @@ describe("Node addNode", () => {
         await expect(c.get("b")).resolves.toBe("B")
         return { f: "F", g: "G" }
       })
-    let b = await r.get("f")
-    // console.log("b -- ", b)
     await expect(r.get("f")).resolves.toBe("F")
   })
 
@@ -225,7 +225,7 @@ describe("Node addNode", () => {
     })()
   })
 
-  it.skip("should test long chain", async () => {
+  it("should test long chain", async () => {
     let r = root
       .addNode({ a: "A" })
       .addNode({ k: "A" })
@@ -271,7 +271,7 @@ describe("Node addNode", () => {
     })()
   })
 
-  it.skip("should handle async node with out of order execution", (cb) => {
+  it("should handle async node with out of order execution", (cb) => {
     ;(async () => {
       let node = await root
         .addNode((c) => {

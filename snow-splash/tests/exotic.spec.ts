@@ -48,7 +48,7 @@ describe("Perf and exotic tests:", () => {
     }, 100)
 
     // getTokens must be async welp
-    it.skip("should never evaluate unrequested tokens, but pass correct refence to child node \
+    it.skip("ERR: should never evaluate unrequested tokens, but pass correct refence to child node \
           without a manual seal", (cb) => {
       ;(async () => {
         let r = root
