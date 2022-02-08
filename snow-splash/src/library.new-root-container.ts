@@ -63,6 +63,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       newContainer: Context[keyof Context]
     }) => void
     containerRemoved: (payload: { key: keyof Context }) => void
+    containerUpdated: (payload: { key: keyof Context }) => void
     containerRequested: (payload: { key: keyof Context }) => void
   }>()
 
@@ -111,11 +112,21 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       }
 
       // Case 3: This is a simple literal so we just send it
-      // storeInCache(token, tokenValue) // We store it send events too
+      storeInCache(token, tokenValue) // We store it send events too
       return tokenValue as any
     }
 
     throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
+  }
+  protected updateContext(updatedContext: Context) {
+    for (const [token, value] of Object.entries(updatedContext)) {
+      if (this.context[token] != null) {
+        this.ee.emit("containerUpdated", { key: token as any })
+      }
+      // Save state and clear cache
+      this.context[token] = value
+      this.cached[token] = null
+    }
   }
 
   private sealLock: boolean = false
@@ -182,7 +193,7 @@ class NodeApi<Context extends {}> extends Node<Context> {
   ): NodeApi<Assign4<Context, NewContext>> {
     // @ts-expect-error
     let nc = typeof newContext === "function" ? newContext(this) : newContext
-    Object.assign(this.context, nc)
+    this.updateContext(nc)
     return this as any
   }
 

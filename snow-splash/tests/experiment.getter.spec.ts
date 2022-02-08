@@ -40,7 +40,46 @@ describe("Node long chain async", () => {
       cb()
     })()
   }, 100)
-  it.todo("should test if I can overwrite token")
+  it("should test if I can overwrite token", (cb) => {
+    ;(async () => {
+      let r = await root.addNode({ a: "A", b: "B" }).seal()
+      await expect(r.get("a")).resolves.toBe("A") // Stores in cache
+
+      let n = await r.addNode({ a: 22 }).seal()
+      let m: number = await n.get("a")
+      expect(m).toBe(22)
+      cb()
+    })()
+  })
+
+  it("should test if I can overwrite token without sealing", (cb) => {
+    ;(async () => {
+      let r = root.addNode({ a: "A", b: "B" })
+      expect(await r.get("a")).toBe("A") // Stores in cache
+
+      let n = r.addNode({ a: 22 })
+      let m: number = await n.get("a")
+      expect(m).toBe(22)
+      cb()
+    })()
+  })
+
+  // it("should send containerUpdated event on overwrite", (cb) => {
+  //   ;(async () => {
+  //     let r = root.addNode({ a: "A", b: "B" })
+  //     expect(await r.get("a")).toBe("A") // Stores in cache
+
+  //     r.on('containerUpdated',()=>{})
+  //     // r.on('containerUpdated',(token)=>{
+
+  //     // })
+  //     let n = r.addNode({ a: 22 })
+  //     let m: number = await n.get("a")
+  //     expect(m).toBe(22)
+  //     cb()
+  //   })()
+  // })
+
   it.todo("should test if I can overwrite token and request it inside node")
   it.todo(
     "should test overrides for async long chains, because of cached values",
@@ -113,16 +152,16 @@ describe("Node subscribeToContiner", () => {
       await node.get("c")
       await node.get("b")
       await node.get("a")
-      // await node.get((c)=> c.a)
+      // await node.get((c) => c.a)
       /**
        * 2 becaus we have subscribed to two container, and this will provide us
        * with two of those, hence two updates because two creations
        */
       expect(f1).toHaveBeenCalledTimes(2)
       // One because D is stored as a value on seal creation
-      expect(f2).toHaveBeenCalledTimes(1)
+      expect(f2).toHaveBeenCalledTimes(2)
       expect(f3).toHaveBeenCalledTimes(2)
-      expect(f4).toHaveBeenCalledTimes(1)
+      expect(f4).toHaveBeenCalledTimes(2)
       cb()
     })()
   })
@@ -159,7 +198,7 @@ describe("Node getter", () => {
 
 describe("Node addNode", () => {
   let root: ReturnType<typeof makeRoot>
-  let node = mockNode()
+  let node: ReturnType<typeof mockNode>
 
   function mockNode() {
     return makeRoot().addNode({
@@ -306,8 +345,7 @@ describe("Node addNode", () => {
 
 describe("Node getContainerSet", () => {
   let root: ReturnType<typeof makeRoot>
-  let node = mockNode()
-
+  let node: ReturnType<typeof mockNode>
   function mockNode() {
     return makeRoot().addNode({
       a: "A",
