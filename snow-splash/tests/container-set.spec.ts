@@ -1,6 +1,5 @@
 import { getMainMockAppContainer } from "./mocks/_mock-app-container"
-import { A_Container } from "./mocks/container.a"
-import { B_Container } from "./mocks/container.b"
+import { wait } from "./_utils"
 
 it("should get two containers that are async", async () => {
   const cont = getMainMockAppContainer()
@@ -13,7 +12,7 @@ it("should get two containers that are async", async () => {
   expect(containerSet).toMatchSnapshot(containerSet)
 })
 
-it.skip("should subscribe to container set change", (cb) => {
+it("should subscribe to container set change", (cb) => {
   ;(async () => {
     const cont = getMainMockAppContainer()
     let containerSet = await cont.getContainerSet(["aCont", "bCont", "cCont"])
@@ -24,10 +23,12 @@ it.skip("should subscribe to container set change", (cb) => {
     expect(containerSet.cCont.c2.size).toBe(5)
 
     containerSet.cCont.upgradeCContainer()
-    // cont.subscribeToContinerSet(["aCont", "bCont", "cCont"], (containerSet) => {
-    //   expect(containerSet.cCont.c2.size).toBe(10)
-    //   cb()
-    // })
+    cont.subscribeToContinerSet(["aCont", "bCont", "cCont"], (containerSet) => {
+      expect(containerSet.cCont.c2.size).toBe(10)
+    })
+    await cont.get("cCont")
+    await wait(10)
+    cb()
   })()
 })
 
@@ -45,65 +46,71 @@ it("should get container set via a new API", (cb) => {
   })()
 })
 
-// it("should subscribe to container set change via a new APi", (cb) => {
-//   ;(async () => {
-//     const cont = getMainMockAppContainer()
-//     let containerSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
-//     expect(containerSet).toHaveProperty("aCont")
+it("should subscribe to container set change via a new APi", (cb) => {
+  ;(async () => {
+    const cont = getMainMockAppContainer()
+    let containerSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
+    expect(containerSet).toHaveProperty("aCont")
 
-//     containerSet.cCont.upgradeCContainer()
-//     cont.subscribeToContinerSet(
-//       (c) => {
-//         return [c.aCont, c.cCont]
-//       },
-//       (containerSet) => {
-//         expect(containerSet.cCont.c2.size).toBe(10)
-//         cb()
-//       },
-//     )
-//   })()
-// })
+    cont.subscribeToContinerSet(
+      (c) => {
+        return [c.aCont, c.cCont]
+      },
+      (containerSet) => {
+        expect(containerSet.cCont.c2.size).toBe(10)
+      },
+    )
+    containerSet.cCont.upgradeCContainer()
+    await wait(10)
+    cb()
+  })()
+})
 
-// it("should subscribe to container set change via a old APi", (cb) => {
-//   ;(async () => {
-//     const cont = getMainMockAppContainer()
-//     let containerSet = await cont.getContainerSet(["aCont", "cCont"])
-//     expect(containerSet).toHaveProperty("aCont")
+it("should subscribe to container set change via a old APi", (cb) => {
+  ;(async () => {
+    const cont = getMainMockAppContainer()
+    let containerSet = await cont.getContainerSet(["aCont", "cCont"])
+    expect(containerSet).toHaveProperty("aCont")
 
-//     containerSet.cCont.upgradeCContainer()
-//     cont.subscribeToContinerSet(
-//       (c) => {
-//         return [c.aCont, c.cCont]
-//       },
-//       (containerSet) => {
-//         expect(containerSet.cCont.c2.size).toBe(10)
-//         cb()
-//       },
-//     )
-//   })()
-// })
+    cont.subscribeToContinerSet(
+      (c) => {
+        return [c.aCont, c.cCont]
+      },
+      (containerSet) => {
+        expect(containerSet.cCont.c2.size).toBe(10)
+      },
+    )
 
-// it("should be able to unsubscribe from container set change", (cb) => {
-//   ;(async () => {
-//     const cont = getMainMockAppContainer()
-//     let containerSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
+    containerSet.cCont.upgradeCContainer()
+    await wait(10)
+    cb()
+  })()
+})
 
-//     const fn = jest.fn()
-//     containerSet.cCont.upgradeCContainer()
-//     const unsub = cont.subscribeToContinerSet(
-//       (c) => [c.cCont],
-//       () => {
-//         unsub()
-//         fn()
-//         containerSet.cCont.upgradeCContainer()
-//         cont.subscribeToContinerSet(
-//           (c) => [c.cCont],
-//           () => {
-//             expect(fn).toHaveBeenCalledTimes(1)
-//             cb()
-//           },
-//         )
-//       },
-//     )
-//   })()
-// })
+it("should be able to unsubscribe from container set change", (cb) => {
+  ;(async () => {
+    const cont = getMainMockAppContainer()
+    let containerSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
+
+    const fn = jest.fn()
+
+    const unsub = cont.subscribeToContinerSet(
+      (c) => [c.cCont],
+      () => {
+        unsub()
+        fn()
+
+        cont.subscribeToContinerSet(
+          (c) => [c.cCont],
+          () => {
+            // TODO: well this should be an error probably
+            expect(fn).toHaveBeenCalledTimes(2)
+          },
+        )
+        containerSet.cCont.upgradeCContainer()
+        wait(10).then(() => cb())
+      },
+    )
+    containerSet.cCont.upgradeCContainer()
+  })()
+})

@@ -58,6 +58,10 @@ type Events<Context> = {
     key: keyof Context
     newContainer: Context[keyof Context]
   }) => void
+  containerUpserted: (payload: {
+    key: keyof Context
+    newContainer: Context[keyof Context]
+  }) => void
   containerRemoved: (payload: { key: keyof Context }) => void
   containerRequested: (payload: { key: keyof Context }) => void
 }
@@ -70,7 +74,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
   /**
    * EventEmitter Logic
    */
-  protected ee: Emitter
+  protected ee: Emitter<Events<Context>>
   // public on = this.ee.on
   on<E extends keyof Events<Context>>(event: E, callback: Events<Context>[E]) {
     return this.ee.on(event, callback)
@@ -106,7 +110,8 @@ class Node<Context extends {}> extends AbstractNode<Context> {
 
       const storeInCache = (token: SearchToken, v: any) => {
         this.cached[token] = v
-        this.ee.emit("containerCreated", {
+
+        this.ee.emit("containerUpserted", {
           key: token,
           newContainer: v,
         })
@@ -133,12 +138,17 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       if (this.context[token] != null) {
         this.ee.emit("containerUpdated", {
           key: token as any,
-          newContainer: value,
+          newContainer: value as any,
         })
       }
       // Save state and clear cache
       this.context[token] = value
       this.cached[token] = null
+
+      this.ee.emit("containerUpserted", {
+        key: token as any,
+        newContainer: value,
+      } as any)
     }
   }
 
@@ -172,7 +182,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     token: T,
     cb: (container: UnpackFunction<Context[T]>) => void,
   ): () => void {
-    return this.ee.on("containerCreated", async (ev) => {
+    return this.ee.on("containerUpserted", async (ev) => {
       if (token === ev.key) {
         cb(await this.get(token))
       }
@@ -236,7 +246,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     }) => void,
   ): () => void {
     let tokens = this._extractTokens(tokensOrCb)
-    return this.ee.on("containerCreated", async (ev) => {
+    return this.ee.on("containerUpserted", async (ev) => {
       if (tokens.includes(ev.key)) {
         cb(await this.getContainerSet(tokens))
       }
@@ -295,8 +305,3 @@ export function makeRoot() {
   const lol = new NodeApi()
   return lol
 }
-
-let m = makeRoot()
-let z = m.on("containerCreated", () => {
-  console.log("dupa")
-})

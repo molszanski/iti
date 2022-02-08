@@ -1,5 +1,5 @@
 import { makeRoot } from "../src/library.new-root-container"
-import { wait } from "../src/_utils"
+import { wait } from "./_utils"
 
 import { provideAContainer } from "./mocks/container.a"
 import { provideBContainer } from "./mocks/container.b"
@@ -121,9 +121,10 @@ describe("Node subscribeToContiner", () => {
     }))
     node.subscribeToContiner("a", async (container) => {
       expect(await container).toBe("A")
+    })
+    node.get("a").then(() => {
       cb()
     })
-    node.get("a")
   })
 
   it("should not fire an event on a sync node", (cb) => {

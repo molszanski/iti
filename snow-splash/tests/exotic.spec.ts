@@ -1,5 +1,5 @@
 import { makeRoot } from "../src/library.new-root-container"
-import { wait } from "../src/_utils"
+import { wait } from "./_utils"
 
 describe("Perf and exotic tests:", () => {
   let root = makeRoot()

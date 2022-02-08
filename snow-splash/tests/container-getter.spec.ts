@@ -1,15 +1,14 @@
 import { getMainMockAppContainer } from "./mocks/_mock-app-container"
+import { wait } from "./_utils"
 
 it("should get a single container", (cb) => {
   // This is silly
   ;(async () => {
     const cont = getMainMockAppContainer()
 
-    console.log("cont", cont.containers)
     expect(cont.containers).toHaveProperty("bCont")
     expect(cont.containers.aCont).toBeInstanceOf(Promise)
 
-    console.log("cont", cont)
     let b = await cont.containers.bCont
     expect(b).toHaveProperty("b2")
     expect(b).toMatchSnapshot()
@@ -17,18 +16,22 @@ it("should get a single container", (cb) => {
   })()
 })
 
-// it("should subscribe to a single container", (cb) => {
-//   // This is silly
-//   ;(async () => {
-//     const cont = getMainMockAppContainer()
-//     expect(cont.containers).toHaveProperty("bCont")
-//     expect(cont.containers.aCont).toBeInstanceOf(Promise)
+it("should subscribe to a single container", (cb) => {
+  // This is silly
+  ;(async () => {
+    const cont = getMainMockAppContainer()
+    expect(cont.containers).toHaveProperty("bCont")
+    expect(cont.containers.aCont).toBeInstanceOf(Promise)
 
-//     let cCont = await cont.get
-//     cont.subscribeToContiner("cCont", (new_cCont) => {
-//       expect(new_cCont.c2.size).toBe(10)
-//       cb()
-//     })
-//     cCont.upgradeCContainer()
-//   })()
-// })
+    let m = jest.fn()
+    cont.subscribeToContiner("cCont", m)
+    let cCont = await cont.get("cCont")
+    cCont.upgradeCContainer()
+
+    let c = await cont.get("cCont")
+    expect(m).toHaveBeenCalled()
+    expect(c.c2.size).toBe(10)
+    wait(20)
+    cb()
+  })()
+})

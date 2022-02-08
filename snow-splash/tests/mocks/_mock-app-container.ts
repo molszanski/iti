@@ -24,13 +24,11 @@ export function getMainMockAppContainer() {
   let k = node
     .addNode({ aCont: async () => provideAContainer() })
     .addNode((c) => {
-      // console.log(c)
       return {
         bCont: async () => provideBContainer(await c.get("aCont")),
       }
     })
     .addNode((c) => {
-      console.log(c)
       return {
         cCont: async () =>
           provideCContainer(await c.get("aCont"), await c.get("bCont"), k),
