@@ -1,5 +1,5 @@
 import mitt from "mitt"
-import { createNanoEvents } from "./ee/ee"
+import { createNanoEvents, Emitter } from "./ee/ee"
 import { UnPromisify } from "."
 import { SnowSplashResolveError } from "./library.new-root-errors"
 import { Assign4 } from "./library.root-expertiments"
@@ -49,6 +49,19 @@ abstract class AbstractNode<Context extends {}> {
   public abstract getTokens<T extends keyof Context>(): { [M in T]: T }
 }
 
+type Events<Context> = {
+  containerCreated: (payload: {
+    key: keyof Context
+    newContainer: Context[keyof Context]
+  }) => void
+  containerUpdated: (payload: {
+    key: keyof Context
+    newContainer: Context[keyof Context]
+  }) => void
+  containerRemoved: (payload: { key: keyof Context }) => void
+  containerRequested: (payload: { key: keyof Context }) => void
+}
+
 class Node<Context extends {}> extends AbstractNode<Context> {
   private cached: { [K in keyof Context]?: any }
   protected promisedContext: Array<(c: NodeApi<Context>) => Promise<any>> = []
@@ -57,19 +70,16 @@ class Node<Context extends {}> extends AbstractNode<Context> {
   /**
    * EventEmitter Logic
    */
-  protected ee = createNanoEvents<{
-    containerCreated: (payload: {
-      key: keyof Context
-      newContainer: Context[keyof Context]
-    }) => void
-    containerRemoved: (payload: { key: keyof Context }) => void
-    containerUpdated: (payload: { key: keyof Context }) => void
-    containerRequested: (payload: { key: keyof Context }) => void
-  }>()
+  protected ee: Emitter
+  // public on = this.ee.on
+  on<E extends keyof Events<Context>>(event: E, callback: Events<Context>[E]) {
+    return this.ee.on(event, callback)
+  }
 
   constructor() {
     super()
     this.cached = {}
+    this.ee = createNanoEvents<Events<Context>>()
   }
   public async get<
     SearchToken extends keyof {
@@ -121,7 +131,10 @@ class Node<Context extends {}> extends AbstractNode<Context> {
   protected updateContext(updatedContext: Context) {
     for (const [token, value] of Object.entries(updatedContext)) {
       if (this.context[token] != null) {
-        this.ee.emit("containerUpdated", { key: token as any })
+        this.ee.emit("containerUpdated", {
+          key: token as any,
+          newContainer: value,
+        })
       }
       // Save state and clear cache
       this.context[token] = value
@@ -282,3 +295,8 @@ export function makeRoot() {
   const lol = new NodeApi()
   return lol
 }
+
+let m = makeRoot()
+let z = m.on("containerCreated", () => {
+  console.log("dupa")
+})

@@ -64,21 +64,22 @@ describe("Node long chain async", () => {
     })()
   })
 
-  // it("should send containerUpdated event on overwrite", (cb) => {
-  //   ;(async () => {
-  //     let r = root.addNode({ a: "A", b: "B" })
-  //     expect(await r.get("a")).toBe("A") // Stores in cache
+  it("should send containerUpdated event on overwrite", (cb) => {
+    ;(async () => {
+      root.on("containerUpdated", (k) => {
+        expect(k.key).toBe("a")
+        expect(k.newContainer).toBe(22)
+        cb()
+      })
 
-  //     r.on('containerUpdated',()=>{})
-  //     // r.on('containerUpdated',(token)=>{
+      let r = root.addNode({ a: "A", b: "B" })
+      expect(await r.get("a")).toBe("A") // Stores in cache
 
-  //     // })
-  //     let n = r.addNode({ a: 22 })
-  //     let m: number = await n.get("a")
-  //     expect(m).toBe(22)
-  //     cb()
-  //   })()
-  // })
+      let n = r.addNode({ a: 22 })
+      let m: number = await n.get("a")
+      expect(m).toBe(22)
+    })()
+  })
 
   it.todo("should test if I can overwrite token and request it inside node")
   it.todo(
