@@ -195,7 +195,7 @@ type KeysOrCb<Context extends {}> =
   | ((t: { [K in keyof Context]: K }) => Array<keyof Context>)
 type KeysOrCbWIthArg<Context, ARG> = Context | ((t: ARG) => Context)
 
-class NodeApi<Context extends {}> extends Node<Context> {
+export class NodeApi<Context extends {}> extends Node<Context> {
   constructor() {
     super()
   }
