@@ -81,10 +81,30 @@ describe("Node long chain async", () => {
     })()
   })
 
-  it.todo("should test if I can overwrite token and request it inside node")
-  it.todo(
-    "should test overrides for async long chains, because of cached values",
-  )
+  it("should test if I can overwrite token and request it inside node", (cb) => {
+    ;(async () => {
+      let sub = jest.fn()
+      root.on("containerUpdated", sub)
+      let r = await root
+        .addNode({ a: "A" })
+        .addPromise(async (c) => {
+          await expect(c.get("a")).resolves.toBe("A")
+          return { a: 22 }
+        })
+        .addPromise(async (c) => {
+          await expect(c.get("a")).resolves.toBe(22)
+          return { b: "B", c: "C" }
+        })
+        .seal()
+
+      await expect(r.get("a")).resolves.toBe(22)
+
+      r.addNode({ a: "new A" })
+      await expect(r.get("a")).resolves.toBe("new A")
+      expect(sub).toHaveBeenCalledTimes(2)
+      cb()
+    })()
+  }, 100)
 })
 
 describe("Node subscribeToContiner", () => {

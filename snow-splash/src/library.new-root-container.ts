@@ -158,7 +158,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
             resolve(me)
           } else {
             node(this as any).then((context) => {
-              Object.assign(this.context, context)
+              this.updateContext(context)
               sealRecursive(null)
             })
           }
