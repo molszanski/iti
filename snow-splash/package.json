@@ -1,6 +1,6 @@
 {
   "name": "snow-splash",
-  "version": "0.2.0",
+  "version": "alpha-0.3.0",
   "type": "module",
   "source": "src/index.ts",
   "exports": {
