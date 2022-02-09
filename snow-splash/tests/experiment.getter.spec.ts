@@ -12,38 +12,43 @@ describe("Node long chain async", () => {
 
   it("should test long chain", (cb) => {
     ;(async () => {
-      let r = await root
+      let r = root
         .addNode({ a: "A" })
-        .addNode({ k: "A" })
-        .addPromise(async (c) => {
-          await expect(c.get("a")).resolves.toBe("A")
-          return { b: "B", c: "C" }
-        })
-        .addPromise(async (c) => {
-          await expect(c.get("a")).resolves.toBe("A")
-          return { b: "B", c: "C" }
-        })
-        .addPromise(async (c) => {
-          await expect(c.get("a")).resolves.toBe("A")
-          await expect(c.get("b")).resolves.toBe("B")
+        .addNode({ k: "K" })
+        .addNode((c) => ({
+          a: 22,
+          c: async () => {
+            expect(c.get("a")).toBe(22)
+            return "C"
+          },
+        }))
+        .addNode((c) => ({
+          b: "B",
+          c: async () => {
+            expect(c.get("a")).toBe(22)
+            return "C"
+          },
+        }))
+        .addNode((c) => {
           return { f: "F", g: "G" }
         })
-        .seal()
 
-      await expect(r.get("f")).resolves.toBe("F")
-      await expect(r.get("a")).resolves.toBe("A")
+      await expect(r.get("c")).resolves.toBe("C")
+
+      expect(r.get("f")).toBe("F")
+      expect(r.get("a")).toBe(22)
 
       r.addNode({ a: "new A" })
-      await expect(r.get("a")).resolves.toBe("new A")
+      expect(r.get("a")).toBe("new A")
       cb()
     })()
   }, 100)
   it("should test if I can overwrite token", (cb) => {
     ;(async () => {
-      let r = await root.addNode({ a: "A", b: "B" }).seal()
-      await expect(r.get("a")).resolves.toBe("A") // Stores in cache
+      let r = root.addNode({ a: "A", b: "B" })
+      expect(r.get("a")).toBe("A") // Stores in cache
 
-      let n = await r.addNode({ a: 22 }).seal()
+      let n = r.addNode({ a: 22 })
       let m: number = await n.get("a")
       expect(m).toBe(22)
       cb()
@@ -83,22 +88,21 @@ describe("Node long chain async", () => {
     ;(async () => {
       let sub = jest.fn()
       root.on("containerUpdated", sub)
-      let r = await root
+      let r = root
         .addNode({ a: "A" })
-        .addPromise(async (c) => {
-          await expect(c.get("a")).resolves.toBe("A")
+        .addNode((c) => {
+          expect(c.get("a")).toBe("A")
           return { a: 22 }
         })
-        .addPromise(async (c) => {
-          await expect(c.get("a")).resolves.toBe(22)
+        .addNode((c) => {
+          expect(c.get("a")).toBe(22)
           return { b: "B", c: "C" }
         })
-        .seal()
 
-      await expect(r.get("a")).resolves.toBe(22)
+      expect(r.get("a")).toBe(22)
 
       r.addNode({ a: "new A" })
-      await expect(r.get("a")).resolves.toBe("new A")
+      expect(r.get("a")).toBe("new A")
       expect(sub).toHaveBeenCalledTimes(2)
       cb()
     })()
@@ -113,7 +117,7 @@ describe("Node subscribeToContiner", () => {
   })
 
   it("should subscribe to async container creation", (cb) => {
-    const node = root.addPromise(async () => ({
+    const node = root.addNode(() => ({
       a: async () => "A",
       b: async () => "B",
     }))
@@ -134,10 +138,11 @@ describe("Node subscribeToContiner", () => {
       let f1 = jest.fn()
       let f2 = jest.fn()
       node.subscribeToContiner("a", f1)
-      node.subscribeToContiner("b", f2)
 
       await node.get("a")
-      await node.get("b")
+      node.get("b")
+      node.subscribeToContiner("b", f2)
+
       expect(f1).toBeCalled()
       expect(f2).not.toBeCalled()
       cb()
@@ -146,16 +151,15 @@ describe("Node subscribeToContiner", () => {
 
   it("should use containerSet to subscribe to events", (cb) => {
     ;(async () => {
-      const node = await root
-        .addPromise(async () => ({
+      const node = root
+        .addNode(() => ({
           a: async () => "A",
           b: "B",
         }))
-        .addPromise(async () => ({
+        .addNode(() => ({
           c: async () => "C",
           d: "D",
         }))
-        .seal()
       // await node.get("a")
       let f1 = jest.fn()
       let f2 = jest.fn()
@@ -240,24 +244,23 @@ describe("Node addNode", () => {
       .addNode({ c: "C" })
       .addNode({ d: "D" })
 
-    await expect(r.get("a")).resolves.toBe("A")
-    await expect(r.get("c")).resolves.toBe("C")
+    expect(r.get("a")).toBe("A")
+    expect(r.get("c")).toBe("C")
   })
 
   it("should accept callback function that provides current node", async () => {
     let r = await root
       .addNode({ a: "A" })
       .addNode({ k: "A" })
-      .addPromise(async (c) => {
-        await expect(c.get("a")).resolves.toBe("A")
+      .addNode((c) => {
+        expect(c.get("a")).toBe("A")
         return { b: "B", c: "C" }
       })
-      .addPromise(async (c) => {
-        let m = await c.get("b")
-        await expect(c.get("b")).resolves.toBe("B")
+      .addNode((c) => {
+        expect(c.get("b")).toBe("B")
         return { f: "F", g: "G" }
       })
-    await expect(r.get("f")).resolves.toBe("F")
+    expect(r.get("f")).toBe("F")
   })
 
   it("should be able to add an async node", (cb) => {
@@ -273,8 +276,8 @@ describe("Node addNode", () => {
           a: UniqueResult.A,
           b: () => UniqueResult.B,
         })
-        .addPromise(async () => ({
-          f: () => UniqueResult.F,
+        .addNode(() => ({
+          f: async () => UniqueResult.F,
         }))
 
       await expect(node.get("f")).resolves.toBe(UniqueResult.F)
@@ -284,78 +287,30 @@ describe("Node addNode", () => {
     })()
   })
 
-  it("should test long chain", async () => {
-    let r = root
-      .addNode({ a: "A" })
-      .addNode({ k: "A" })
-      .addPromise(async (c) => {
-        await expect(c.get("a")).resolves.toBe("A")
-        return { b: "B", c: "C" }
-      })
-      .addPromise(async (c) => {
-        await expect(c.get("b")).resolves.toBe("B")
-        return { f: "F", g: "G" }
-      })
-
-    // await expect(r.get("f")).resolves.toBe("F")
-    await expect(r.get("a")).resolves.toBe("A")
-
-    r.addNode({ a: "new A" })
-    await expect(r.get("a")).resolves.toBe("new A")
-  })
-
-  it("should be able to add an async with a callback pattern", (cb) => {
+  it("should handle a node with out of order execution", (cb) => {
     ;(async () => {
-      let node = await root
-        .addNode({
-          a: "A",
-          b: () => "B",
-        })
-        .addPromise(async (c) => {
-          return {
-            c: () => "C",
-          }
-        })
-        .addPromise(async (c) => {
-          return {
-            d: () => "D",
-          }
-        })
-
-      let r =
-        (await node.get("a")) + (await node.get("c")) + (await node.get("d"))
-      expect(r).toBe("ACD")
-
-      cb()
-    })()
-  })
-
-  it("should handle async node with out of order execution", (cb) => {
-    ;(async () => {
-      let node = await root
+      let node = root
         .addNode((c) => {
           return {
             a: () => "A",
             b: () => "B",
           }
         })
-        .addPromise(async (c) => {
+        .addNode((c) => {
           return {
             c: () => "C",
           }
         })
-        .addPromise(async (c) => {
-          let c2 = await c.get("c")
+        .addNode((c) => {
           return {
             d: () => "D",
-            cd: () => c2 + "D",
+            cd: () => c.get("c") + "D",
           }
         })
 
-      let r =
-        (await node.get("a")) + (await node.get("c")) + (await node.get("d"))
+      let r = node.get("a") + node.get("c") + node.get("d")
       expect(r).toBe("ACD")
-      let r2 = (await node.get("b")) + (await node.get("cd"))
+      let r2 = node.get("b") + node.get("cd")
       expect(r2).toBe("BCD")
 
       cb()

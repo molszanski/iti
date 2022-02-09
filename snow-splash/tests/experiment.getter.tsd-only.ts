@@ -8,20 +8,20 @@ enum UniqueResult {
   C,
   D,
 }
-// results produced by addPromise should valid
+// results produced by addNode should valid
 ;(async () => {
   const node = makeRoot()
     .addNode({
       a: UniqueResult.A,
       b: () => UniqueResult.B,
     })
-    .addPromise(async () => ({
+    .addNode(() => ({
       c: () => UniqueResult.C,
     }))
 
-  expectType<UniqueResult>(await node.get("a"))
-  expectType<UniqueResult.B>(await node.get("b"))
-  expectType<UniqueResult.C>(await node.get("c"))
+  expectType<UniqueResult>(node.get("a"))
+  expectType<UniqueResult.B>(node.get("b"))
+  expectType<UniqueResult.C>(node.get("c"))
 
   expectNotType<any>(node)
 })()

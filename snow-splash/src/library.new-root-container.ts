@@ -13,7 +13,7 @@ type Assign<OldContext extends {}, NewContext extends {}> = {
     : never
 }
 
-type UnpackFunction<T> = T extends (...args: any) => infer U ? U : T
+export type UnpackFunction<T> = T extends (...args: any) => infer U ? U : T
 
 type T1 = UnpackFunction<() => string>
 type T2 = UnpackFunction<number>
@@ -28,10 +28,10 @@ type T4 = UnpackObject<{ a: 1; b: () => Promise<3> }>
 type UnpromisifyObject<T> = {
   [K in keyof T]: UnPromisify<T[K]>
 }
-
-type AssignAndUnpackObjects<O1 extends {}, O2 extends {}> = UnpromisifyObject<
-  UnpackObject<Assign4<O1, O2>>
->
+// keep
+// type AssignAndUnpackObjects<O1 extends {}, O2 extends {}> = UnpromisifyObject<
+//   UnpackObject<Assign4<O1, O2>>
+// >
 
 type FullyUnpackObject<T extends {}> = UnpromisifyObject<UnpackObject<T>>
 
@@ -44,7 +44,7 @@ abstract class AbstractNode<Context extends {}> {
 
   public abstract get<T extends keyof Context>(
     token: T,
-  ): Promise<UnpackFunction<Context[T]>>
+  ): UnpackFunction<Context[T]>
 
   public abstract getTokens<T extends keyof Context>(): { [M in T]: T }
 }
@@ -85,19 +85,11 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     this.cached = {}
     this.ee = createNanoEvents<Events<Context>>()
   }
-  public async get<
+  public get<
     SearchToken extends keyof {
       [K in keyof Context]: Context[K]
     },
-  >(token: SearchToken): Promise<UnpackFunction<Context[SearchToken]>> {
-    /**
-     * This might be controversial, but this will greatly simplify
-     * mental modal for the userland code.
-     * This might create an issue if antipattern is used, but it will
-     * clear so many other potentiall issues for users
-     */
-    await this.seal()
-
+  >(token: SearchToken): UnpackFunction<Context[SearchToken]> {
     /**
      * FLOW A: We have this is in a current context
      */
@@ -152,32 +144,6 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     }
   }
 
-  private sealLock: boolean = false
-  public seal(): Promise<NodeApi<Context>> {
-    return new Promise(async (resolve, reject) => {
-      if (this.sealLock === true) {
-        let me = this as any as NodeApi<Context>
-        resolve(me)
-      } else {
-        this.sealLock = true
-        let sealRecursive = async (err: any) => {
-          let node = this.promisedContext.shift()
-          if (node == null) {
-            let me = this as any as NodeApi<Context>
-            this.sealLock = false
-            resolve(me)
-          } else {
-            node(this as any).then((context) => {
-              this.updateContext(context)
-              sealRecursive(null)
-            })
-          }
-        }
-        sealRecursive(null)
-      }
-    })
-  }
-
   public subscribeToContiner<T extends keyof Context>(
     token: T,
     cb: (container: UnpackFunction<Context[T]>) => void,
@@ -220,14 +186,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     return this as any
   }
 
-  public addPromise<NewContext extends {}>(
-    cb: (self: NodeApi<Context>) => Promise<NewContext>,
-  ): NodeApi<Assign4<Context, NewContext>> {
-    this.promisedContext.push(cb)
-    return this as any
-  }
-
-  private _extractTokens<T extends keyof Context>(
+  public _extractTokens<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,
   ): T[] {
     let tokens = tokensOrCb

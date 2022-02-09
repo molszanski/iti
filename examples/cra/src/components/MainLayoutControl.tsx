@@ -1,5 +1,4 @@
 import React from "react"
-import cx from "classnames"
 import s from "./MainLayoutControl.module.css"
 import { PizzaPlace } from "./PizzaPlace"
 import { Controls } from "./Controls"

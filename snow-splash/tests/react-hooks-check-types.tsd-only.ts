@@ -18,6 +18,7 @@ import { MockAppWrapper } from "./mocks/_mock-app-components"
 ;(() => {
   const [aContainer] = useMockAppContainer().aCont
   expectType<undefined | A_Container>(aContainer)
+
   if (aContainer != null) {
     expectType<A_Container>(aContainer)
   }

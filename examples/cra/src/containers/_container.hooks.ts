@@ -6,11 +6,4 @@ export const MyRootCont = React.createContext(<PizzaAppContainer>{})
 
 let mega = getContainerSetHooks(MyRootCont)
 export const useContainerSet = mega.useContainerSet
-// export const useRoot = mega.useRoot
-// let f = useRoot()
-// export const useContainer = mega.useContainer
-
-export function useContainer() {
-  const root = useContext(MyRootCont)
-  return mega.useRootContainerMap(root)
-}
+export const useContainer = mega.useContainer
