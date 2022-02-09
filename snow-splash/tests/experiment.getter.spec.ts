@@ -109,87 +109,87 @@ describe("Node long chain async", () => {
   }, 100)
 })
 
-// describe("Node subscribeToContiner", () => {
-//   let root: ReturnType<typeof makeRoot>
+describe("Node subscribeToContiner", () => {
+  let root: ReturnType<typeof makeRoot>
 
-//   beforeEach(() => {
-//     root = makeRoot()
-//   })
+  beforeEach(() => {
+    root = makeRoot()
+  })
 
-//   it("should subscribe to async container creation", (cb) => {
-//     const node = root.addNode(async () => ({
-//       a: async () => "A",
-//       b: async () => "B",
-//     }))
-//     node.subscribeToContiner("a", async (container) => {
-//       expect(await container).toBe("A")
-//     })
-//     node.get("a").then(() => {
-//       cb()
-//     })
-//   })
+  it("should subscribe to async container creation", (cb) => {
+    const node = root.addNode(() => ({
+      a: async () => "A",
+      b: async () => "B",
+    }))
+    node.subscribeToContiner("a", async (container) => {
+      expect(await container).toBe("A")
+    })
+    node.get("a").then(() => {
+      cb()
+    })
+  })
 
-//   it("should not fire an event on a sync node", (cb) => {
-//     ;(async () => {
-//       const node = root.addNode({
-//         a: async () => "A",
-//         b: "B",
-//       })
-//       let f1 = jest.fn()
-//       let f2 = jest.fn()
-//       node.subscribeToContiner("a", f1)
-//       node.subscribeToContiner("b", f2)
+  it("should not fire an event on a sync node", (cb) => {
+    ;(async () => {
+      const node = root.addNode({
+        a: async () => "A",
+        b: "B",
+      })
+      let f1 = jest.fn()
+      let f2 = jest.fn()
+      node.subscribeToContiner("a", f1)
 
-//       await node.get("a")
-//       await node.get("b")
-//       expect(f1).toBeCalled()
-//       expect(f2).not.toBeCalled()
-//       cb()
-//     })()
-//   })
+      await node.get("a")
+      node.get("b")
+      node.subscribeToContiner("b", f2)
 
-//   it("should use containerSet to subscribe to events", (cb) => {
-//     ;(async () => {
-//       const node = await root
-//         .addNode(async () => ({
-//           a: async () => "A",
-//           b: "B",
-//         }))
-//         .addNode(async () => ({
-//           c: async () => "C",
-//           d: "D",
-//         }))
-//         .seal()
-//       // await node.get("a")
-//       let f1 = jest.fn()
-//       let f2 = jest.fn()
-//       let f3 = jest.fn()
-//       let f4 = jest.fn()
+      expect(f1).toBeCalled()
+      expect(f2).not.toBeCalled()
+      cb()
+    })()
+  })
 
-//       node.subscribeToContinerSet(["a", "c"], f1)
-//       node.subscribeToContinerSet(["c", "d"], f2)
-//       // TODO: Warning, if called before seal, this will fail
-//       node.subscribeToContinerSet((c) => [c.a, c.c], f3)
-//       node.subscribeToContinerSet((c) => [c.c, c.d], f4)
-//       await node.get("c")
-//       await node.get("c")
-//       await node.get("c")
-//       await node.get("b")
-//       await node.get("a")
-//       // await node.get((c) => c.a)
-//       /**
-//        * 2 becaus we have subscribed to two container, and this will provide us
-//        * with two of those, hence two updates because two creations
-//        */
-//       expect(f1).toHaveBeenCalledTimes(2)
-//       // One because D is stored as a value on seal creation
-//       expect(f2).toHaveBeenCalledTimes(2)
-//       expect(f3).toHaveBeenCalledTimes(2)
-//       expect(f4).toHaveBeenCalledTimes(2)
-//       cb()
-//     })()
-//   })
-// })
+  it("should use containerSet to subscribe to events", (cb) => {
+    ;(async () => {
+      const node = root
+        .addNode(() => ({
+          a: async () => "A",
+          b: "B",
+        }))
+        .addNode(() => ({
+          c: async () => "C",
+          d: "D",
+        }))
+      // await node.get("a")
+      let f1 = jest.fn()
+      let f2 = jest.fn()
+      let f3 = jest.fn()
+      let f4 = jest.fn()
+
+      node.subscribeToContinerSet(["a", "c"], f1)
+      node.subscribeToContinerSet(["c", "d"], f2)
+      // TODO: Warning, if called before seal, this will fail
+      node.subscribeToContinerSet((c) => [c.a, c.c], f3)
+      node.subscribeToContinerSet((c) => [c.c, c.d], f4)
+      await node.get("c")
+      await node.get("c")
+      await node.get("c")
+      await node.get("b")
+      await node.get("a")
+      // await node.get((c) => c.a)
+      /**
+       * 2 becaus we have subscribed to two container, and this will provide us
+       * with two of those, hence two updates because two creations
+       */
+      expect(f1).toHaveBeenCalledTimes(2)
+      // One because D is stored as a value on seal creation
+      expect(f2).toHaveBeenCalledTimes(2)
+      expect(f3).toHaveBeenCalledTimes(2)
+      expect(f4).toHaveBeenCalledTimes(2)
+      cb()
+    })()
+  })
+})
 
 describe("Node getter", () => {
   let root: ReturnType<typeof makeRoot>
@@ -318,69 +318,69 @@ describe("Node addNode", () => {
   }, 100)
 })
 
-// describe("Node getContainerSet", () => {
-//   let root: ReturnType<typeof makeRoot>
-//   let node: ReturnType<typeof mockNode>
-//   function mockNode() {
-//     return makeRoot().addNode({
-//       a: "A",
-//       b: () => "B",
-//       c: async () => "C",
-//       d: async () => "D",
-//     })
-//   }
-//   beforeEach(() => {
-//     root = makeRoot()
-//     node = mockNode()
-//   })
+describe("Node getContainerSet", () => {
+  let root: ReturnType<typeof makeRoot>
+  let node: ReturnType<typeof mockNode>
+  function mockNode() {
+    return makeRoot().addNode({
+      a: "A",
+      b: () => "B",
+      c: async () => "C",
+      d: async () => "D",
+    })
+  }
+  beforeEach(() => {
+    root = makeRoot()
+    node = mockNode()
+  })
 
-//   it("should get container set based of primitive values", async () => {
-//     await expect(node.getContainerSet(["a", "b"])).resolves.toMatchObject({
-//       a: "A",
-//       b: "B",
-//     })
-//     await expect(
-//       node.getContainerSet((c) => [c.a, c.b]),
-//     ).resolves.toMatchObject({
-//       a: "A",
-//       b: "B",
-//     })
-//   })
+  it("should get container set based of primitive values", async () => {
+    await expect(node.getContainerSet(["a", "b"])).resolves.toMatchObject({
+      a: "A",
+      b: "B",
+    })
+    await expect(
+      node.getContainerSet((c) => [c.a, c.b]),
+    ).resolves.toMatchObject({
+      a: "A",
+      b: "B",
+    })
+  })
 
-//   it("should get container set of only resolved promises", async () => {
-//     await expect(node.getContainerSet(["c", "d"])).resolves.toMatchObject({
-//       c: "C",
-//       d: "D",
-//     })
+  it("should get container set of only resolved promises", async () => {
+    await expect(node.getContainerSet(["c", "d"])).resolves.toMatchObject({
+      c: "C",
+      d: "D",
+    })
 
-//     await expect(
-//       node.getContainerSet((c) => [c.c, c.d]),
-//     ).resolves.toMatchObject({
-//       c: "C",
-//       d: "D",
-//     })
-//   })
+    await expect(
+      node.getContainerSet((c) => [c.c, c.d]),
+    ).resolves.toMatchObject({
+      c: "C",
+      d: "D",
+    })
+  })
 
-//   it("should get container set based literals and resolved promises", async () => {
-//     await expect(node.getContainerSet(["a", "c"])).resolves.toMatchObject({
-//       a: "A",
-//       c: "C",
-//     })
+  it("should get container set based literals and resolved promises", async () => {
+    await expect(node.getContainerSet(["a", "c"])).resolves.toMatchObject({
+      a: "A",
+      c: "C",
+    })
 
-//     await expect(
-//       node.getContainerSet((c) => [c.a, c.c]),
-//     ).resolves.toMatchObject({
-//       a: "A",
-//       c: "C",
-//     })
-//   })
+    await expect(
+      node.getContainerSet((c) => [c.a, c.c]),
+    ).resolves.toMatchObject({
+      a: "A",
+      c: "C",
+    })
+  })
 
-//   it("should get container set via callback API", async () => {
-//     await expect(
-//       node.getContainerSet((c) => [c.a, c.c]),
-//     ).resolves.toMatchObject({
-//       a: "A",
-//       c: "C",
-//     })
-//   }, 100)
-// })
+  it("should get container set via callback API", async () => {
+    await expect(
+      node.getContainerSet((c) => [c.a, c.c]),
+    ).resolves.toMatchObject({
+      a: "A",
+      c: "C",
+    })
+  }, 100)
+})
