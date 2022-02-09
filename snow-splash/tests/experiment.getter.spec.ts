@@ -3,7 +3,7 @@ import { makeRoot } from "../src/library.new-root-container"
 import { provideAContainer } from "./mocks/container.a"
 import { provideBContainer } from "./mocks/container.b"
 
-describe.only("Node long chain async", () => {
+describe("Node long chain async", () => {
   let root: ReturnType<typeof makeRoot>
 
   beforeEach(() => {
@@ -191,181 +191,132 @@ describe.only("Node long chain async", () => {
 //   })
 // })
 
-// describe("Node getter", () => {
-//   let root: ReturnType<typeof makeRoot>
+describe("Node getter", () => {
+  let root: ReturnType<typeof makeRoot>
 
-//   beforeEach(() => {
-//     root = makeRoot()
-//   })
+  beforeEach(() => {
+    root = makeRoot()
+  })
 
-//   it("should get nested conatainers", (cb) => {
-//     ;(async () => {
-//       const node1 = root.addNode({
-//         aCont: async () => provideAContainer(),
-//       })
-//       const node2 = node1.addNode({
-//         bCont: async () => provideBContainer(await node1.get("aCont")),
-//       })
-//       const containers = node2.containers
+  it("should get nested conatainers", (cb) => {
+    ;(async () => {
+      const node1 = root.addNode({
+        aCont: async () => provideAContainer(),
+      })
+      const node2 = node1.addNode({
+        bCont: async () => provideBContainer(await node1.get("aCont")),
+      })
+      const containers = node2.containers
 
-//       expect(containers).toHaveProperty("bCont")
-//       expect(containers.aCont).toBeInstanceOf(Promise)
+      expect(containers).toHaveProperty("bCont")
+      expect(containers.aCont).toBeInstanceOf(Promise)
 
-//       let b = await containers.bCont
-//       expect(b).toHaveProperty("b2")
-//       expect(b).toMatchSnapshot()
+      let b = await containers.bCont
+      expect(b).toHaveProperty("b2")
+      expect(b).toMatchSnapshot()
 
-//       cb()
-//     })()
-//   })
-// })
+      cb()
+    })()
+  })
+})
 
-// describe("Node addNode", () => {
-//   let root: ReturnType<typeof makeRoot>
-//   let node: ReturnType<typeof mockNode>
+describe("Node addNode", () => {
+  let root: ReturnType<typeof makeRoot>
+  let node: ReturnType<typeof mockNode>
 
-//   function mockNode() {
-//     return makeRoot().addNode({
-//       a: "A",
-//       b: () => "B",
-//       c: async () => "C",
-//       d: async () => "D",
-//     })
-//   }
-//   beforeEach(() => {
-//     root = makeRoot()
-//     node = mockNode()
-//   })
+  function mockNode() {
+    return makeRoot().addNode({
+      a: "A",
+      b: () => "B",
+      c: async () => "C",
+      d: async () => "D",
+    })
+  }
+  beforeEach(() => {
+    root = makeRoot()
+    node = mockNode()
+  })
 
-//   it("should be able to chain multiple nodes", async () => {
-//     let r = root
-//       .addNode({ a: "A" })
-//       .addNode({ b: "B" })
-//       .addNode({ c: "C" })
-//       .addNode({ d: "D" })
+  it("should be able to chain multiple nodes", async () => {
+    let r = root
+      .addNode({ a: "A" })
+      .addNode({ b: "B" })
+      .addNode({ c: "C" })
+      .addNode({ d: "D" })
 
-//     await expect(r.get("a")).resolves.toBe("A")
-//     await expect(r.get("c")).resolves.toBe("C")
-//   })
+    expect(r.get("a")).toBe("A")
+    expect(r.get("c")).toBe("C")
+  })
 
-//   it("should accept callback function that provides current node", async () => {
-//     let r = await root
-//       .addNode({ a: "A" })
-//       .addNode({ k: "A" })
-//       .addNode(async (c) => {
-//         await expect(c.get("a")).resolves.toBe("A")
-//         return { b: "B", c: "C" }
-//       })
-//       .addNode(async (c) => {
-//         let m = await c.get("b")
-//         await expect(c.get("b")).resolves.toBe("B")
-//         return { f: "F", g: "G" }
-//       })
-//     await expect(r.get("f")).resolves.toBe("F")
-//   })
+  it("should accept callback function that provides current node", async () => {
+    let r = await root
+      .addNode({ a: "A" })
+      .addNode({ k: "A" })
+      .addNode((c) => {
+        expect(c.get("a")).toBe("A")
+        return { b: "B", c: "C" }
+      })
+      .addNode((c) => {
+        expect(c.get("b")).toBe("B")
+        return { f: "F", g: "G" }
+      })
+    expect(r.get("f")).toBe("F")
+  })
 
-//   it("should be able to add an async node", (cb) => {
-//     // We need to test if typescript throws a type error here
-//     enum UniqueResult {
-//       A,
-//       B,
-//       F,
-//     }
-//     ;(async () => {
-//       let node = await root
-//         .addNode({
-//           a: UniqueResult.A,
-//           b: () => UniqueResult.B,
-//         })
-//         .addNode(async () => ({
-//           f: () => UniqueResult.F,
-//         }))
+  it("should be able to add an async node", (cb) => {
+    // We need to test if typescript throws a type error here
+    enum UniqueResult {
+      A,
+      B,
+      F,
+    }
+    ;(async () => {
+      let node = await root
+        .addNode({
+          a: UniqueResult.A,
+          b: () => UniqueResult.B,
+        })
+        .addNode(() => ({
+          f: async () => UniqueResult.F,
+        }))
 
-//       await expect(node.get("f")).resolves.toBe(UniqueResult.F)
-//       // @ts-expect-error
-//       let a: UniqueResult.A = await node.get("f")
-//       cb()
-//     })()
-//   })
+      await expect(node.get("f")).resolves.toBe(UniqueResult.F)
+      // @ts-expect-error
+      let a: UniqueResult.A = await node.get("f")
+      cb()
+    })()
+  })
 
-//   it("should test long chain", async () => {
-//     let r = root
-//       .addNode({ a: "A" })
-//       .addNode({ k: "A" })
-//       .addNode(async (c) => {
-//         await expect(c.get("a")).resolves.toBe("A")
-//         return { b: "B", c: "C" }
-//       })
-//       .addNode(async (c) => {
-//         await expect(c.get("b")).resolves.toBe("B")
-//         return { f: "F", g: "G" }
-//       })
+  it("should handle a node with out of order execution", (cb) => {
+    ;(async () => {
+      let node = root
+        .addNode((c) => {
+          return {
+            a: () => "A",
+            b: () => "B",
+          }
+        })
+        .addNode((c) => {
+          return {
+            c: () => "C",
+          }
+        })
+        .addNode((c) => {
+          return {
+            d: () => "D",
+            cd: () => c.get("c") + "D",
+          }
+        })
 
-//     // await expect(r.get("f")).resolves.toBe("F")
-//     await expect(r.get("a")).resolves.toBe("A")
+      let r = node.get("a") + node.get("c") + node.get("d")
+      expect(r).toBe("ACD")
+      let r2 = node.get("b") + node.get("cd")
+      expect(r2).toBe("BCD")
 
-//     r.addNode({ a: "new A" })
-//     await expect(r.get("a")).resolves.toBe("new A")
-//   })
-
-//   it("should be able to add an async with a callback pattern", (cb) => {
-//     ;(async () => {
-//       let node = await root
-//         .addNode({
-//           a: "A",
-//           b: () => "B",
-//         })
-//         .addNode(async (c) => {
-//           return {
-//             c: () => "C",
-//           }
-//         })
-//         .addNode(async (c) => {
-//           return {
-//             d: () => "D",
-//           }
-//         })
-
-//       let r =
-//         (await node.get("a")) + (await node.get("c")) + (await node.get("d"))
-//       expect(r).toBe("ACD")
-
-//       cb()
-//     })()
-//   })
-
-//   it("should handle async node with out of order execution", (cb) => {
-//     ;(async () => {
-//       let node = await root
-//         .addNode((c) => {
-//           return {
-//             a: () => "A",
-//             b: () => "B",
-//           }
-//         })
-//         .addNode(async (c) => {
-//           return {
-//             c: () => "C",
-//           }
-//         })
-//         .addNode(async (c) => {
-//           let c2 = await c.get("c")
-//           return {
-//             d: () => "D",
-//             cd: () => c2 + "D",
-//           }
-//         })
-
-//       let r =
-//         (await node.get("a")) + (await node.get("c")) + (await node.get("d"))
-//       expect(r).toBe("ACD")
-//       let r2 = (await node.get("b")) + (await node.get("cd"))
-//       expect(r2).toBe("BCD")
-
-//       cb()
-//     })()
-//   }, 100)
-// })
+      cb()
+    })()
+  }, 100)
+})
 
 // describe("Node getContainerSet", () => {
 //   let root: ReturnType<typeof makeRoot>
