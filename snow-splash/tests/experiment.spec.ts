@@ -13,13 +13,13 @@ describe.only("Node.get()", () => {
     const node = root.addNode({
       a: 123,
     })
-    await expect(node.get("a")).resolves.toBe(123)
+    expect(node.get("a")).toBe(123)
   })
   it("should return function result and not a function", async () => {
     const node = root.addNode({
       functionTOken: () => "optimus",
     })
-    await expect(node.get("functionTOken")).resolves.toBe("optimus")
+    expect(node.get("functionTOken")).toBe("optimus")
   })
   it("should return correct tokens for merged and overriden nodes", () => {
     const node = root
@@ -37,10 +37,17 @@ describe.only("Node.get()", () => {
   })
 
   it("should return cached value of a function", async () => {
+    let fn = jest.fn()
     const node = root.addNode({
-      optimus: () => "prime",
+      optimus: () => {
+        fn()
+        return "prime"
+      },
     })
-    await expect(node.get("optimus")).resolves.toBe("prime")
+    node.get("optimus")
+    node.get("optimus")
+    expect(node.get("optimus")).toBe("prime")
+    expect(fn).toHaveBeenCalledTimes(1)
   })
 
   it("should return promises of async functions", (cb) => {
@@ -53,34 +60,31 @@ describe.only("Node.get()", () => {
     })()
   })
 
-  it("should call container provider once, but container token twice", (cb) => {
-    ;(async () => {
-      const fn1 = jest.fn()
-      const fn2 = jest.fn()
+  it("should call container provider once, but container token twice", () => {
+    const fn1 = jest.fn()
+    const fn2 = jest.fn()
 
-      const node = root.addNode({
-        autobots: () => {
-          fn1()
-          return {
-            optimus: () => {
-              fn2()
-              return "autobots assemble"
-            },
-            bumblebee: "bumblebee",
-            jazz: "jazz",
-          }
-        },
-      })
-      expect(fn1).not.toBeCalled()
-      expect(fn2).not.toBeCalled()
+    const node = root.addNode({
+      autobots: () => {
+        fn1()
+        return {
+          optimus: () => {
+            fn2()
+            return "autobots assemble"
+          },
+          bumblebee: "bumblebee",
+          jazz: "jazz",
+        }
+      },
+    })
+    expect(fn1).not.toBeCalled()
+    expect(fn2).not.toBeCalled()
 
-      let a1 = await node.get("autobots")
-      a1.optimus()
-      let a2 = await node.get("autobots")
-      a2.optimus()
-      expect(fn1).toHaveBeenCalledTimes(1)
-      expect(fn2).toHaveBeenCalledTimes(2)
-      cb()
-    })()
+    let a1 = node.get("autobots")
+    a1.optimus()
+    let a2 = node.get("autobots")
+    a2.optimus()
+    expect(fn1).toHaveBeenCalledTimes(1)
+    expect(fn2).toHaveBeenCalledTimes(2)
   })
 })
