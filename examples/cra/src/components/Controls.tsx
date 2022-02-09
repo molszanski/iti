@@ -45,8 +45,11 @@ export const FatLibData = observer(() => {
 })
 
 export const NewTestControls = observer(() => {
-  const { auth, kitchen } = useContainer()
-  const cSet = useContainerSet((c) => [c.aCont])
+  const c = useContainer()
+
+  const auth = useContainer().auth
+  const kitchen = useContainer().kitchen
+  const cSet = useContainerSet((c) => [c.aCont, c.auth])
 
   if (!auth[0]) return <>AUTH is loading</>
   if (!kitchen[0]) return <>AUTH is loading</>

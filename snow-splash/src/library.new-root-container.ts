@@ -186,7 +186,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     return this as any
   }
 
-  private _extractTokens<T extends keyof Context>(
+  public _extractTokens<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,
   ): T[] {
     let tokens = tokensOrCb

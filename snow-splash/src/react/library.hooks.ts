@@ -17,7 +17,6 @@ export type ContainerGenericBettter<T> = [
 
 export function useBetterGenericContainer<T>(
   containerPromise: () => Promise<T>,
-
   subscribeFunction: (cb: (container: T) => void) => () => void,
   containerKey: string,
 ): ContainerGenericBettter<T> {

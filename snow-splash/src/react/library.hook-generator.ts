@@ -62,12 +62,11 @@ export function getContainerSetHooks<Context extends object>(
     const root = useContext(reactContext)
 
     // WIP
-    // const tokens =
-    //   typeof tokensOrCallback === "function"
-    //     ? root.getContainerSetCallback(tokensOrCallback)
-    //     : tokensOrCallback
+    const tokens =
+      typeof tokensOrCallback === "function"
+        ? root._extractTokens(tokensOrCallback as any)
+        : tokensOrCallback
 
-    let tokens = tokensOrCallback as any
     useEffect(() => {
       root.getContainerSet(tokens).then((contSet) => {
         setAll(contSet)
