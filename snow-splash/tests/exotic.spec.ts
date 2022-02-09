@@ -11,13 +11,20 @@ describe("Perf and exotic tests:", () => {
   describe("Node get:", () => {
     it("should not run into an infinite loop with recursive search", (cb) => {
       ;(async () => {
-        let r = await root
-          .addPromise(async (c) => ({ b: "B", c: "C" }))
-          .addPromise(async (c) => {
-            expect(await c.containers.b).toBe("B")
-            return { d: "D" }
-          })
-          .seal()
+        let r = root
+          .addNode((c) => ({ a: async () => "A", b: "B", c: "C" }))
+          .addNode((c) => ({
+            d: async () => {
+              expect(await c.containers.b).toBe("B")
+              return "D"
+            },
+          }))
+          .addNode((c) => ({
+            d: async () => {
+              expect(await c.containers.b).toBe("B")
+              return "D"
+            },
+          }))
         expect(await r.containers.d).toBe("D")
         cb()
       })()
@@ -25,41 +32,41 @@ describe("Perf and exotic tests:", () => {
 
     it("should never evaluate unrequested tokens, but pass correct refence to child node ", (cb) => {
       ;(async () => {
-        let r = await root
-          .addPromise(async (c) => ({
+        let r = root
+          .addNode((c) => ({
             b: async () => {
               throw new Error()
               return { x: "x", y: "y" }
             },
             c: "C",
           }))
-          .addPromise(async (c) => {
+          .addNode((c) => {
             return {
               d: async () => {
-                expect(await c.containers.c).toBe("C")
+                expect(c.containers.c).toBe("C")
                 return "D"
               },
             }
           })
-          .seal()
+        let a = r.get("d")
         expect(await r.containers.d).toBe("D")
         cb()
       })()
     }, 100)
 
     // getTokens must be async welp
-    it.skip("ERR: should never evaluate unrequested tokens, but pass correct refence to child node \
-          without a manual seal", (cb) => {
+    it("should never evaluate unrequested tokens, but pass correct refence to child node \
+            without a manual seal", (cb) => {
       ;(async () => {
         let r = root
-          .addPromise(async (c) => ({
+          .addNode((c) => ({
             b: async () => {
               throw new Error()
               return { x: "x", y: "y" }
             },
             c: "C",
           }))
-          .addPromise(async (c) => {
+          .addNode((c) => {
             return {
               d: async () => {
                 expect(await c.containers.c).toBe("C")
@@ -68,10 +75,7 @@ describe("Perf and exotic tests:", () => {
             }
           })
 
-        // THIS TEST IS SKIPPED AND FAILS because we MUST
-        // update everything including get tokens to async
         expect(await r.containers.d).toBe("D")
-        console.log("m", await r.containers)
         cb()
       })()
     }, 100)

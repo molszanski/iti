@@ -8,14 +8,14 @@ enum UniqueResult {
   C,
   D,
 }
-// results produced by addPromise should valid
+// results produced by addNode should valid
 ;(async () => {
   const node = makeRoot()
     .addNode({
       a: UniqueResult.A,
       b: () => UniqueResult.B,
     })
-    .addPromise(async () => ({
+    .addNode(async () => ({
       c: () => UniqueResult.C,
     }))
 
