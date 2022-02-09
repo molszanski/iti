@@ -15,10 +15,11 @@ export async function provideKitchenManipulatorContainer(
 ): Promise<KitchenManipulator_Container> {
   let ksc = new KitchenSizeUIController({
     onKitchenResize: async () => {
-      const currentKitchen = await root.providerMap.kitchen()
-      return await root.replaceContainerInstantly("kitchen", () =>
-        provideUpgradedKitchenContainer(currentKitchen),
-      )
+      const currentKitchen = await root.containers.kitchen
+      return await root.addNode({
+        // @ts-ignore
+        kitchen: () => provideUpgradedKitchenContainer(currentKitchen),
+      })
     },
   })
 

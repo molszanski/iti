@@ -10,38 +10,6 @@ import { provideKitchenContainer } from "./container.kitchen"
 import { provideFatLib1 } from "./container.fat-lib1"
 import { provideFatLib2 } from "./container.fat-lib2"
 
-// interface PizzaRegistry {
-//   auth: () => ReturnType<typeof provideAuthContainer>
-//   aCont: () => ReturnType<typeof provideAContainer>
-//   bCont: () => ReturnType<typeof provideBContainer>
-//   pizzaContainer: () => ReturnType<typeof providePizzaPlaceContainer>
-//   kitchen: () => ReturnType<typeof provideKitchenContainer>
-//   kitchenManipulator: () => ReturnType<
-//     typeof provideKitchenManipulatorContainer
-//   >
-//   fatlib1: () => ReturnType<typeof provideFatLib1>
-//   fatlib2: () => ReturnType<typeof provideFatLib2>
-// }
-
-// type Lib = (...args: any) => { [K in keyof PizzaRegistry]: PizzaRegistry[K] }
-// export type PizzaAppContainer = RootContainer<Lib, ReturnType<Lib>>
-
-// export function getProviders(container: PizzaAppContainer) {
-//   return {
-//     auth: async () => provideAuthContainer(),
-//     aCont: async () => provideAContainer(await ctx.auth()),
-
-//     // pizza stuff
-//     // pizzaContainer: async () => providePizzaPlaceContainer(await ctx.fatlib2()),
-//     // kitchen: async () => provideKitchenContainer(),
-
-//     kitchenManipulator: async () => provideKitchenManipulatorContainer(root),
-
-//     // // fat libs
-//     // fatlib1: async () => provideFatLib1(),
-//     // fatlib2: async () => provideFatLib2(),
-//   }
-// }
 export type PizzaAppContainer = ReturnType<typeof getMainPizzaAppContainer>
 export function getMainPizzaAppContainer() {
   let a = makeRoot()
@@ -49,6 +17,7 @@ export function getMainPizzaAppContainer() {
       auth: async () => provideAuthContainer(),
     }))
     .addNode((c) => ({
+      //@ts-ignore
       aCont: async () => provideAContainer(await c.containers.auth),
     }))
     .addNode((ctx) => ({
@@ -66,8 +35,10 @@ export function getMainPizzaAppContainer() {
     .addNode((ctx) => ({
       // pizza stuff
       pizzaContainer: async () =>
+        //@ts-ignore
         providePizzaPlaceContainer(await ctx.containers.fatlib2),
       kitchen: async () => provideKitchenContainer(),
+      //@ts-ignore
       kitchenManipulator: async () => provideKitchenManipulatorContainer(ctx),
     }))
   return a
