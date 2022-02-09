@@ -15,13 +15,13 @@ enum UniqueResult {
       a: UniqueResult.A,
       b: () => UniqueResult.B,
     })
-    .addNode(async () => ({
+    .addNode(() => ({
       c: () => UniqueResult.C,
     }))
 
-  expectType<UniqueResult>(await node.get("a"))
-  expectType<UniqueResult.B>(await node.get("b"))
-  expectType<UniqueResult.C>(await node.get("c"))
+  expectType<UniqueResult>(node.get("a"))
+  expectType<UniqueResult.B>(node.get("b"))
+  expectType<UniqueResult.C>(node.get("c"))
 
   expectNotType<any>(node)
 })()

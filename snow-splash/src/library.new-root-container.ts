@@ -13,7 +13,7 @@ type Assign<OldContext extends {}, NewContext extends {}> = {
     : never
 }
 
-type UnpackFunction<T> = T extends (...args: any) => infer U ? U : T
+export type UnpackFunction<T> = T extends (...args: any) => infer U ? U : T
 
 type T1 = UnpackFunction<() => string>
 type T2 = UnpackFunction<number>
