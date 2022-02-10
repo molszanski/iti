@@ -1,75 +1,44 @@
-class Prototype {
-  public primitive: any
-  //@ts-ignore
-  public component: object
-  //@ts-ignore
-  public circularReference: ComponentWithBackReference
+// type Without<T, U> = T extends U ? never : T
+type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
 
-  public clone(): this {
-    const clone = Object.create(this)
+type Assign<OldContext extends {}, NewContext extends {}> = {
+  [Token in keyof OldContext | keyof NewContext]: Token extends keyof NewContext
+    ? NewContext[Token]
+    : Token extends keyof OldContext
+    ? OldContext[Token]
+    : never
+}
 
-    clone.component = Object.create(this.component)
+type T1 = { a: number; b: string }
+type T2 = { b: boolean }
+type T3 /** { a: number; b: boolean; } */ = Assign<T1, T2>
 
-    // Cloning an object that has a nested object with backreference
-    // requires special treatment. After the cloning is completed, the
-    // nested object should point to the cloned object, instead of the
-    // original object. Spread operator can be handy for this case.
-    clone.circularReference = {
-      ...this.circularReference,
-      prototype: { ...this },
-    }
+class Store<Context extends {}> {
+  constructor(public state: Context = <Context>{}) {}
 
-    return clone
+  public add<AdditionalState extends {}>(
+    s: AdditionalState,
+  ): Store<Assign<Context, AdditionalState>> {
+    const newState = Object.assign(this.state, s)
+
+    return new Store(newState as any)
+  }
+
+  public addSafe<AdditionalState extends Exclude<{}, Context>>(
+    s: AdditionalState,
+  ): Store<Assign<Context, AdditionalState>> {
+    const newState = Object.assign(this.state, s)
+    return new Store(newState as any)
   }
 }
 
-class ComponentWithBackReference {
-  public prototype
+const t0 = new Store()
 
-  constructor(prototype: Prototype) {
-    this.prototype = prototype
-  }
-}
-const p1 = new Prototype()
-let a = new ComponentWithBackReference(p1)
-const p2 = p1.clone()
+let t1 /** { a: number;  } */ = t0.add({ a: 1 })
+let t2 /** { a: number; b: boolean; } */ = t1.add({ b: true })
+let t3 /** { a: string; b: boolean; } */ = t2.add({ a: "oops" })
 
-/**
- * The client code.
- */
-export function clientCode() {
-  const p1 = new Prototype()
-  p1.primitive = 245
-  p1.component = new Date()
-  p1.circularReference = new ComponentWithBackReference(p1)
+let t4 /** { a: string; b: boolean; } */ = t1.addSafe({ a: "oops" })
+let t5 /** { a: string; b: boolean; } */ = t0.addSafe({ a: "oops" }) // Err
 
-  const p2 = p1.clone()
-  if (p1.primitive === p2.primitive) {
-    console.log(
-      "Primitive field values have been carried over to a clone. Yay!",
-    )
-  } else {
-    console.log("Primitive field values have not been copied. Booo!")
-  }
-  if (p1.component === p2.component) {
-    console.log("Simple component has not been cloned. Booo!")
-  } else {
-    console.log("Simple component has been cloned. Yay!")
-  }
-
-  if (p1.circularReference === p2.circularReference) {
-    console.log("Component with back reference has not been cloned. Booo!")
-  } else {
-    console.log("Component with back reference has been cloned. Yay!")
-  }
-
-  if (p1.circularReference.prototype === p2.circularReference.prototype) {
-    console.log(
-      "Component with back reference is linked to original object. Booo!",
-    )
-  } else {
-    console.log("Component with back reference is linked to the clone. Yay!")
-  }
-}
-
-clientCode()
+export const a = 1
