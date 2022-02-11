@@ -1,13 +1,10 @@
-import mitt from "mitt"
 import { Intersection } from "utility-types"
-import { createNanoEvents, Emitter } from "./ee/ee"
-import { UnPromisify } from "."
+import { createNanoEvents, Emitter } from "./nanoevents"
+import { addGetter, Assign4, UnPromisify } from "./_utils"
 import {
   SnowSplashResolveError,
   SnowSplashTokenError,
 } from "./library.new-root-errors"
-import { Assign4 } from "./library.root-expertiments"
-import { addGetter } from "./_utils"
 type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
 type Assign<OldContext extends {}, NewContext extends {}> = {
   [Token in keyof OldContext | keyof NewContext]: Token extends keyof NewContext
