@@ -1,0 +1,12 @@
+{
+  "name": "box-maker-workspace",
+  "version": "0.0.1",
+  "description": "box maker yarn monorepo root",
+  "private": true,
+  "devDependencies": {
+    "turbo": "^1.1.2"
+  },
+  "repository": "git@github.com:molszanski/snow-splash.git",
+  "author": "Nick Olszanski <nick@dinosaurs-with-jetpacks.club>",
+  "license": "MIT"
+}
