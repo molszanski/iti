@@ -14,7 +14,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf ./dist && microbundle",
+    "_build": "rm -rf ./dist && microbundle build -o dist/ && cp -R src/* dist/src",
+    "build": "rm -rf ./dist && microbundle build -o dist/",
     "test": "yarn jest && yarn tsd",
     "jestWatch": "jest --watch --verbose",
     "tsd": "tsd tsd_project",
