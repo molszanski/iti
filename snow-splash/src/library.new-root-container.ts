@@ -73,11 +73,9 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     this.cached = {}
     this.ee = createNanoEvents<Events<Context>>()
   }
-  public get<
-    SearchToken extends keyof {
-      [K in keyof Context]: Context[K]
-    },
-  >(token: SearchToken): UnpackFunction<Context[SearchToken]> {
+  public get<SearchToken extends keyof Context>(
+    token: SearchToken,
+  ): UnpackFunction<Context[SearchToken]> {
     /**
      * FLOW A: We have this is in a current context
      */
