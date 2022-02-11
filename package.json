@@ -1,8 +1,13 @@
 {
-  "name": "box-maker-workspace",
+  "name": "snow-splash-workspace",
   "version": "0.0.1",
-  "description": "box maker yarn monorepo root",
+  "description": "snow splash yarn monorepo root",
   "private": true,
+  "workspaces": [
+    "snow-splash",
+    "snow-splash-react",
+    "examples/cra"
+  ],
   "devDependencies": {
     "turbo": "^1.1.2"
   },
