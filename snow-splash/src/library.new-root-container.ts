@@ -6,13 +6,6 @@ import {
   SnowSplashTokenError,
 } from "./library.new-root-errors"
 type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
-type Assign<OldContext extends {}, NewContext extends {}> = {
-  [Token in keyof OldContext | keyof NewContext]: Token extends keyof NewContext
-    ? NewContext[Token]
-    : Token extends keyof OldContext
-    ? OldContext[Token]
-    : never
-}
 
 export type UnpackFunction<T> = T extends (...args: any) => infer U ? U : T
 
@@ -37,12 +30,6 @@ type UnpromisifyObject<T> = {
 type FullyUnpackObject<T extends {}> = UnpromisifyObject<UnpackObject<T>>
 
 abstract class AbstractNode<Context extends {}> {
-  // public addNode<NewContext extends { [T in keyof NewContext]: NewContext[T] }>(
-  //   newContext: NewContext,
-  // ): NodeApi<Context, NewContext> {
-  //   return new NodeApi(this, newContext)
-  // }
-
   public abstract get<T extends keyof Context>(
     token: T,
   ): UnpackFunction<Context[T]>
@@ -51,10 +38,7 @@ abstract class AbstractNode<Context extends {}> {
 }
 
 type Events<Context> = {
-  containerCreated: (payload: {
-    key: keyof Context
-    newContainer: Context[keyof Context]
-  }) => void
+  // Used only in tests for now
   containerUpdated: (payload: {
     key: keyof Context
     newContainer: Context[keyof Context]
@@ -63,8 +47,14 @@ type Events<Context> = {
     key: keyof Context
     newContainer: Context[keyof Context]
   }) => void
-  containerRemoved: (payload: { key: keyof Context }) => void
-  containerRequested: (payload: { key: keyof Context }) => void
+
+  // Older events
+  // containerCreated: (payload: {
+  //   key: keyof Context
+  //   newContainer: Context[keyof Context]
+  // }) => void
+  // containerRemoved: (payload: { key: keyof Context }) => void
+  // containerRequested: (payload: { key: keyof Context }) => void
 }
 
 class Node<Context extends {}> extends AbstractNode<Context> {
@@ -124,7 +114,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       return tokenValue as any
     }
 
-    throw new SnowSplashResolveError(`Could not resolve value for ${token}`)
+    throw new SnowSplashResolveError(`Can't find token '${token}' value`)
   }
   protected updateContext(updatedContext: Context) {
     for (const [token, value] of Object.entries(updatedContext)) {
@@ -192,7 +182,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
   }
 
   public addNodeSafe<
-    // This "magic" gives user an Error in an IDE with a helpfull message
+    // This "magic" type gives user an Error in an IDE with a helpfull message
     NewContext extends Intersection<
       MyRecord<
         Context,
