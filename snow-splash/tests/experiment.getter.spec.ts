@@ -13,8 +13,8 @@ describe("Node long chain async", () => {
   it("should test long chain", (cb) => {
     ;(async () => {
       let r = root
-        .upsert({ a: "A" })
-        .upsert({ k: "K" })
+        .add({ a: "A" })
+        .add({ k: "K" })
         .upsert((c) => ({
           a: 22,
           c: async () => {
@@ -29,7 +29,7 @@ describe("Node long chain async", () => {
             return "C"
           },
         }))
-        .upsert((c) => {
+        .add((c) => {
           return { f: "F", g: "G" }
         })
 
@@ -45,7 +45,7 @@ describe("Node long chain async", () => {
   }, 100)
   it("should test if I can overwrite token", (cb) => {
     ;(async () => {
-      let r = root.upsert({ a: "A", b: "B" })
+      let r = root.add({ a: "A", b: "B" })
       expect(r.get("a")).toBe("A") // Stores in cache
 
       let n = r.upsert({ a: 22 })
@@ -57,7 +57,7 @@ describe("Node long chain async", () => {
 
   it("should test if I can overwrite token without sealing", (cb) => {
     ;(async () => {
-      let r = root.upsert({ a: "A", b: "B" })
+      let r = root.add({ a: "A", b: "B" })
       expect(await r.get("a")).toBe("A") // Stores in cache
 
       let n = r.upsert({ a: 22 })
@@ -75,7 +75,7 @@ describe("Node long chain async", () => {
         cb()
       })
 
-      let r = root.upsert({ a: "A", b: "B" })
+      let r = root.add({ a: "A", b: "B" })
       expect(await r.get("a")).toBe("A") // Stores in cache
 
       let n = r.upsert({ a: 22 })
@@ -89,12 +89,12 @@ describe("Node long chain async", () => {
       let sub = jest.fn()
       root.on("containerUpdated", sub)
       let r = root
-        .upsert({ a: "A" })
+        .add({ a: "A" })
         .upsert((c) => {
           expect(c.get("a")).toBe("A")
           return { a: 22 }
         })
-        .upsert((c) => {
+        .add((c) => {
           expect(c.get("a")).toBe(22)
           return { b: "B", c: "C" }
         })
@@ -117,7 +117,7 @@ describe("Node subscribeToContiner", () => {
   })
 
   it("should subscribe to async container creation", (cb) => {
-    const node = root.upsert(() => ({
+    const node = root.add(() => ({
       a: async () => "A",
       b: async () => "B",
     }))
@@ -131,7 +131,7 @@ describe("Node subscribeToContiner", () => {
 
   it("should not fire an event on a sync node", (cb) => {
     ;(async () => {
-      const node = root.upsert({
+      const node = root.add({
         a: async () => "A",
         b: "B",
       })
@@ -152,11 +152,11 @@ describe("Node subscribeToContiner", () => {
   it("should use containerSet to subscribe to events", (cb) => {
     ;(async () => {
       const node = root
-        .upsert(() => ({
+        .add(() => ({
           a: async () => "A",
           b: "B",
         }))
-        .upsert(() => ({
+        .add(() => ({
           c: async () => "C",
           d: "D",
         }))
@@ -200,10 +200,10 @@ describe("Node getter", () => {
 
   it("should get nested conatainers", (cb) => {
     ;(async () => {
-      const node1 = root.upsert({
+      const node1 = root.add({
         aCont: async () => provideAContainer(),
       })
-      const node2 = node1.upsert({
+      const node2 = node1.add({
         bCont: async () => provideBContainer(await node1.get("aCont")),
       })
       const containers = node2.containers
@@ -220,12 +220,12 @@ describe("Node getter", () => {
   })
 })
 
-describe("Node upsert", () => {
+describe("Node add", () => {
   let root: ReturnType<typeof makeRoot>
   let node: ReturnType<typeof mockNode>
 
   function mockNode() {
-    return makeRoot().upsert({
+    return makeRoot().add({
       a: "A",
       b: () => "B",
       c: async () => "C",
@@ -238,11 +238,7 @@ describe("Node upsert", () => {
   })
 
   it("should be able to chain multiple nodes", async () => {
-    let r = root
-      .upsert({ a: "A" })
-      .upsert({ b: "B" })
-      .upsert({ c: "C" })
-      .upsert({ d: "D" })
+    let r = root.add({ a: "A" }).add({ b: "B" }).add({ c: "C" }).add({ d: "D" })
 
     expect(r.get("a")).toBe("A")
     expect(r.get("c")).toBe("C")
@@ -250,13 +246,13 @@ describe("Node upsert", () => {
 
   it("should accept callback function that provides current node", async () => {
     let r = await root
-      .upsert({ a: "A" })
-      .upsert({ k: "A" })
-      .upsert((c) => {
+      .add({ a: "A" })
+      .add({ k: "A" })
+      .add((c) => {
         expect(c.get("a")).toBe("A")
         return { b: "B", c: "C" }
       })
-      .upsert((c) => {
+      .add((c) => {
         expect(c.get("b")).toBe("B")
         return { f: "F", g: "G" }
       })
@@ -264,7 +260,7 @@ describe("Node upsert", () => {
   })
 
   it("should be able to add node in safe way", () => {
-    let n = root.upsert({ a: "A", b: "B", c: "C" })
+    let n = root.add({ a: "A", b: "B", c: "C" })
 
     expect(() => {
       // @ts-expect-error
@@ -281,11 +277,11 @@ describe("Node upsert", () => {
     }
     ;(async () => {
       let node = await root
-        .upsert({
+        .add({
           a: UniqueResult.A,
           b: () => UniqueResult.B,
         })
-        .upsert(() => ({
+        .add(() => ({
           f: async () => UniqueResult.F,
         }))
 
@@ -299,18 +295,18 @@ describe("Node upsert", () => {
   it("should handle a node with out of order execution", (cb) => {
     ;(async () => {
       let node = root
-        .upsert((c) => {
+        .add((c) => {
           return {
             a: () => "A",
             b: () => "B",
           }
         })
-        .upsert((c) => {
+        .add((c) => {
           return {
             c: () => "C",
           }
         })
-        .upsert((c) => {
+        .add((c) => {
           return {
             d: () => "D",
             cd: () => c.get("c") + "D",
@@ -331,7 +327,7 @@ describe("Node getContainerSet", () => {
   let root: ReturnType<typeof makeRoot>
   let node: ReturnType<typeof mockNode>
   function mockNode() {
-    return makeRoot().upsert({
+    return makeRoot().add({
       a: "A",
       b: () => "B",
       c: async () => "C",

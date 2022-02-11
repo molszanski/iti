@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react"
-import { UnPromisify } from "../_utils"
-
 // -- Generic
 
 export type ContainerGeneric<T> = {
