@@ -1,7 +1,11 @@
 import mitt from "mitt"
+import { Intersection } from "utility-types"
 import { createNanoEvents, Emitter } from "./ee/ee"
 import { UnPromisify } from "."
-import { SnowSplashResolveError } from "./library.new-root-errors"
+import {
+  SnowSplashResolveError,
+  SnowSplashTokenError,
+} from "./library.new-root-errors"
 import { Assign4 } from "./library.root-expertiments"
 import { addGetter } from "./_utils"
 type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
@@ -171,6 +175,10 @@ type KeysOrCb<Context extends {}> =
   | ((t: { [K in keyof Context]: K }) => Array<keyof Context>)
 type KeysOrCbWIthArg<Context, ARG> = Context | ((t: ARG) => Context)
 
+type MyRecord<O extends {}, T> = {
+  [K in keyof O]: T
+}
+
 export class NodeApi<Context extends {}> extends Node<Context> {
   constructor() {
     super()
@@ -184,6 +192,39 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     let nc = typeof newContext === "function" ? newContext(this) : newContext
     this.updateContext(nc)
     return this as any
+  }
+
+  public addNodeSafe<
+    // This "magic" gives user an Error in an IDE with a helpfull message
+    NewContext extends Intersection<
+      MyRecord<
+        Context,
+        "You are overwriting this key. It is not safe. Use another addUnsafe method"
+      >,
+      NewContext
+    >,
+  >(
+    newContext: NewContext | ((self: NodeApi<Context>) => NewContext),
+  ): NodeApi<Assign4<Context, NewContext>> {
+    let nc = typeof newContext === "function" ? newContext(this) : newContext
+
+    // Step 1: Runtime check for existing tokens in context
+    const oldTokens = Object.keys(this.getTokens())
+    const newTokens = Object.keys(nc)
+    let duplicates: string[] = []
+    newTokens.forEach((nt) => {
+      if (oldTokens.includes(nt)) {
+        duplicates.push(nt)
+      }
+    })
+    if (duplicates.length !== 0) {
+      throw new SnowSplashTokenError(
+        `Some tokens already exist: ['${duplicates.join("', '")}']`,
+      )
+    }
+
+    // Step 2: If everything is fine add a newContext
+    return this.addNode(nc)
   }
 
   public _extractTokens<T extends keyof Context>(

@@ -263,6 +263,15 @@ describe("Node addNode", () => {
     expect(r.get("f")).toBe("F")
   })
 
+  it("should be able to add node in safe way", () => {
+    let n = root.addNode({ a: "A", b: "B", c: "C" })
+
+    expect(() => {
+      // @ts-expect-error
+      n.addNodeSafe({ a: "A", b: "B2" })
+    }).toThrow()
+  })
+
   it("should be able to add an async node", (cb) => {
     // We need to test if typescript throws a type error here
     enum UniqueResult {
