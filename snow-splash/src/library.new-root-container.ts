@@ -1,10 +1,7 @@
 import { Intersection } from "utility-types"
 import { createNanoEvents, Emitter } from "./nanoevents"
 import { addGetter, Assign4, UnPromisify } from "./_utils"
-import {
-  SnowSplashResolveError,
-  SnowSplashTokenError,
-} from "./library.new-root-errors"
+import { SnowSplashResolveError, SnowSplashTokenError } from "./errors"
 type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
 
 export type UnpackFunction<T> = T extends (...args: any) => infer U ? U : T
