@@ -13,26 +13,26 @@ import { provideFatLib2 } from "./container.fat-lib2"
 export type PizzaAppContainer = ReturnType<typeof getMainPizzaAppContainer>
 export function getMainPizzaAppContainer() {
   let a = makeRoot()
-    .addNode(() => ({
+    .upsert(() => ({
       auth: async () => provideAuthContainer(),
     }))
-    .addNode((c) => ({
+    .upsert((c) => ({
       //@ts-ignore
       aCont: async () => provideAContainer(await c.containers.auth),
     }))
-    .addNode((ctx) => ({
+    .upsert((ctx) => ({
       bCont: async () =>
         provideBContainer(
           await ctx.containers.auth(),
           await ctx.containers.aCont(),
         ),
     }))
-    .addNode((c) => ({
+    .upsert((c) => ({
       // fat libs
       fatlib1: async () => provideFatLib1(),
       fatlib2: async () => provideFatLib2(),
     }))
-    .addNode((ctx) => ({
+    .upsert((ctx) => ({
       // pizza stuff
       pizzaContainer: async () =>
         //@ts-ignore

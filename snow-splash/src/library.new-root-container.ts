@@ -172,7 +172,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
   }
 
   // SAVE: NewContext extends {! [T in keyof NewContext]: NewContext[T] }
-  public addNode<NewContext extends {}>(
+  public upsert<NewContext extends {}>(
     newContext: NewContext | ((self: NodeApi<Context>) => NewContext),
   ): NodeApi<Assign4<Context, NewContext>> {
     // @ts-expect-error
@@ -208,7 +208,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     }
 
     // Step 2: If everything is fine add a newContext
-    return this.addNode(newContext)
+    return this.upsert(newContext)
   }
 
   public _extractTokens<T extends keyof Context>(
