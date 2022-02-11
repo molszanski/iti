@@ -1,7 +1,7 @@
+import type { NodeApi, UnpackFunction } from "snow-splash"
 import React, { useContext, useEffect, useState } from "react"
 import { useBetterGenericContainer } from "./library.hooks"
 import { addGetter, UnPromisify } from "../_utils"
-import { NodeApi, UnpackFunction } from "../library.new-root-container"
 
 type UnpackTokenFromContext<
   CK extends keyof Context,
@@ -32,7 +32,7 @@ export function getContainerSetHooks<Context extends object>(
         ? [UnpackTokenFromContext<CK, Context> | undefined, any, CK]
         : never
     },
-  >(appRoot: NodeApi<Context>) {
+  >(appRoot: NodeApi<Context>): ContainerGetter {
     let FFF = <ContainerGetter>{}
     let tokens = appRoot.getTokens()
 
