@@ -15,6 +15,17 @@ describe.only("Node.get()", () => {
     })
     expect(node.get("a")).toBe(123)
   })
+
+  it("should throw if a token is missing", async () => {
+    const node = root.add({
+      a: 123,
+    })
+    expect(() => {
+      // @ts-expect-error
+      node.get("c")
+    }).toThrowError()
+  })
+
   it("should return function result and not a function", async () => {
     const node = root.add({
       functionTOken: () => "optimus",
