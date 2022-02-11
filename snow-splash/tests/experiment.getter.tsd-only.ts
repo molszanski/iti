@@ -8,14 +8,14 @@ enum UniqueResult {
   C,
   D,
 }
-// results produced by an upsert should valid
+// results produced by an add should valid
 ;(async () => {
   const node = makeRoot()
-    .upsert({
+    .add({
       a: UniqueResult.A,
       b: () => UniqueResult.B,
     })
-    .upsert(() => ({
+    .add(() => ({
       c: () => UniqueResult.C,
     }))
 

@@ -8,13 +8,13 @@ export type MockAppNode = ReturnType<typeof getMainMockAppContainer>
 export function getMainMockAppContainer() {
   let node = makeRoot()
   let k = node
-    .upsert({ aCont: async () => provideAContainer() })
-    .upsert((c) => {
+    .add({ aCont: async () => provideAContainer() })
+    .add((c) => {
       return {
         bCont: async () => provideBContainer(await c.get("aCont")),
       }
     })
-    .upsert((c) => {
+    .add((c) => {
       return {
         cCont: async () =>
           provideCContainer(await c.get("aCont"), await c.get("bCont"), k),

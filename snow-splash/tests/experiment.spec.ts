@@ -10,20 +10,20 @@ describe.only("Node.get()", () => {
   })
 
   it("should return a value as a value", async () => {
-    const node = root.upsert({
+    const node = root.add({
       a: 123,
     })
     expect(node.get("a")).toBe(123)
   })
   it("should return function result and not a function", async () => {
-    const node = root.upsert({
+    const node = root.add({
       functionTOken: () => "optimus",
     })
     expect(node.get("functionTOken")).toBe("optimus")
   })
   it("should return correct tokens for merged and overriden nodes", () => {
     const node = root
-      .upsert({
+      .add({
         optimus: () => "prime",
         a: 123,
       })
@@ -38,7 +38,7 @@ describe.only("Node.get()", () => {
 
   it("should return cached value of a function", async () => {
     let fn = jest.fn()
-    const node = root.upsert({
+    const node = root.add({
       optimus: () => {
         fn()
         return "prime"
@@ -52,7 +52,7 @@ describe.only("Node.get()", () => {
 
   it("should return promises of async functions", (cb) => {
     ;(async () => {
-      const node = root.upsert({
+      const node = root.add({
         optimus: async () => "prime",
       })
       expect(await node.get("optimus")).toBe("prime")
@@ -64,7 +64,7 @@ describe.only("Node.get()", () => {
     const fn1 = jest.fn()
     const fn2 = jest.fn()
 
-    const node = root.upsert({
+    const node = root.add({
       autobots: () => {
         fn1()
         return {

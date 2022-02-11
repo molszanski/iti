@@ -183,7 +183,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     NewContext extends Intersection<
       MyRecord<
         Context,
-        "You are overwriting this key. It is not safe. Use another addUnsafe method"
+        "You are overwriting this token. It is not safe. Use an unsafe `upsert` method"
       >,
       NewContext
     >,
