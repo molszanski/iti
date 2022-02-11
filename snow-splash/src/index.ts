@@ -1,8 +1,7 @@
-// export { makeRoot, RootContainer } from "./library.root-container"
+// Main lib
+export { makeRoot, NodeApi } from "./library.new-root-container"
+export type { UnpackFunction } from "./library.new-root-container"
+
+// Helper types
 export type { GetContainerFormat, UnPromisify } from "./_utils"
-
-// React
-export { generateEnsureContainerSet } from "./react/library.generate-ensure-hooks"
-export { getContainerSetHooks } from "./react/library.hook-generator"
-
-export { makeRoot } from "./library.new-root-container"
+export type { Emitter } from "./nanoevents"

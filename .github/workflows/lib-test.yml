@@ -9,9 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: snow-splash
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
@@ -34,11 +31,17 @@ jobs:
       - name: Install Deps
         run: yarn install
 
-      - name: Check types
-        run: yarn tsd
+      - name: Check types of a core package
+        run: cd snow-splash && yarn tsd
 
-      - name: Run tests
-        run: yarn test
+      - name: Run tests of a core package
+        run: cd snow-splash && yarn test
 
-      - name: Check if builds
-        run: yarn build
+      - name: Check if a core package builds
+        run: cd snow-splash && yarn build
+
+      - name: Check types of a react package
+        run: cd snow-splash-react && yarn tsd
+
+      - name: Check if a react package builds
+        run: cd snow-splash-react && yarn build

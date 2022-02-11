@@ -19,15 +19,16 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "5.0.0",
-    "snow-splash": "^0.1.4",
+    "snow-splash": "0.4.0-alpha",
+    "snow-splash-react": "0.4.0-alpha",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.2",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "_build": "react-scripts build",
+    "_test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "browserslist": {

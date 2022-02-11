@@ -1,3 +1,12 @@
+/**
+ * From
+ * https://github.com/ai/nanoevents
+ *
+ * Sadly, can't install it via np. Some build issue
+ */
+
+//////////////////
+
 interface EventsMap {
   [event: string]: any
 }
@@ -76,6 +85,24 @@ export declare class Emitter<Events extends EventsMap = DefaultEvents> {
  * }
  * ```
  */
+
 export function createNanoEvents<
   Events extends EventsMap = DefaultEvents,
->(): Emitter<Events>
+>(): Emitter<Events> {
+  return {
+    events: {},
+    emit(event, ...args) {
+      // @ts-expect-error
+      ;(this.events[event] || []).forEach((i) => i(...args))
+    },
+    on(event, cb) {
+      // @ts-expect-error
+      ;(this.events[event] = this.events[event] || []).push(cb)
+      return () =>
+        // @ts-expect-error
+        (this.events[event] = (this.events[event] || []).filter(
+          (i) => i !== cb,
+        ))
+    },
+  }
+}
