@@ -201,27 +201,24 @@ export class NodeApi<Context extends {}> extends Node<Context> {
       NewContext
     >,
   >(
-    newContext: NewContext | ((self: NodeApi<Context>) => NewContext),
+    newContextOrCb: NewContext | ((self: NodeApi<Context>) => NewContext),
   ): NodeApi<Assign4<Context, NewContext>> {
-    let nc = typeof newContext === "function" ? newContext(this) : newContext
+    let newContext =
+      typeof newContextOrCb === "function"
+        ? newContextOrCb(this)
+        : newContextOrCb
 
     // Step 1: Runtime check for existing tokens in context
-    const oldTokens = Object.keys(this.getTokens())
-    const newTokens = Object.keys(nc)
-    let duplicates: string[] = []
-    newTokens.forEach((nt) => {
-      if (oldTokens.includes(nt)) {
-        duplicates.push(nt)
-      }
-    })
+    var existingTokens = Object.keys(this.getTokens())
+    let duplicates = existingTokens.filter((x) => newContext[x] != null)
     if (duplicates.length !== 0) {
       throw new SnowSplashTokenError(
-        `Some tokens already exist: ['${duplicates.join("', '")}']`,
+        `Tokens already exist: ['${duplicates.join("', '")}']`,
       )
     }
 
     // Step 2: If everything is fine add a newContext
-    return this.addNode(nc)
+    return this.addNode(newContext)
   }
 
   public _extractTokens<T extends keyof Context>(
