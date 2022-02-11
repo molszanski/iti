@@ -178,7 +178,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     return this as any
   }
 
-  public addNodeSafe<
+  public add<
     // This "magic" type gives user an Error in an IDE with a helpfull message
     NewContext extends Intersection<
       MyRecord<

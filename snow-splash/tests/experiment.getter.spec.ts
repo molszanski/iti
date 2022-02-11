@@ -268,7 +268,7 @@ describe("Node upsert", () => {
 
     expect(() => {
       // @ts-expect-error
-      n.addNodeSafe({ a: "A", b: "B2" })
+      n.add({ a: "A", b: "B2" })
     }).toThrow()
   })
 
