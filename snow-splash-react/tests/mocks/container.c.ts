@@ -21,7 +21,7 @@ export async function provideCContainer(
   async function replacer(ovenSize = 10) {
     const c1 = new C1(a.a2)
     const c2 = new C2(a.a1, b.b2, ovenSize)
-    container.addNode(() => ({
+    container.upsert(() => ({
       cCont: async () => {
         return {
           c1,
