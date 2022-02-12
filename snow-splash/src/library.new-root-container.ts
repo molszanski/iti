@@ -204,16 +204,14 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     return this.upsert(newContext)
   }
 
-  private _extractTokens<T extends keyof Context>(
+  public _extractTokens<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,
   ): T[] {
-    let tokens = tokensOrCb
     if (typeof tokensOrCb === "function") {
-      tokens = tokensOrCb(this.getTokens())
+      return tokensOrCb(this.getTokens()) as any
     } else {
-      tokens = tokensOrCb
+      return tokensOrCb as any
     }
-    return tokens as any
   }
 
   public subscribeToContinerSet<T extends keyof Context>(
