@@ -1,7 +1,7 @@
 import _ from "lodash"
-import { RootContainer, wait } from "snow-splash"
+import { makeRoot } from "snow-splash"
 
-// Your application logic is clean
+// Step 0: Your application logic stays clean
 class Oven {
   public pizzasInOven() {
     return 3
@@ -9,76 +9,81 @@ class Oven {
   public async preheat() {}
 }
 class Kitchen {
-  constructor(public oven: Oven) {}
+  constructor(public oven: Oven, public manual: string) {}
 }
 
-// Step 2: Connect your app to container and define tokens
-const ovenContainer = async () => ({
-  oven: new Oven(),
+// Step 1: Add and read simple tokens
+let root = makeRoot().add({
+  userManual: "Please preheat before use",
+  oven: () => new Oven(),
 })
-const kitchenContainer = async ({ oven }) => {
+root.get("oven")
+
+// Step 2: Add a usefull async provider / container
+const kitchenContainer = async ({ oven, userManual }) => {
   await oven.preheat()
   return {
-    kitchen: new Kitchen(oven),
+    kitchen: new Kitchen(oven, userManual),
   }
 }
-const kitchenApp = new RootContainer((ctx) => ({
-  // you can use tokens (`oven`, `kitchen`) here and later on
-  oven: async () => ovenContainer(),
-  kitchen: async () => kitchenContainer(await ctx.oven()),
+
+// Step 3: Add an async provider
+const node = root.add((node) => ({
+  kitchen: async () =>
+    kitchenContainer(await node.getContainerSet(["userManual", "oven"])),
 }))
+await node.get("kitchen")
 
-// Step 3: Use it
+// A SHORT USE MANUAL
+// A SHORT USE MANUAL
+// A SHORT USE MANUAL
 
-// Node.js
-async function runApp() {
-  kitchenApp.on("containerCreated", (event) => {
-    console.log(
-      `event: 'containerCreated' ~~> token: '${event.key}'  | container: `,
-      event.newContainer,
-    )
+// ---- Reading
+
+// Get a single instance
+root.get("oven") // Creates a new Oven instance
+root.get("oven") // Gets a cached Oven instance
+
+await node.get("kitchen") // { kitchen: Kitchen } also cached
+await node.containers.kitchen // same as above
+
+// Get multiple instances at once
+await root.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
+await root.getContainerSet((c) => [c.userManual, c.oven]) // same as above
+
+// Subscribe to container changes
+node.subscribeToContiner("oven", (oven) => {})
+node.subscribeToContinerSet(["oven", "kitchen"], ({ oven, kitchen }) => {})
+// prettier-ignore
+node.subscribeToContinerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
+node.on("containerUpdated", ({ key, newContainer }) => {})
+node.on("containerUpserted", ({ key, newContainer }) => {})
+
+// ----Adding
+
+let node1 = makeRoot()
+  .add({
+    userManual: "Please preheat before use",
+    oven: () => new Oven(),
   })
+  .upsert((node) => ({
+    userManual: "Works better when hot",
+    preheatedOven: async () => {
+      await node.get("oven").preheat()
+      return node.get("oven")
+    },
+  }))
 
-  kitchenApp.on("containerRequested", (event) => {
-    console.log(`event: 'containerRequested' ~~> token: '${event.key}' `)
+// `add` is typesafe and a runtime safe method. Hence we've used `upsert`
+try {
+  node1.add({
+    // @ts-expect-error
+    userManual: "You shall not pass",
+    // Type Error: (property) userManual: "You are overwriting this token. It is not safe. Use an unsafe `upsert` method"
   })
-
-  kitchenApp.on("containerRemoved", (event) => {
-    console.log(`event: 'containerRemoved' ~~> token: '${event.key}' `)
-  })
-
-  await kitchenApp.containers.kitchen
-  await wait(200)
+} catch (err) {
+  err.message // Error Tokens already exist: ['userManual']
 }
-runApp().then(() => {
-  console.log("done")
-})
-
-// console.log(123)
-
-// async function runStuff() {
-//   let a = new AppContainer()
-
-//   let l = a.KKK
-//   console.log(l)
-
-//   let k = await l.auth()
-//   let k333 = await l.auth()
-//   console.log(k)
-//   console.log(k333)
-
-//   let k2 = await l.aCont()
-//   let k22 = await l.aCont()
-//   console.log(k2)
-//   console.log(k22)
-
-//   let k3 = await l.bCont()
-//   console.log(k3)
-// }
-
-// runStuff().then(() => {
-//   console.log("done")
-// })
 
 // // async function runStuff() {
 // //   let a = new AppContainer()
@@ -103,4 +108,5 @@ runApp().then(() => {
 // // runStuff().then(() => {
 // //   console.log("done")
 // // })
-export const x = { a: 12 }
+
+// export const x = { a: 12 }

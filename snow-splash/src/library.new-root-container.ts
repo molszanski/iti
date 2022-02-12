@@ -268,7 +268,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
 
   public get containers() {
     type ContainerGetter = {
-      [CK in keyof Context]: Context[CK]
+      [CK in keyof Context]: UnpackFunction<Context[CK]>
     }
     let containerMap = <ContainerGetter>{}
     for (let key in this.getTokens()) {
