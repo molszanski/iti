@@ -55,9 +55,8 @@ type Events<Context> = {
 }
 
 class Node<Context extends {}> extends AbstractNode<Context> {
-  private cached: { [K in keyof Context]?: any }
-  protected promisedContext: Array<(c: NodeApi<Context>) => Promise<any>> = []
-  public context: Context = <Context>{}
+  private _cache: { [K in keyof Context]?: any } = {}
+  public _context: Context = <Context>{}
 
   /**
    * EventEmitter Logic
@@ -70,7 +69,6 @@ class Node<Context extends {}> extends AbstractNode<Context> {
 
   constructor() {
     super()
-    this.cached = {}
     this.ee = createNanoEvents<Events<Context>>()
   }
   public get<SearchToken extends keyof Context>(
@@ -79,15 +77,15 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     /**
      * FLOW A: We have this is in a current context
      */
-    if (this.context[token] != null) {
+    if (this._context[token] != null) {
       // Case 1: If this token was a funtion / provider it might be in a cache
-      const cachedValue = this.cached[token]
+      const cachedValue = this._cache[token]
       if (cachedValue != null) {
         return cachedValue
       }
 
       const storeInCache = (token: SearchToken, v: any) => {
-        this.cached[token] = v
+        this._cache[token] = v
 
         this.ee.emit("containerUpserted", {
           key: token,
@@ -95,7 +93,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
         })
       }
 
-      const tokenValue = this.context[token]
+      const tokenValue = this._context[token]
       // console.log("tok", token, typeof tokenValue, tokenValue)
       // Case 2: If this token is a function we must launch and cache it
       if (typeof tokenValue === "function") {
@@ -111,17 +109,17 @@ class Node<Context extends {}> extends AbstractNode<Context> {
 
     throw new SnowSplashResolveError(`Can't find token '${token}' value`)
   }
-  protected updateContext(updatedContext: Context) {
+  protected _updateContext(updatedContext: Context) {
     for (const [token, value] of Object.entries(updatedContext)) {
-      if (this.context[token] != null) {
+      if (this._context[token] != null) {
         this.ee.emit("containerUpdated", {
           key: token as any,
           newContainer: value as any,
         })
       }
       // Save state and clear cache
-      this.context[token] = value
-      this.cached[token] = null
+      this._context[token] = value
+      this._cache[token] = null
 
       this.ee.emit("containerUpserted", {
         key: token as any,
@@ -145,7 +143,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     [T in keyof Context]: T
   } {
     let tokens = Object.fromEntries(
-      Object.keys(this.context).map((el) => [el, el]),
+      Object.keys(this._context).map((el) => [el, el]),
     ) as any
     return tokens
   }
@@ -172,7 +170,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
   ): NodeApi<Assign4<Context, NewContext>> {
     // @ts-expect-error
     let nc = typeof newContext === "function" ? newContext(this) : newContext
-    this.updateContext(nc)
+    this._updateContext(nc)
     return this as any
   }
 
@@ -206,7 +204,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     return this.upsert(newContext)
   }
 
-  public _extractTokens<T extends keyof Context>(
+  private _extractTokens<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,
   ): T[] {
     let tokens = tokensOrCb
@@ -232,9 +230,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     })
   }
 
-  /**
-   * We can actually extract this into a wrapper class
-   */
+  // this can be optimized
   public async getContainerSet<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,
   ) {
