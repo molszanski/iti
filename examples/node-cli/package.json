@@ -9,13 +9,13 @@
     "mobx": "^6.3.12",
     "nodemon": "^2.0.15",
     "react": "^17.0.2",
-    "snow-splash": "^0.1.10",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.2"
   },
   "scripts": {
     "start": "node ./dist/server",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "serverWatch": "nodemon -x 'clear;node' ./dist/server"
   },
   "license": "MIT",
   "authors": [
