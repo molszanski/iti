@@ -1,14 +1,14 @@
 {
-  "name": "box-maker",
+  "name": "iti",
   "version": "0.4.0-alpha",
   "type": "module",
   "source": "src/index.ts",
   "exports": {
-    "require": "./dist/box-maker.cjs",
-    "default": "./dist/box-maker.modern.js"
+    "require": "./dist/iti.cjs",
+    "default": "./dist/iti.modern.js"
   },
-  "main": "./dist/box-maker.cjs",
-  "module": "./dist/box-maker.module.js",
+  "main": "./dist/iti.cjs",
+  "module": "./dist/iti.module.js",
   "typings": "./dist/src/index.d.ts",
   "files": [
     "dist"
@@ -49,7 +49,7 @@
   "authors": [
     "Nick Olszanski <nick@dinosaurs-with-jetpacks.com>"
   ],
-  "repository": "molszanski/box-maker",
+  "repository": "molszanski/iti",
   "keywords": [
     "ioc",
     "di",
@@ -62,7 +62,7 @@
     "typescript",
     "type-safe"
   ],
-  "homepage": "https://github.com/molszanski/box-maker",
+  "homepage": "https://github.com/molszanski/iti",
   "prettier": {
     "semi": false,
     "singleQuote": false,

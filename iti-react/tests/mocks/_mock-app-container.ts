@@ -1,4 +1,4 @@
-import { makeRoot } from "box-maker"
+import { makeRoot } from "iti"
 
 import { provideAContainer } from "./container.a"
 import { provideBContainer } from "./container.b"

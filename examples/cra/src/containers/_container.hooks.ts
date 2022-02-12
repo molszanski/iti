@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { getContainerSetHooks } from "box-maker-react"
+import { getContainerSetHooks } from "iti-react"
 import { PizzaAppContainer } from "./_root.store"
 
 export const MyRootCont = React.createContext(<PizzaAppContainer>{})
