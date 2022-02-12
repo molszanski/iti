@@ -23,8 +23,8 @@ export function getMainPizzaAppContainer() {
     .upsert((ctx) => ({
       bCont: async () =>
         provideBContainer(
-          await ctx.containers.auth(),
-          await ctx.containers.aCont(),
+          await ctx.containers.auth,
+          await ctx.containers.aCont,
         ),
     }))
     .upsert((c) => ({
