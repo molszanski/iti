@@ -4,8 +4,8 @@
   "description": "snow splash yarn monorepo root",
   "private": true,
   "workspaces": [
-    "snow-splash",
-    "snow-splash-react",
+    "iti",
+    "iti-react",
     "examples/cra"
   ],
   "devDependencies": {
