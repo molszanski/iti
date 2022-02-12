@@ -67,3 +67,25 @@ let containerSet2 = await cont.getContainerSet(({ aCont, bCont, cCont }) => ({
 let c = cont.tokens
 let containerSet2 = await cont.getContainerSet([c.aCont, c.bCont, c.Cont])
 ```
+
+```js
+// fromEntries :: [[a, b]] -> {a: b}
+// Does the reverse of Object.entries.
+const fromEntries = (list) => {
+  const result = {}
+
+  for (let [key, value] of list) {
+    result[key] = value
+  }
+
+  return result
+}
+
+// addAsset :: (k, Promise a) -> Promise (k, a)
+const addAsset = ([name, assetPromise]) =>
+  assetPromise.then((asset) => [name, asset])
+
+// loadAll :: {k: Promise a} -> Promise {k: a}
+const loadAll = (assets) =>
+  Promise.all(Object.entries(assets).map(addAsset)).then(fromEntries)
+```
