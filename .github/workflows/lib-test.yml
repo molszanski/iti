@@ -32,16 +32,16 @@ jobs:
         run: yarn install
 
       - name: Check types of a core package
-        run: cd box-maker && yarn tsd
+        run: cd snow-splash && yarn tsd
 
       - name: Run tests of a core package
-        run: cd box-maker && yarn test
+        run: cd snow-splash && yarn test
 
       - name: Check if a core package builds
-        run: cd box-maker && yarn build
+        run: cd snow-splash && yarn build
 
       - name: Check types of a react package
-        run: cd box-maker-react && yarn tsd
+        run: cd snow-splash-react && yarn tsd
 
       - name: Check if a react package builds
-        run: cd box-maker-react && yarn build
+        run: cd snow-splash-react && yarn build
