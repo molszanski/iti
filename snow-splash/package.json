@@ -1,14 +1,14 @@
 {
-  "name": "snow-splash",
+  "name": "box-maker",
   "version": "0.4.0-alpha",
   "type": "module",
   "source": "src/index.ts",
   "exports": {
-    "require": "./dist/snow-splash.cjs",
-    "default": "./dist/snow-splash.modern.js"
+    "require": "./dist/box-maker.cjs",
+    "default": "./dist/box-maker.modern.js"
   },
-  "main": "./dist/snow-splash.cjs",
-  "module": "./dist/snow-splash.module.js",
+  "main": "./dist/box-maker.cjs",
+  "module": "./dist/box-maker.module.js",
   "typings": "./dist/src/index.d.ts",
   "files": [
     "dist"
@@ -49,7 +49,7 @@
   "authors": [
     "Nick Olszanski <nick@dinosaurs-with-jetpacks.com>"
   ],
-  "repository": "molszanski/snow-splash",
+  "repository": "molszanski/box-maker",
   "keywords": [
     "ioc",
     "di",
@@ -62,7 +62,7 @@
     "typescript",
     "type-safe"
   ],
-  "homepage": "https://github.com/molszanski/snow-splash",
+  "homepage": "https://github.com/molszanski/box-maker",
   "prettier": {
     "semi": false,
     "singleQuote": false,
