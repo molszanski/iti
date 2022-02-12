@@ -1,6 +1,7 @@
 {
   "name": "iti",
   "version": "0.4.0-alpha",
+  "description": "~1kB inversion of control container for Typescript/Javascrith with a focus on async flow",
   "type": "module",
   "source": "src/index.ts",
   "exports": {
@@ -44,7 +45,6 @@
   "engines": {
     "node": ">=12"
   },
-  "description": "~1kB inversion of control container for Typescript/Javascrith with a focus on async flow",
   "license": "MIT",
   "authors": [
     "Nick Olszanski <nick@dinosaurs-with-jetpacks.com>"

@@ -15,7 +15,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "microbundle -o dist/  --jsx React.createElement",
+    "build": "rm -rf ./dist && microbundle -o dist/  --jsx React.createElement",
     "dev": "microbundle watch -o dist/ --jsx React.createElement",
     "test": "yarn tsd",
     "jestWatch": "jest --watch --verbose",
