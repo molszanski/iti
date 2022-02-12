@@ -30,34 +30,44 @@ npm install -S snow-splash
 ### Basic Usage
 
 ```ts
-// Step 1: Your application logic is stays clean
-class Oven {}
+// Step 1: Your application logic stays clean
+class Oven {
+  public pizzasInOven() {
+    return 3
+  }
+  public async preheat() {}
+}
 class Kitchen {
-  constructor(public oven: Oven) {}
+  constructor(public oven: Oven, public manual: string) {}
 }
 
-// Step 2: Connect your app to container and define tokens
-import { RootContainer } from "snow-splash"
-const ovenContainer = async () => ({
-  oven: new Oven(),
+// Step 2: Add and read simple tokens
+import { makeRoot } from "snow-splash"
+let root = makeRoot().add({
+  userManual: "Please preheat before use",
+  oven: () => new Oven(),
 })
-const kitchenContainer = async ({ oven }) => {
+root.get("oven")
+
+// Step 3: Add a usefull async provider / container
+const kitchenContainer = async ({ oven, userManual }) => {
   await oven.preheat()
   return {
-    kitchen: new Kitchen(oven),
+    kitchen: new Kitchen(oven, userManual),
   }
 }
-const kitchenApp = new RootContainer((ctx) => ({
-  // you can use tokens (`oven`, `kitchen`) here and later on
-  oven: async () => ovenContainer(),
-  kitchen: async () => kitchenContainer(await ctx.oven()),
-}))
 
+// Step 4: Add an async provider
+const node = root.add((node) => ({
+  kitchen: async () =>
+    kitchenContainer(await node.getContainerSet(["userManual", "oven"])),
+}))
+await node.get("kitchen")
 // Step 3: Use it
 
 // Node.js
-const { oven, kitchen } = await kitchenApp.containers
-console.log(`In Oven: ${oven.pizzasInOven()}`)
+const kitchen = await node.get("kitchen")
+console.log(`In Oven: ${kitchen.oven.pizzasInOven()}`)
 
 // React
 export const PizzaData = () => {
@@ -77,6 +87,59 @@ Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata`
 Firstly, decorators unnecessary couple your application logic with a framework.
 
 Secondly, it is very hard to use with starters like CRA, Next.js etc. To use `reflect-metadata` you need to configure your compiler (babel, typescrip, esbuild, swc etc.) configuratoin which is not trivial. So if you can’t use `reflect-metadata` you can't use inversify.
+
+## Short Manual
+
+**Reading**
+
+```ts
+// Get a single instance
+root.get("oven") // Creates a new Oven instance
+root.get("oven") // Gets a cached Oven instance
+
+await node.get("kitchen") // { kitchen: Kitchen } also cached
+await node.containers.kitchen // same as above
+
+// Get multiple instances at once
+await root.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
+await root.getContainerSet((c) => [c.userManual, c.oven]) // same as above
+
+// Subscribe to container changes
+node.subscribeToContiner("oven", (oven) => {})
+node.subscribeToContinerSet(["oven", "kitchen"], ({ oven, kitchen }) => {})
+// prettier-ignore
+node.subscribeToContinerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
+node.on("containerUpdated", ({ key, newContainer }) => {})
+node.on("containerUpserted", ({ key, newContainer }) => {})
+```
+
+**Writing**
+
+```ts
+let node1 = makeRoot()
+  .add({
+    userManual: "Please preheat before use",
+    oven: () => new Oven(),
+  })
+  .upsert((node) => ({
+    userManual: "Works better when hot",
+    preheatedOven: async () => {
+      await node.get("oven").preheat()
+      return node.get("oven")
+    },
+  }))
+
+// `add` is typesafe and a runtime safe method. Hence we've used `upsert`
+try {
+  node1.add({
+    // @ts-expect-error
+    userManual: "You shall not pass",
+    // Type Error: (property) userManual: "You are overwriting this token. It is not safe. Use an unsafe `upsert` method"
+  })
+} catch (err) {
+  err.message // Error Tokens already exist: ['userManual']
+}
+```
 
 ## Patterns and tips
 
@@ -157,38 +220,6 @@ await makeRoot()
 
 ## Anti Patterns
 
-### Doing expensive computation in an `addNode`
-
-if you add
-
-```ts
-const node = makeRoot()
-  .addPromise(async () => ({
-    a: async () => "A",
-    b: async () => "B",
-  }))
-  .addPromise(async (node) => {
-    await wait(500) // Antipattern!
-    return {
-      c: async () => "C",
-    }
-  })
-  // GOOD: This node is clean, and async code is moved into container internals
-   .addPromise(async (node) => {
-    return {
-      cd: async () => (await node.get("c")) + "D",,
-    }
-  })
-   .addPromise(async (node) => {
-    console.log('saving last node') // not a big deal, but pointless
-    return {
-      f: async () => "F"
-    }
-  })
-
-
-```
-
 ## Getting Started
 
 The best way to get started is to check [a CRA Pizza example](https://github.com/molszanski/snow-splash/tree/master/examples/cra/src/containers)
@@ -196,32 +227,29 @@ The best way to get started is to check [a CRA Pizza example](https://github.com
 Initial wiring
 
 ```ts
-import { makeRoot, RootContainer } from "../../library.root-container"
+import { makeRoot } from "../../src/library.new-root-container"
 
 import { provideAContainer } from "./container.a"
 import { provideBContainer } from "./container.b"
 import { provideCContainer } from "./container.c"
 
-interface Registry {
-  aCont: () => ReturnType<typeof provideAContainer>
-  bCont: () => ReturnType<typeof provideBContainer>
-  cCont: () => ReturnType<typeof provideCContainer>
-}
-
-type Lib = (...args: any) => { [K in keyof Registry]: Registry[K] }
-export type MockAppContainer = RootContainer<Lib, ReturnType<Lib>>
-
-function getProviders(ctx: Registry, root: MockAppContainer) {
-  return {
-    aCont: async () => provideAContainer(),
-    bCont: async () => provideBContainer(await ctx.aCont()),
-    cCont: async () =>
-      provideCContainer(await ctx.aCont(), await ctx.bCont(), root),
-  }
-}
-
+export type MockAppNode = ReturnType<typeof getMainMockAppContainer>
 export function getMainMockAppContainer() {
-  return makeRoot(getProviders)
+  let node = makeRoot()
+  let k = node
+    .add({ aCont: async () => provideAContainer() })
+    .add((c) => {
+      return {
+        bCont: async () => provideBContainer(await c.get("aCont")),
+      }
+    })
+    .add((c) => {
+      return {
+        cCont: async () =>
+          provideCContainer(await c.get("aCont"), await c.get("bCont"), k),
+      }
+    })
+  return k
 }
 ```
 
@@ -300,112 +328,9 @@ kitchen.oven.pizzaCapacity // 4
 
 ### `getContainerSetNew`
 
-### `replaceContainerInstantly`
+### `upsert`
 
 When containers are updated React is updated too via hooks
-
-## API documentation React
-
-### `getContainerSetHooks`
-
-Generates a set of app specific container hooks
-
-```ts
-// my-app-hooks.ts
-import React, { useContext } from "react"
-import { getContainerSetHooks } from "snow-splash"
-import { getProviders, PizzaAppContainer } from "./_root.store"
-
-export const MyRootCont = React.createContext(<PizzaAppContainer>{})
-
-let mega = getContainerSetHooks(getProviders, MyRootCont)
-export const useContainerSet = mega.useContainerSet
-export const useContainerSet = mega.useContainerSet
-```
-
-```tsx
-// PizzaData.tsx
-import { useContainerSet } from "./my-app-hooks"
-export const PizzaData = () => {
-  const containerSet = useContainerSet((containers) => [containers.kitchen])
-  console.log(containerSet)
-  return 123
-}
-```
-
-### `useContainer`
-
-```ts
-export const PizzaData = () => {
-  const [kitchenContainer, err] = useContainer().kitchen
-  if (!kitchenContainer || err) {
-    return <>Kitchen is loading</>
-  }
-
-  return <>{kitchenContainer.oven.pizzasInOven}</>
-}
-```
-
-### `useContainerSet`
-
-Get multiple containers and autosubscribes to change.
-
-```ts
-export const PizzaData = () => {
-  const containerSet = useContainerSet((containers) => [
-    containers.kitchen,
-    containers.auth,
-  ])
-  if (!containerSet) {
-    return <>Kitchen is loading</>
-  }
-
-  return <>{containerSet.kitchen.oven.pizzasInOven}</>
-}
-```
-
-###
-
-### `generateEnsureContainerSet`
-
-You can create a simpler API for a portion of your applicatoin to avoid dealing with async in every component. There are some helpfull Context helpers at your service. Also you can use classic props drilling to avoid dealing with async flow in every component
-
-```tsx
-import React, { useContext } from "react"
-import { useContainerSet } from "../containers/_container.hooks"
-import { generateEnsureContainerSet } from "snow-splash"
-
-const x = generateEnsureContainerSet(() =>
-  useContainerSet(["kitchen", "pizzaContainer", "auth"]),
-)
-export const EnsureNewKitchenConainer = x.EnsureWrapper
-export const useNewKitchenContext = x.contextHook
-```
-
-```tsx
-export const PizzaApp = () => {
-  return (
-    <div>
-      Pizza App:
-      <EnsureNewKitchenConainer
-        fallback={<>Pizza App is still loading please wait</>}
-      >
-        <NewPizzaPlaceControls />
-      </EnsureNewKitchenConainer>
-    </div>
-  )
-}
-export const PizzaData = () => {
-  const { kitchen, pizzaContainer } = useNewKitchenContext()
-
-  return (
-    <div>
-      <div>Name: {kitchen.kitchen.kitchenName}</div>
-      <div>Tables: {pizzaContainer.diningTables.tables}</div>
-    </div>
-  )
-}
-```
 
 ## Comparison with `inversifyjs`, `tsyringe` and others
 
@@ -489,55 +414,6 @@ Notable inspirations:
 
 Yes, no problem at all. If you want, they can even share tokens and hence instances!
 
-**Why `getContainerSet` and others are always async?**
+**Why `getContainerSet` is always async?**
 
 This is temporary(?) limitation to keep typescript happy and typescript types reasonable sane
-
-**Why do I need to use `seal` / `resolve` to close `addNode` chain?**
-
-Basically, there are two options: chain and pipe. Implementing `pipe` to be typesafe
-
-```js
-// Syntax 1
-let n1 = await Node()
-  .addNode({ a: "A", b: "B" })
-  .addNode((node) => ({
-    ab: node.get("a") + node.get("b"),
-    c: async () => "C",
-  }))
-  .addNode(async (node) => ({
-    ac: node.get("a") + (await node.get(c)),
-  }))
-  .seal()
-
-// Syntax 2
-let n2 = await Node().pipe(
-  { a: "A", b: "B" },
-  (node) => ({
-    ab: node.get("a") + node.get("b"),
-    c: async () => "C",
-  }),
-  async (node) => ({
-    ac: node.get("a") + (await node.get(c)),
-  }),
-)
-```
-
-**Why nodes run twice?**
-
-```ts
-let node = await makeRoot()
-  .addPromise(async () => ({
-    a: "A",
-  }))
-  .addPromise(async (c) => {
-    console.log("containers:", c.get("a"))
-    return {
-      c: () => "C",
-    }
-  })
-  .seal()
-// prints: "containers: undefined"
-
-node.get("c") // prints: "containers: defined"
-```

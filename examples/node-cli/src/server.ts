@@ -1,7 +1,7 @@
 import _ from "lodash"
 import { makeRoot } from "snow-splash"
 
-// Step 0: Your application logic stays clean
+// Step 1: Your application logic stays clean
 class Oven {
   public pizzasInOven() {
     return 3
@@ -12,14 +12,14 @@ class Kitchen {
   constructor(public oven: Oven, public manual: string) {}
 }
 
-// Step 1: Add and read simple tokens
+// Step 2: Add and read simple tokens
 let root = makeRoot().add({
   userManual: "Please preheat before use",
   oven: () => new Oven(),
 })
 root.get("oven")
 
-// Step 2: Add a usefull async provider / container
+// Step 3: Add a usefull async provider / container
 const kitchenContainer = async ({ oven, userManual }) => {
   await oven.preheat()
   return {
@@ -27,10 +27,10 @@ const kitchenContainer = async ({ oven, userManual }) => {
   }
 }
 
-// Step 3: Add an async provider
-const node = root.add((node) => ({
+// Step 4: Add an async provider
+const node = root.add((n) => ({
   kitchen: async () =>
-    kitchenContainer(await node.getContainerSet(["userManual", "oven"])),
+    kitchenContainer(await n.getContainerSet(["userManual", "oven"])),
 }))
 await node.get("kitchen")
 
