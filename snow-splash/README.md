@@ -29,7 +29,7 @@ npm install -S snow-splash
 
 ### Basic Usage
 
-```ts
+```tsx
 // Step 1: Your application logic stays clean
 class Oven {
   public pizzasInOven() {
@@ -56,29 +56,20 @@ const kitchenContainer = async ({ oven, userManual }) => {
     kitchen: new Kitchen(oven, userManual),
   }
 }
-
 // Step 4: Add an async provider
 const node = root.add((node) => ({
   kitchen: async () =>
     kitchenContainer(await node.getContainerSet(["userManual", "oven"])),
 }))
-await node.get("kitchen")
-// Step 3: Use it
+root.get("oven") // Oven
+await node.get("kitchen") // { kitchen: Kitchen }
 
-// Node.js
-const kitchen = await node.get("kitchen")
-console.log(`In Oven: ${kitchen.oven.pizzasInOven()}`)
-
-// React
+// Typical usage in React
 export const PizzaData = () => {
-  const kitchenSet = useContainerSet(["oven", "kitchen"])
-  if (!kitchenSet) return <>Kitchen is loading </>
-  let inOven = kitchenSet.oven.pizzasInOven()
-  return <>Pizzaz In Oven: {inOven}</>
+  const [oven] = useContainer().oven
+  return <> Pizzaz In Oven: {oven.pizzasInOven()}</>
 }
 ```
-
-If you don't want to wait for containers in every React component check `generateEnsureContainerSet` hook example.
 
 ## Why another library?
 
