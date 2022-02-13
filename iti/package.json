@@ -1,6 +1,6 @@
 {
   "name": "iti",
-  "version": "0.4.0-alpha",
+  "version": "0.3.0-alpha",
   "description": "~1kB inversion of control container for Typescript/Javascrith with a focus on async flow",
   "type": "module",
   "source": "src/index.ts",
