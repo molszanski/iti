@@ -169,10 +169,18 @@ export class NodeApi<Context extends {}> extends Node<Context> {
 
   // SAVE: NewContext extends {! [T in keyof NewContext]: NewContext[T] }
   public upsert<NewContext extends {}>(
-    newContext: NewContext | ((self: NodeApi<Context>) => NewContext),
+    newContext:
+      | NewContext
+      | ((
+          containers: ContextGetter<Context>,
+          self: NodeApi<Context>,
+        ) => NewContext),
   ): NodeApi<Assign4<Context, NewContext>> {
-    // @ts-expect-error
-    let nc = typeof newContext === "function" ? newContext(this) : newContext
+    let nc =
+      typeof newContext === "function"
+        ? // @ts-expect-error
+          newContext(this.containers, this)
+        : newContext
     this._updateContext(nc)
     return this as any
   }

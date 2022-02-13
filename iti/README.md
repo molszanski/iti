@@ -112,11 +112,11 @@ let node1 = makeRoot()
     userManual: "Please preheat before use",
     oven: () => new Oven(),
   })
-  .upsert((node) => ({
+  .upsert((containers, node) => ({
     userManual: "Works better when hot",
     preheatedOven: async () => {
-      await node.get("oven").preheat()
-      return node.get("oven")
+      await containers.oven.preheat()
+      return containers.oven
     },
   }))
 
