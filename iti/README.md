@@ -1,25 +1,32 @@
-<a href="https://www.npmjs.org/package/iti"><img src="https://img.shields.io/npm/v/iti.svg" alt="npm"></a>
-![CI](https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg)
-<a href="https://unpkg.com/iti/dist/iti.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip" alt="gzip size"></a>
-
-🚧 **library is in beta mode** 🚧
+<p align="center">
+  <a href="https://www.npmjs.org/package/iti">
+    <img src="https://img.shields.io/npm/v/iti.svg" alt="npm">
+  </a>
+  <a href="https://unpkg.com/iti/dist/iti.modern.js">
+    <img src="https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip" alt="gzip size">
+  </a>
+  <a href="https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg">
+    <img src="https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg" alt="CI">
+  </a>
+  <br/>
+  <strong>🚧 library is in an alpha mode 🚧</strong>
+</p>
 
 # Iti
 
 > ~1kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
 
-- **fully async:** merges async code and a constructor injection via async functions (asynchronous factory pattern)
-- **non-invasive:** does not require library `@decorators` or framework `extends` in your application logic
+- **fully async:** merges async code and constructor injection via plain async functions
+- **non-invasive:** does not require imported `@decorators` or framework `extends` in your application logic
 - **lazy:** initialises your app modules and containers on demand
+- **strongly typed:** has great IDE autocomplete and compile time check. Without any [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
 - **split chunks:** enables [dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports) via a [one liner](#dynamic-imports) thanks to a fully async core
-- **Strongly typed:** With great IDE autocomplete and compile tme check. Works without [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
-- **lightweight:** doesn't rely on `reflect-metadata` or decorators
-- **starter friendly:** works with starters like [Create React App](https://create-React-app.dev/) or [Next.js](https://nextjs.org/docs/getting-started) unlike [InversifyJS](https://github.com/inversify/InversifyJS) or [microsoft/tsyringe](https://github.com/microsoft/tsyringe)
-- **no Babel config:** it doesn't require `reflect-metadata` or decorators so there are no need to hack in decorator and `"decoratorMetadata"` support into Create React App, node.js, next.js, snowpack, esbuild etc.
-- **React support:** has useful React bindings to help separate application logic and React view layer
-- **tiny:** less than 2kB
+- **React friendly:** has useful [React bindings](https://github.com/molszanski/iti/tree/master/iti-react) to help you separate application logic and a React view layer
+- **starter friendly:** works with starters like [Create React App](https://create-React-app.dev/) or [Next.js](https://nextjs.org/docs/getting-started) unlike existing libraries
+- **no Babel config:** doesn't require `reflect-metadata` or decorators so there is no need to hack in decorator and `"decoratorMetadata"` support in to your build configs
+- **tiny:** less than 1kB
 
-`iti` is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns. There is no need to learn complex API to use it in a full capacity.
+Iti is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns. There is no need to learn complex API to use it in a full capacity.
 
 ## Usage
 
@@ -41,28 +48,23 @@ class Kitchen {
   constructor(public oven: Oven, public manual: string) {}
 }
 
-// Step 2: Add and read simple tokens
+// Step 2: Add sync and async dependencies
 import { makeRoot } from "iti"
-let root = makeRoot().add({
-  userManual: "Please preheat before use",
-  oven: () => new Oven(),
-})
-root.get("oven")
+let root = makeRoot()
+  .add({
+    userManual: "Please preheat before use",
+    oven: () => new Oven(),
+  })
+  .add((containers) => ({
+    kitchen: async () => {
+      await containers.oven.preheat()
+      return new Kitchen(containers.oven, containers.userManual)
+    },
+  }))
 
-// Step 3: Add a usefull async provider / container
-const kitchenContainer = async ({ oven, userManual }) => {
-  await oven.preheat()
-  return {
-    kitchen: new Kitchen(oven, userManual),
-  }
-}
-// Step 4: Add an async provider
-const node = root.add((containers, node) => ({
-  kitchen: async () =>
-    kitchenContainer(await node.getContainerSet(["userManual", "oven"])),
-}))
+// Step 3: Read data
 root.get("oven") // Oven
-await node.get("kitchen") // { kitchen: Kitchen }
+await root.get("kitchen") // Kitchen
 
 // Typical React usage
 export const PizzaData = () => {
@@ -71,13 +73,19 @@ export const PizzaData = () => {
 }
 ```
 
-## Why another library?
+### Why another library?
 
-Libraries like InversifyJS or tsyringe rely on decorators and `reflect-metadata`.
+The main reason is that existing libraries don’t support asynchronous code. They either provide a promise to your constructor or require one to imperatively execute all potentially async code before the binding phase. Far from ideal.
 
-Firstly, decorators unnecessary couple your application logic with a framework.
+This is the reason I started the project
 
-Secondly, it is very hard to use with starters like CRA, Next.js etc. To use `reflect-metadata` you need to configure your compiler (babel, typescrip, esbuild, swc etc.) configuratoin which is not trivial. So if you can’t use `reflect-metadata` you can't use inversify.
+Secondly, they rely on decorators and `reflect-metadata`
+
+Decorators create unnecessary coupling of an application logic with a framework. The whole idea of DI is to decouple the application logic. Coupling classes with a DI framework is still coupling and turns DI into a service locator.
+
+Also, decorator support is an experimental feature in Typescript and current implementation is not compatible with the TC39 proposal. This will probably cause problems for any non-trivial decorators and babel hacks.
+
+In addition to that it is very hard to use `reflect-metadata` with starters like CRA, Next.js etc. To use `reflect-metadata` you need to tweak your compilers (babel, typescript, esbuild, swc etc.) configuration. So if you can’t use `reflect-metadata` you can’t use `inversify` or `tsyringe`.
 
 ## Short Manual
 
