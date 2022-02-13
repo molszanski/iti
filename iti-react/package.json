@@ -1,0 +1,55 @@
+{
+  "name": "iti-react",
+  "version": "0.3.0-alpha",
+  "description": "Handy React bindings for iti",
+  "type": "module",
+  "source": "src/index.ts",
+  "exports": {
+    "require": "./dist/iti-react.cjs",
+    "default": "./dist/iti-react.modern.js"
+  },
+  "main": "./dist/iti-react.cjs",
+  "module": "./dist/iti-react.module.js",
+  "typings": "./dist/src/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf ./dist && microbundle -o dist/  --jsx React.createElement",
+    "dev": "microbundle watch -o dist/ --jsx React.createElement",
+    "test": "yarn tsd",
+    "jestWatch": "jest --watch --verbose",
+    "tsd": "tsd tsd_project",
+    "prepare-not": "install-peers"
+  },
+  "dependencies": {
+    "utility-types": "^3.10.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/react-hooks": "^7.0.2",
+    "@types/jest": "^27.4.0",
+    "@types/react": "^17.0.38",
+    "install-peers-cli": "^2.2.0",
+    "jest": "^27.4.7",
+    "microbundle": "^0.14.2",
+    "nodemon": "^2.0.15",
+    "ts-jest": "^27.1.3",
+    "iti": "0.3.0-alpha",
+    "tsd": "^0.19.1",
+    "typescript": "^4.5.5"
+  },
+  "peerDependencies": {
+    "react": ">=16",
+    "react-dom": "^17.0.2"
+  },
+  "repository": "https://github.com/molszanski/iti",
+  "author": "Nick Olszanski",
+  "license": "MIT",
+  "prettier": {
+    "semi": false,
+    "singleQuote": false,
+    "arrowParens": "always",
+    "trailingComma": "all"
+  }
+}

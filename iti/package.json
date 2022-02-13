@@ -1,23 +1,23 @@
 {
-  "name": "snow-splash-react",
-  "version": "0.4.0-alpha",
-  "description": "Handy React bindings for snow-splash",
+  "name": "iti",
+  "version": "0.3.0-alpha",
+  "description": "~1kB inversion of control container for Typescript/Javascrith with a focus on async flow",
   "type": "module",
   "source": "src/index.ts",
   "exports": {
-    "require": "./dist/snow-splash-react.cjs",
-    "default": "./dist/snow-splash-react.modern.js"
+    "require": "./dist/iti.cjs",
+    "default": "./dist/iti.modern.js"
   },
-  "main": "./dist/snow-splash-react.cjs",
-  "module": "./dist/snow-splash-react.module.js",
+  "main": "./dist/iti.cjs",
+  "module": "./dist/iti.module.js",
   "typings": "./dist/src/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "microbundle -o dist/  --jsx React.createElement",
-    "dev": "microbundle watch -o dist/ --jsx React.createElement",
-    "test": "yarn tsd",
+    "_build": "rm -rf ./dist && microbundle build -o dist/ && cp -R src/* dist/src",
+    "build": "rm -rf ./dist && microbundle build -o dist/",
+    "test": "yarn jest && yarn tsd",
     "jestWatch": "jest --watch --verbose",
     "tsd": "tsd tsd_project",
     "prepare-not": "install-peers"
@@ -35,7 +35,6 @@
     "microbundle": "^0.14.2",
     "nodemon": "^2.0.15",
     "ts-jest": "^27.1.3",
-    "snow-splash": "0.4.0-alpha",
     "tsd": "^0.19.1",
     "typescript": "^4.5.5"
   },
@@ -43,9 +42,27 @@
     "react": ">=16",
     "react-dom": "^17.0.2"
   },
-  "repository": "https://github.com/molszanski/snow-splash",
-  "author": "Nick Olszanski",
+  "engines": {
+    "node": ">=12"
+  },
   "license": "MIT",
+  "authors": [
+    "Nick Olszanski <nick@dinosaurs-with-jetpacks.com>"
+  ],
+  "repository": "molszanski/iti",
+  "keywords": [
+    "ioc",
+    "di",
+    "inversion of control",
+    "dependency injection",
+    "dependency inversion",
+    "inversion of control container",
+    "container",
+    "javascript",
+    "typescript",
+    "type-safe"
+  ],
+  "homepage": "https://github.com/molszanski/iti",
   "prettier": {
     "semi": false,
     "singleQuote": false,

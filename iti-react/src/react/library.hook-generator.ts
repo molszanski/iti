@@ -1,4 +1,4 @@
-import type { NodeApi, UnpackFunction } from "snow-splash"
+import type { NodeApi, UnpackFunction } from "iti"
 import React, { useContext, useEffect, useState } from "react"
 import { useBetterGenericContainer } from "./library.hooks"
 import { addGetter, UnPromisify } from "../_utils"

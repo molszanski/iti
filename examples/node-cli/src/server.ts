@@ -1,5 +1,5 @@
 import _ from "lodash"
-import { makeRoot } from "snow-splash"
+import { makeRoot } from "iti"
 
 // Step 1: Your application logic stays clean
 class Oven {

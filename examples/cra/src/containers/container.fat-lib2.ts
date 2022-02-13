@@ -1,5 +1,5 @@
 import type { FatLib2_3MB } from "../fat-libs/fat-lib2"
-import type { GetContainerFormat } from "snow-splash"
+import type { GetContainerFormat } from "iti"
 
 let x: FatLib2_3MB
 /**

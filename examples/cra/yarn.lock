@@ -7540,9 +7540,9 @@ slash@^4.0.0:
   resolved "https://registry.yarnpkg.com/slash/-/slash-4.0.0.tgz#2422372176c4c6c5addb5e2ada885af984b396a7"
   integrity sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew==
 
-snow-splash@^0.1.4:
+iti@^0.1.4:
   version "0.1.4"
-  resolved "https://registry.yarnpkg.com/snow-splash/-/snow-splash-0.1.4.tgz#1da99cc318678450a7d84d10cc817bc495c9c1ba"
+  resolved "https://registry.yarnpkg.com/iti/-/iti-0.1.4.tgz#1da99cc318678450a7d84d10cc817bc495c9c1ba"
   integrity sha512-kfIWMnBadaKPfBsFVWYCdlsgGtU7Avoyza2bvdHwQ0fvO+ZGowVOsUqopOY1/zLWlPBmRfmVptxG2vqfBbNtiw==
   dependencies:
     mitt "^3.0.0"

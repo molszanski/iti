@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { generateEnsureContainerSet } from "snow-splash-react"
+import { generateEnsureContainerSet } from "iti-react"
 import { useContainerSet } from "../containers/_container.hooks"
 
 const x = generateEnsureContainerSet(() =>
