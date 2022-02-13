@@ -12,7 +12,7 @@
 - **non-invasive:** does not require library `@decorators` or framework `extends` in your application logic
 - **lazy:** initialises your app modules and containers on demand
 - **split chunks:** enables [dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports) via a [one liner](#dynamic-imports) thanks to a fully async core
-- **typesafe:** works with typescript without [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
+- **Strongly typed:** With great IDE autocomplete and compile tme check. Works without [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
 - **lightweight:** doesn't rely on `reflect-metadata` or decorators
 - **starter friendly:** works with starters like [Create React App](https://create-React-app.dev/) or [Next.js](https://nextjs.org/docs/getting-started) unlike [InversifyJS](https://github.com/inversify/InversifyJS) or [microsoft/tsyringe](https://github.com/microsoft/tsyringe)
 - **no Babel config:** it doesn't require `reflect-metadata` or decorators so there are no need to hack in decorator and `"decoratorMetadata"` support into Create React App, node.js, next.js, snowpack, esbuild etc.
