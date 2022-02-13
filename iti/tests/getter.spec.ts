@@ -15,17 +15,17 @@ describe("Node long chain async", () => {
       let r = root
         .add({ a: "A" })
         .add({ k: "K" })
-        .upsert((c) => ({
+        .upsert((c, node) => ({
           a: 22,
           c: async () => {
-            expect(c.get("a")).toBe(22)
+            expect(c.a).toBe(22)
             return "C"
           },
         }))
-        .upsert((c) => ({
+        .upsert((c, node) => ({
           b: "B",
           c: async () => {
-            expect(c.get("a")).toBe(22)
+            expect(node.get("a")).toBe(22)
             return "C"
           },
         }))
@@ -91,7 +91,7 @@ describe("Node long chain async", () => {
       let r = root
         .add({ a: "A" })
         .upsert((c) => {
-          expect(c.get("a")).toBe("A")
+          expect(c.a).toBe("A")
           return { a: 22 }
         })
         .add((containers) => {

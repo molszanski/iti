@@ -21,7 +21,7 @@ describe("Perf and exotic tests:", () => {
           }))
           .upsert((c) => ({
             d: async () => {
-              expect(await c.containers.b).toBe("B")
+              expect(await c.b).toBe("B")
               return "D"
             },
           }))
