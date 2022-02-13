@@ -1,10 +1,10 @@
-<a href="https://www.npmjs.org/package/snow-splash"><img src="https://img.shields.io/npm/v/snow-splash.svg" alt="npm"></a>
-![CI](https://github.com/molszanski/snow-splash/actions/workflows/lib-test.yml/badge.svg)
-<a href="https://unpkg.com/snow-splash/dist/snow-splash.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/snow-splash/dist/snow-splash.modern.js?compression=gzip" alt="gzip size"></a>
+<a href="https://www.npmjs.org/package/iti-react"><img src="https://img.shields.io/npm/v/iti-react.svg" alt="npm"></a>
+![CI](https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg)
+<a href="https://unpkg.com/iti-react/dist/iti-react.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/iti-react/dist/iti-react.modern.js?compression=gzip" alt="gzip size"></a>
 
-🚧 **library is in alpha dev mode** 🚧
+🚧 **library in beta** 🚧
 
-# Snow Splash React
+# Iti React
 
 > ~2kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
 
@@ -13,7 +13,7 @@
 ## Usage
 
 ```
-npm install -S snow-splash-react
+npm install -S iti-react
 ```
 
 ### Basic Usage
@@ -37,7 +37,7 @@ Generates a set of app specific container hooks
 ```ts
 // my-app-hooks.ts
 import React, { useContext } from "react"
-import { getContainerSetHooks } from "snow-splash"
+import { getContainerSetHooks } from "iti-react"
 import { getProviders, PizzaAppContainer } from "./_root.store"
 
 export const MyRootCont = React.createContext(<PizzaAppContainer>{})
@@ -97,7 +97,7 @@ You can create a simpler API for a portion of your applicatoin to avoid dealing 
 ```tsx
 import React, { useContext } from "react"
 import { useContainerSet } from "../containers/_container.hooks"
-import { generateEnsureContainerSet } from "snow-splash"
+import { generateEnsureContainerSet } from "iti-react"
 
 const x = generateEnsureContainerSet(() =>
   useContainerSet(["kitchen", "pizzaContainer", "auth"]),

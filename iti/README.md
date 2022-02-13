@@ -1,12 +1,12 @@
-<a href="https://www.npmjs.org/package/snow-splash"><img src="https://img.shields.io/npm/v/snow-splash.svg" alt="npm"></a>
-![CI](https://github.com/molszanski/snow-splash/actions/workflows/lib-test.yml/badge.svg)
-<a href="https://unpkg.com/snow-splash/dist/snow-splash.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/snow-splash/dist/snow-splash.modern.js?compression=gzip" alt="gzip size"></a>
+<a href="https://www.npmjs.org/package/iti"><img src="https://img.shields.io/npm/v/iti.svg" alt="npm"></a>
+![CI](https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg)
+<a href="https://unpkg.com/iti/dist/iti.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip" alt="gzip size"></a>
 
-🚧 **library is in alpha dev mode** 🚧
+🚧 **library is in beta mode** 🚧
 
 # Iti
 
-> ~2kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
+> ~1kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
 
 - **fully async:** merges async code and a constructor injection via async functions (asynchronous factory pattern)
 - **non-invasive:** does not require library `@decorators` or framework `extends` in your application logic
@@ -57,14 +57,14 @@ const kitchenContainer = async ({ oven, userManual }) => {
   }
 }
 // Step 4: Add an async provider
-const node = root.add((node) => ({
+const node = root.add((containers, node) => ({
   kitchen: async () =>
     kitchenContainer(await node.getContainerSet(["userManual", "oven"])),
 }))
 root.get("oven") // Oven
 await node.get("kitchen") // { kitchen: Kitchen }
 
-// Typical usage in React
+// Typical React usage
 export const PizzaData = () => {
   const [oven] = useContainer().oven
   return <> Pizzaz In Oven: {oven.pizzasInOven()}</>
@@ -229,15 +229,14 @@ export function getMainMockAppContainer() {
   let node = makeRoot()
   let k = node
     .add({ aCont: async () => provideAContainer() })
-    .add((c) => {
+    .add((containers) => {
       return {
-        bCont: async () => provideBContainer(await c.get("aCont")),
+        bCont: async () => provideBContainer(await containers.aCont),
       }
     })
     .add((c) => {
       return {
-        cCont: async () =>
-          provideCContainer(await c.get("aCont"), await c.get("bCont"), k),
+        cCont: async () => provideCContainer(await c.aCont, await c.bCont, k),
       }
     })
   return k
