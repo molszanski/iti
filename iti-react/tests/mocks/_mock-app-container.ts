@@ -11,13 +11,13 @@ export function getMainMockAppContainer() {
     .upsert({ aCont: async () => provideAContainer() })
     .upsert((c) => {
       return {
-        bCont: async () => provideBContainer(await c.get("aCont")),
+        bCont: async () => provideBContainer(await c.aCont),
       }
     })
-    .upsert((c) => {
+    .upsert((c, node) => {
       return {
         cCont: async () =>
-          provideCContainer(await c.get("aCont"), await c.get("bCont"), k),
+          provideCContainer(await c.aCont, await node.get("bCont"), k),
       }
     })
   return k
