@@ -1,7 +1,7 @@
 import { Intersection } from "utility-types"
 import { createNanoEvents, Emitter } from "./nanoevents"
 import { addGetter, Assign4, UnPromisify } from "./_utils"
-import { SnowSplashResolveError, SnowSplashTokenError } from "./errors"
+import { ItiResolveError, ItiTokenError } from "./errors"
 type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
 
 export type UnpackFunction<T> = T extends (...args: any) => infer U ? U : T
@@ -107,7 +107,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       return tokenValue as any
     }
 
-    throw new SnowSplashResolveError(`Can't find token '${token}' value`)
+    throw new ItiResolveError(`Can't find token '${token}' value`)
   }
   protected _updateContext(updatedContext: Context) {
     for (const [token, value] of Object.entries(updatedContext)) {
@@ -211,7 +211,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     var existingTokens = Object.keys(this.getTokens())
     let duplicates = existingTokens.filter((x) => newContext[x] != null)
     if (duplicates.length !== 0) {
-      throw new SnowSplashTokenError(
+      throw new ItiTokenError(
         `Tokens already exist: ['${duplicates.join("', '")}']`,
       )
     }

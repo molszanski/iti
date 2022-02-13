@@ -4,7 +4,7 @@
 
 🚧 **library is in alpha dev mode** 🚧
 
-# Snow Splash
+# Iti
 
 > ~2kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
 
@@ -19,12 +19,12 @@
 - **React support:** has useful React bindings to help separate application logic and React view layer
 - **tiny:** less than 2kB
 
-Snow-Splash is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns. There is no need to learn complex API to use it in a full capacity.
+`iti` is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns. There is no need to learn complex API to use it in a full capacity.
 
 ## Usage
 
 ```
-npm install -S snow-splash
+npm install -S iti
 ```
 
 ### Basic Usage
@@ -42,7 +42,7 @@ class Kitchen {
 }
 
 // Step 2: Add and read simple tokens
-import { makeRoot } from "snow-splash"
+import { makeRoot } from "iti"
 let root = makeRoot().add({
   userManual: "Please preheat before use",
   oven: () => new Oven(),
@@ -213,7 +213,7 @@ await makeRoot()
 
 ## Getting Started
 
-The best way to get started is to check [a CRA Pizza example](https://github.com/molszanski/snow-splash/tree/master/examples/cra/src/containers)
+The best way to get started is to check [a CRA Pizza example](https://github.com/molszanski/iti/tree/master/examples/cra/src/containers)
 
 Initial wiring
 
@@ -246,7 +246,7 @@ export function getMainMockAppContainer() {
 
 ## Typescript
 
-Snow-Splash has a good typescript support
+Iti has a great typescript support. All types are resolved automatically and check at compile time.
 
 ![Autocomplete](./docs/1.png)
 ![Autocomplete](./docs/2.png)
@@ -363,7 +363,7 @@ class Baz {
 }
 ```
 
-With Snow-Splash your application logic is not mixed with the framework code
+With Iti your application logic is not mixed with the framework code
 
 ```ts
 import type { Ingredients } from "./store.ingrediets"

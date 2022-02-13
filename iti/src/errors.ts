@@ -1,3 +1,3 @@
-export class SnowSplashError extends Error {}
-export class SnowSplashResolveError extends SnowSplashError {}
-export class SnowSplashTokenError extends SnowSplashError {}
+export class ItiError extends Error {}
+export class ItiResolveError extends ItiError {}
+export class ItiTokenError extends ItiError {}
