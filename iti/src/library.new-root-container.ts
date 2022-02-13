@@ -158,6 +158,9 @@ type KeysOrCbWIthArg<Context, ARG> = Context | ((t: ARG) => Context)
 type MyRecord<O extends {}, T> = {
   [K in keyof O]: T
 }
+type ContextGetter<Context extends {}> = {
+  [CK in keyof Context]: UnpackFunction<Context[CK]>
+}
 
 export class NodeApi<Context extends {}> extends Node<Context> {
   constructor() {
@@ -184,11 +187,16 @@ export class NodeApi<Context extends {}> extends Node<Context> {
       NewContext
     >,
   >(
-    newContextOrCb: NewContext | ((self: NodeApi<Context>) => NewContext),
+    newContextOrCb:
+      | NewContext
+      | ((
+          containers: ContextGetter<Context>,
+          self: NodeApi<Context>,
+        ) => NewContext),
   ): NodeApi<Assign4<Context, NewContext>> {
     let newContext =
       typeof newContextOrCb === "function"
-        ? newContextOrCb(this)
+        ? newContextOrCb(this.containers, this)
         : newContextOrCb
 
     // Step 1: Runtime check for existing tokens in context
@@ -260,11 +268,8 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     return containerDecoratedMap
   }
 
-  public get containers() {
-    type ContainerGetter = {
-      [CK in keyof Context]: UnpackFunction<Context[CK]>
-    }
-    let containerMap = <ContainerGetter>{}
+  public get containers(): ContextGetter<Context> {
+    let containerMap = <ContextGetter<Context>>{}
     for (let key in this.getTokens()) {
       addGetter(containerMap, key, () => {
         return this.get(key as any)

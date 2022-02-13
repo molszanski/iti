@@ -9,15 +9,14 @@ export function getMainMockAppContainer() {
   let node = makeRoot()
   let k = node
     .add({ aCont: async () => provideAContainer() })
-    .add((c) => {
+    .add((c, node) => {
       return {
-        bCont: async () => provideBContainer(await c.get("aCont")),
+        bCont: async () => provideBContainer(await node.get("aCont")),
       }
     })
     .add((c) => {
       return {
-        cCont: async () =>
-          provideCContainer(await c.get("aCont"), await c.get("bCont"), k),
+        cCont: async () => provideCContainer(await c.aCont, await c.bCont, k),
       }
     })
   return k

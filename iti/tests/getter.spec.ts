@@ -29,7 +29,7 @@ describe("Node long chain async", () => {
             return "C"
           },
         }))
-        .add((c) => {
+        .add(() => {
           return { f: "F", g: "G" }
         })
 
@@ -94,8 +94,8 @@ describe("Node long chain async", () => {
           expect(c.get("a")).toBe("A")
           return { a: 22 }
         })
-        .add((c) => {
-          expect(c.get("a")).toBe(22)
+        .add((containers) => {
+          expect(containers.a).toBe(22)
           return { b: "B", c: "C" }
         })
 
@@ -248,12 +248,12 @@ describe("Node add", () => {
     let r = await root
       .add({ a: "A" })
       .add({ k: "A" })
-      .add((c) => {
-        expect(c.get("a")).toBe("A")
+      .add((containers) => {
+        expect(containers.a).toBe("A")
         return { b: "B", c: "C" }
       })
-      .add((c) => {
-        expect(c.get("b")).toBe("B")
+      .add((containers, node) => {
+        expect(node.get("b")).toBe("B")
         return { f: "F", g: "G" }
       })
     expect(r.get("f")).toBe("F")
@@ -306,10 +306,10 @@ describe("Node add", () => {
             c: () => "C",
           }
         })
-        .add((c) => {
+        .add((c, node) => {
           return {
             d: () => "D",
-            cd: () => c.get("c") + "D",
+            cd: () => node.get("c") + "D",
           }
         })
 
