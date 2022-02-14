@@ -1,91 +1,80 @@
-<p align="center">
-  <a href="https://www.npmjs.org/package/iti">
-    <img src="https://img.shields.io/npm/v/iti.svg" alt="npm">
-  </a>
-  <a href="https://unpkg.com/iti/dist/iti.modern.js">
-    <img src="https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip" alt="gzip size">
-  </a>
-  <a href="https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg">
-    <img src="https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg" alt="CI">
-  </a>
-  <br/>
-  <strong>🚧 library is in an alpha mode 🚧</strong>
-</p>
+# Iti [![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url]
 
-# Iti
+[gzip-url]: https://unpkg.com/iti/dist/iti.modern.js
+[gzip-img]: https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip
+[ci-url]: https://github.com/molszanski/iti/actions?query=branch%3Amaster
+[ci-img]: https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg
+[npm-url]: https://www.npmjs.org/package/iti
+[npm-img]: https://img.shields.io/npm/v/iti.svg
 
-> ~1kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
+> 1kB inversion of control container for Typescript and Javascript with a unique feature that supports **async flow**
 
-- **fully async:** merges async code and constructor injection via plain async functions
-- **non-invasive:** does not require imported `@decorators` or framework `extends` in your application logic
-- **lazy:** initialises your app modules and containers on demand
+- **supports async(!):** merges async code and constructor injection via plain **async** functions
+- **non-invasive:** does not require imported `@decorators` or framework `extends` in your application business logic
 - **strongly typed:** has great IDE autocomplete and compile time check. Without any [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
-- **split chunks:** enables [dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports) via a [one liner](#dynamic-imports) thanks to a fully async core
-- **React friendly:** has useful [React bindings](https://github.com/molszanski/iti/tree/master/iti-react) to help you separate application logic and a React view layer
+- **lazy:** initialises your app modules and containers on demand
+- **split chunks:** enables **[dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports)** via a [one liner](#dynamic-imports) thanks to a fully async core
+- **React friendly:** has useful **[React](https://github.com/molszanski/iti/tree/master/iti-react)** bindings to help you separate application business logic and a React view layer
 - **starter friendly:** works with starters like [Create React App](https://create-React-app.dev/) or [Next.js](https://nextjs.org/docs/getting-started) unlike existing libraries
 - **no Babel config:** doesn't require `reflect-metadata` or decorators so there is no need to hack in decorator and `"decoratorMetadata"` support in to your build configs
 - **tiny:** less than 1kB
 
-Iti is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe). It relies on plain JS functions, objects and familiar patterns. There is no need to learn complex API to use it in a full capacity.
+IoC is an amazing pattern and it should **easy to adopt**, fully support async and without hard to learn APIs or complex tooling requirements.
+
+Iti relies on plain JS functions, objects and familiar patterns. API is simple so you can make a **proof of concept integration in minutes**.
+
+It is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe) for constructor injection.
+
+> _At [Packhelp](https://unpacked.packhelp.com) we’ve refactored most of our 65K SLOC Editor app, that didn't have any IoC, to Iti in under 5 hours_
 
 ## Usage
 
-```
-npm install -S iti
-```
-
-### Basic Usage
-
-```tsx
-// Step 1: Your application logic stays clean
-class Oven {
+```ts
+// kitchen.ts
+export class Oven {
   public pizzasInOven() {
-    return 3
+    return 7
   }
   public async preheat() {}
 }
-class Kitchen {
-  constructor(public oven: Oven, public manual: string) {}
+export class Kitchen {
+  constructor(public oven: Oven, public userManual: string) {}
 }
+// Application code is free of framework dependencies of decorators
+```
 
-// Step 2: Add sync and async dependencies
+```tsx
+// app.ts
 import { makeRoot } from "iti"
-let root = makeRoot()
+import { Oven, Kitchen } from "./kitchen"
+
+const node = makeRoot()
   .add({
-    userManual: "Please preheat before use",
     oven: () => new Oven(),
+    userManual: async () => "Please preheat before use",
   })
-  .add((containers) => ({
-    kitchen: async () => {
-      await containers.oven.preheat()
-      return new Kitchen(containers.oven, containers.userManual)
-    },
+  .add((ctx) => ({
+    kitchen: async () => new Kitchen(ctx.oven, await ctx.userManual),
   }))
 
-// Step 3: Read data
-root.get("oven") // Oven
-await root.get("kitchen") // Kitchen
+await node.get("kitchen") // Kitchen
+```
 
-// Typical React usage
+```tsx
+// MyPizzaComponent.tsx
 export const PizzaData = () => {
-  const [oven] = useContainer().oven
-  return <> Pizzaz In Oven: {oven.pizzasInOven()}</>
+  const kitchen = useContainer().kitchen
+  return <>Pizzaz In Oven: {kitchen.oven.pizzasInOven()}</>
 }
 ```
 
-### Why another library?
+## Why another library?
 
-The main reason is that existing libraries don’t support asynchronous code. They either provide a promise to your constructor or require one to imperatively execute all potentially async code before the binding phase. Far from ideal.
+The main reason is that existing libraries don’t support **asynchronous code**. Iti brings hassle free and fully typed way to use async code.
 
-This is the reason I started the project
+Secondly, existing libraries rely on decorators and `reflect-metadata`[^1]. They **couple your application business logic with a single framework** and they tend to become unnecessarily complex. Also existing implementations will likely be incompatible with a [TC39 proposal](https://github.com/tc39/proposal-decorators).
 
-Secondly, they rely on decorators and `reflect-metadata`
-
-Decorators create unnecessary coupling of an application logic with a framework. The whole idea of DI is to decouple the application logic. Coupling classes with a DI framework is still coupling and turns DI into a service locator.
-
-Also, decorator support is an experimental feature in Typescript and current implementation is not compatible with the TC39 proposal. This will probably cause problems for any non-trivial decorators and babel hacks.
-
-In addition to that it is very hard to use `reflect-metadata` with starters like CRA, Next.js etc. To use `reflect-metadata` you need to tweak your compilers (babel, typescript, esbuild, swc etc.) configuration. So if you can’t use `reflect-metadata` you can’t use `inversify` or `tsyringe`.
+Also it is hard to use `reflect-metadata` with starters like CRA, Next.js etc. You need to `eject` or hack starters and it is far from ideal.
 
 ## Short Manual
 
@@ -142,40 +131,30 @@ try {
 
 ## Patterns and tips
 
-### Single Instance (a.k.a. Singleton)
+### Lifecycle
+
+**Single Instance (a.k.a. Singleton)**
 
 ```ts
-import { Oven, Kitchen } from "./kitchen/"
-export async function provideKitchenContainer() {
-  const oven = new Oven()
-  await oven.preheat()
-
-  return {
-    kitchen: new Kitchen(),
-    oven: oven,
-  }
-}
+let node = makeRoot().add({
+  oven: () => new Oven(),
+})
+node.get("oven") === node.get("oven") // true
 ```
 
-### Transient
+**Transient**
 
 ```ts
-import { Oven, Kitchen } from "./kitchen/"
-export async function provideKitchenContainer() {
-  return {
-    kitchen: () => new Kitchen(),
-    oven: async () => {
-      const oven = new Oven()
-      await oven.preheat()
-      return oven
-    },
-  }
-}
+let node = makeRoot().add({
+  oven: () => () => new Oven(),
+})
+node.get("oven") === node.get("oven") // false
 ```
 
 ### Dynamic Imports
 
 ```ts
+// ./kitchen/index.ts
 export async function provideKitchenContainer() {
   const { Kitchen } = await import("./kitchen/kitchen")
   return {
@@ -190,9 +169,24 @@ export async function provideKitchenContainer() {
 }
 ```
 
+```ts
+// ./index.ts
+import { makeRoot } from "iti"
+import { provideKitchenContainer } from "./kitchen"
+let node = makeRoot().add({
+  kitchen: async () => provideKitchenContainer(),
+})
+
+// Next line will load `./kitchen/kitchen` module
+await node.containers.kitchen
+
+// Next line will load `./kitchen/oven` module
+await node.containers.kitchen.oven
+```
+
 ### Tip: Prefer callbacks over of strings (in progress)
 
-If you use callback pattern across your app, you will be able to mass rename your containerKeys using typescript. With strings, you will have to manually go through the app. On the bright side, compiler will not compile until you fix your rename manually across the app.
+If you use callback pattern across your app, you will be able to mass rename your containerKeys using typescript. With strings, you will have to manually go through the app. But even if you use string literals compiler will not compile until you fix your rename manually across the app.
 
 ```ts
 const node = makeRoot().addNode({
@@ -204,20 +198,9 @@ await node.get((containerKeys) => containerKeys.a) // BEST!!!
 await node.get("a") // it will work but...
 ```
 
-### Tip: Prefer sealing your node
-
-This will help resolve some very exotic race conditions with subscriptions and container updates. We internally `seal()` our node on every `get` request but you can do it too before non trivial operations
-
-```ts
-await makeRoot()
-  .addPromise(async () => ({
-    a: "A",
-    b: "B",
-  }))
-  .seal() // Good
-```
-
 ## Anti Patterns
+
+in progress
 
 ## Getting Started
 
@@ -234,8 +217,7 @@ import { provideCContainer } from "./container.c"
 
 export type MockAppNode = ReturnType<typeof getMainMockAppContainer>
 export function getMainMockAppContainer() {
-  let node = makeRoot()
-  let k = node
+  return makeRoot()
     .add({ aCont: async () => provideAContainer() })
     .add((containers) => {
       return {
@@ -247,7 +229,6 @@ export function getMainMockAppContainer() {
         cCont: async () => provideCContainer(await c.aCont, await c.bCont, k),
       }
     })
-  return k
 }
 ```
 
@@ -307,10 +288,9 @@ await kitchenApp.containers.kitchen
 ### `makeRoot` Setting app root
 
 ```ts
-import { makeRoot, RootContainer } from "../../library.root-container"
+import { makeRoot } from "../../library.root-container"
 export function getMainMockAppContainer() {
-  // check get providers above
-  return makeRoot(getProviders)
+  return makeRoot().add({ kitchen: () => new Kitchen(/* deps */) })
 }
 ```
 
@@ -330,11 +310,31 @@ kitchen.oven.pizzaCapacity // 4
 
 When containers are updated React is updated too via hooks
 
+# Alternaitves
+
+## No async support
+
+Existing libraries like inversify and others don’t support asynchronous code.
+
+They either provide a promise to your constructor or require one to imperatively execute all potentially async code before the binding phase.
+
+This is far from ideal.
+
+## Heavy use of decorators
+
+Secondly, they rely on decorators and `reflect-metadata`
+
+Decorators create unnecessary coupling of an application business logic with a framework. The whole idea of DI is to decouple the application business logic. Coupling classes with a DI framework is still coupling and turns DI into a service locator.
+
+Also, decorator support is an experimental feature in Typescript and current implementation is not compatible with the TC39 proposal. This will probably cause problems for any non-trivial decorators and babel hacks.
+
+In addition to that it is very hard to use `reflect-metadata` with starters like CRA, Next.js etc. To use `reflect-metadata` you need to tweak your compilers (babel, typescript, esbuild, swc etc.) configuration. So if you can’t use `reflect-metadata` you can’t use `inversify` or `tsyringe`.
+
 ## Comparison with `inversifyjs`, `tsyringe` and others
 
-Inversion of Control (IoC) is a great way to decouple the application and the most popular pattern of IoC is dependency injection (DI) [but it is not limited to one](https://martinfowler.com/articles/injection.html).
+Inversion of Control (IoC) is a great way to decouple code and the most popular pattern of IoC is dependency injection (DI) [but it is not limited to one](https://martinfowler.com/articles/injection.html).
 
-In JavaScript there is not way to create a dependency injection without mixing application logic with a specific IoC library code or hacking a compiler (reflect-metadata).
+In JavaScript there is not way to create a dependency injection without mixing application business logic with a specific IoC library code or hacking a compiler (reflect-metadata).
 
 **`inversifyjs` and `tsyringe` use decorators and `reflect-metada`**
 
@@ -370,7 +370,7 @@ class Baz {
 }
 ```
 
-With Iti your application logic is not mixed with the framework code
+With Iti your application business logic is not mixed with the framework code
 
 ```ts
 import type { Ingredients } from "./store.ingrediets"
@@ -415,3 +415,5 @@ Yes, no problem at all. If you want, they can even share tokens and hence instan
 **Why `getContainerSet` is always async?**
 
 This is temporary(?) limitation to keep typescript happy and typescript types reasonable sane
+
+[^1]: Kudos to [typed-inject](https://github.com/nicojs/typed-inject) for finding a reasonable alternative to decorators and Reflect. Sadly, it doesn't support async and there are some other limits
