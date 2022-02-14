@@ -18,9 +18,4 @@ export class Auth {
     const t = getAuthType()
     return t
   }
-
-  public async changeUser(at: AuthType) {
-    await wait(400)
-    setAuthType(at)
-  }
 }

@@ -10,36 +10,33 @@ import { provideKitchenContainer } from "./container.kitchen"
 import { provideFatLib1 } from "./container.fat-lib1"
 import { provideFatLib2 } from "./container.fat-lib2"
 
-export type PizzaAppContainer = ReturnType<typeof getMainPizzaAppContainer>
-export function getMainPizzaAppContainer() {
-  let a = makeRoot()
-    .upsert(() => ({
+export type PizzaAppCoreContainer = ReturnType<typeof pizzaAppCore>
+export function pizzaAppCore() {
+  return makeRoot()
+    .add(() => ({
       auth: async () => provideAuthContainer(),
     }))
-    .upsert((c) => ({
-      //@ts-ignore
-      aCont: async () => provideAContainer(await c.containers.auth),
+    .add((c) => ({
+      aCont: async () => provideAContainer(await c.auth),
     }))
-    .upsert((ctx) => ({
-      bCont: async () =>
-        provideBContainer(
-          await ctx.containers.auth,
-          await ctx.containers.aCont,
-        ),
+    .add((ctx) => ({
+      bCont: async () => provideBContainer(await ctx.auth, await ctx.aCont),
     }))
-    .upsert((c) => ({
+    .add((c) => ({
       // fat libs
       fatlib1: async () => provideFatLib1(),
       fatlib2: async () => provideFatLib2(),
     }))
-    .upsert((ctx) => ({
+    .add((ctx, node) => ({
       // pizza stuff
-      pizzaContainer: async () =>
-        //@ts-ignore
-        providePizzaPlaceContainer(await ctx.containers.fatlib2),
+      pizzaContainer: async () => providePizzaPlaceContainer(await ctx.fatlib2),
       kitchen: async () => provideKitchenContainer(),
-      //@ts-ignore
-      kitchenManipulator: async () => provideKitchenManipulatorContainer(ctx),
     }))
-  return a
+}
+
+export type PizzaAppContainer = ReturnType<typeof getMainPizzaAppContainer>
+export function getMainPizzaAppContainer() {
+  return pizzaAppCore().add((ctx, node) => ({
+    kitchenManipulator: async () => provideKitchenManipulatorContainer(node),
+  }))
 }

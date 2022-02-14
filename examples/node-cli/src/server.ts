@@ -28,9 +28,9 @@ const kitchenContainer = async ({ oven, userManual }) => {
 }
 
 // Step 4: Add an async provider
-const node = root.add((n) => ({
+const node = root.add((ctx, node) => ({
   kitchen: async () =>
-    kitchenContainer(await n.getContainerSet(["userManual", "oven"])),
+    kitchenContainer(await node.getContainerSet(["userManual", "oven"])),
 }))
 await node.get("kitchen")
 
@@ -66,11 +66,11 @@ let node1 = makeRoot()
     userManual: "Please preheat before use",
     oven: () => new Oven(),
   })
-  .upsert((node) => ({
+  .upsert((ctx) => ({
     userManual: "Works better when hot",
     preheatedOven: async () => {
-      await node.get("oven").preheat()
-      return node.get("oven")
+      await ctx.oven.preheat()
+      return ctx.oven
     },
   }))
 

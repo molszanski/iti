@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { useContainer, useContainerSet } from "../containers/_container.hooks"
-import { EnsureNewKitchenConainer, useNewKitchenContext } from "./EnsureKitchen"
+import { EnsureKitchenProvider, useNewKitchenContext } from "./EnsureKitchen"
 import s from "./Controls.module.css"
 
 export const Controls = observer(() => {
   return (
     <div className={s.controlsSections}>
       <PizzaPlaceControls />
-      <EnsureNewKitchenConainer>
+      <EnsureKitchenProvider fallback={<>Stuff is loading</>}>
         <NewPizzaPlaceControls />
-      </EnsureNewKitchenConainer>
+      </EnsureKitchenProvider>
       <StuffControls />
       <AdminControls />
       <AuthControls />
@@ -65,17 +65,19 @@ export const AuthControls = observer(() => {
   const [authCont] = useContainer().auth
 
   if (!authCont) return <>AUTH is loading</>
-  const { auth } = authCont
+  const { authroization } = authCont
 
   return (
     <div>
-      <button onClick={() => auth.changeUser("unauthenticated")}>
+      <button onClick={() => authroization.changeUser("unauthenticated")}>
         Sign Out
       </button>
-      <button onClick={() => auth.changeUser("manager")}>
+      <button onClick={() => authroization.changeUser("manager")}>
         Sign in as Manager
       </button>
-      <button onClick={() => auth.changeUser("admin")}>Sign in as Admin</button>
+      <button onClick={() => authroization.changeUser("admin")}>
+        Sign in as Admin
+      </button>
     </div>
   )
 })
@@ -122,7 +124,6 @@ export const PizzaPlaceControls = observer(() => {
   const [authCont] = useContainer().auth
 
   const x = useContainerSet(["auth"])
-
   if (!pizzaPlaceCont) return <>Pizza Place is loading</>
   if (!kitchenCont) return <>Kitchen is loading</>
   if (!kitchenManipulatorCont) return <>Kitchen is loading</>

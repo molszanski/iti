@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx"
+import { makeObservable, observable, computed, action, autorun } from "mobx"
 import { getAuthType, setAuthType, AuthType } from "../services/url-param"
 
 const wait = (w: number) => new Promise((r) => setTimeout(r, w))
@@ -26,8 +26,17 @@ function rightsLookup<T extends { [key in AuthType]: any }>(rights: T) {
 }
 
 export class Authorization {
-  constructor(public readonly userType: AuthType) {
-    makeAutoObservable(this)
+  constructor(private _userType: AuthType) {
+    makeObservable(this, {
+      // @ts-expect-error
+      _userType: observable,
+      userType: computed,
+      changeUser: action,
+    })
+  }
+
+  get userType() {
+    return this._userType
   }
 
   /**
@@ -52,5 +61,11 @@ export class Authorization {
     await wait(500)
     const t = getAuthType
     return t
+  }
+
+  public async changeUser(at: AuthType) {
+    await wait(400)
+    this._userType = at
+    setAuthType(at)
   }
 }
