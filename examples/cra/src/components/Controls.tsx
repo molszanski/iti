@@ -95,15 +95,11 @@ export const StuffControls = observer(() => {
 })
 
 export const NewPizzaPlaceControls = observer(() => {
-  const [
-    {
-      kitchen: { oven, kitchen },
-      pizzaContainer,
-    },
-    err,
-  ] = useNewKitchenContext()
+  const {
+    kitchen: { oven, kitchen },
+    pizzaContainer,
+  } = useNewKitchenContext()
   const { pizzaPlace } = pizzaContainer
-  let f = useNewKitchenContext()
 
   return (
     <div>
