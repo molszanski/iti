@@ -19,7 +19,7 @@ export function useBetterGenericContainer<T>(
   containerKey: string,
 ): ContainerGenericBettter<T> {
   const [data, setData] = useState<any>(undefined)
-  const [error, setError] = useState()
+  const [error, setError] = useState<any>(undefined)
 
   // Update container
   useEffect(() => {
@@ -34,11 +34,17 @@ export function useBetterGenericContainer<T>(
 
   // We can add optimizations later.
   useEffect(() => {
-    containerPromise()
-      .then((container) => {
-        setData(container)
-      })
-      .catch((e) => setError(e))
+    try {
+      containerPromise()
+        .then((container) => {
+          setData(container)
+        })
+        .catch((e) => {
+          setError(e)
+        })
+    } catch (e) {
+      setError(e)
+    }
   }, [])
 
   return [data, error, containerKey]

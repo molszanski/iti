@@ -32,6 +32,22 @@ export function pizzaAppCore() {
       pizzaContainer: async () => providePizzaPlaceContainer(await ctx.fatlib2),
       kitchen: async () => provideKitchenContainer(),
     }))
+    .add((ctx) => ({
+      errSync: () => {
+        throw new Error("errSync")
+      },
+      errAsync: async () => {
+        throw new Error("errAsync")
+      },
+      errNested: async () => ({
+        nestedSyncErr: () => {
+          throw new Error("errSync")
+        },
+        nestedAsyncErr: async () => {
+          throw new Error("nestedAsyncErr")
+        },
+      }),
+    }))
 }
 
 export type PizzaAppContainer = ReturnType<typeof getMainPizzaAppContainer>

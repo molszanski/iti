@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { useContainer, useContainerSet } from "../containers/_container.hooks"
 import { EnsureKitchenProvider, useNewKitchenContext } from "./EnsureKitchen"
+import { ErrControls } from "./ErrControls"
 import s from "./Controls.module.css"
 
 export const Controls = observer(() => {
@@ -15,6 +16,7 @@ export const Controls = observer(() => {
       <AdminControls />
       <AuthControls />
       <NewTestControls />
+      <ErrControls />
     </div>
   )
 })
