@@ -15,7 +15,7 @@ export function generateEnsureContainerSet<Hook extends (...args: any) => any>(
     fallback?: JSX.Element
     children: React.ReactNode
   }) => {
-    let containerSet = containerSetGetterHook()
+    let [containerSet, err] = containerSetGetterHook()
     if (!containerSet) {
       if (props.fallback) {
         return props.fallback
