@@ -35,7 +35,7 @@ it("should check subscribe types", async () => {
       expectType<"aCont">(c.aCont)
       return [c.aCont, c.cCont]
     },
-    (containerSet) => {
+    (err, containerSet) => {
       expectNotType<any>(containerSet)
       expectType<A_Container>(containerSet.aCont)
       expectType<C_Container>(containerSet.cCont)

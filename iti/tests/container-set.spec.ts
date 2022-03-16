@@ -23,9 +23,12 @@ it("should subscribe to container set change", (cb) => {
     expect(containerSet.cCont.c2.size).toBe(5)
 
     containerSet.cCont.upgradeCContainer()
-    cont.subscribeToContinerSet(["aCont", "bCont", "cCont"], (containerSet) => {
-      expect(containerSet.cCont.c2.size).toBe(10)
-    })
+    cont.subscribeToContinerSet(
+      ["aCont", "bCont", "cCont"],
+      (err, containerSet) => {
+        expect(containerSet.cCont.c2.size).toBe(10)
+      },
+    )
     await cont.get("cCont")
     await wait(10)
     cb()
@@ -56,7 +59,7 @@ it("should subscribe to container set change via a new APi", (cb) => {
       (c) => {
         return [c.aCont, c.cCont]
       },
-      (containerSet) => {
+      (err, containerSet) => {
         expect(containerSet.cCont.c2.size).toBe(10)
       },
     )
@@ -76,7 +79,7 @@ it("should subscribe to container set change via a old APi", (cb) => {
       (c) => {
         return [c.aCont, c.cCont]
       },
-      (containerSet) => {
+      (err, containerSet) => {
         expect(containerSet.cCont.c2.size).toBe(10)
       },
     )

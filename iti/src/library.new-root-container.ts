@@ -130,11 +130,16 @@ class Node<Context extends {}> extends AbstractNode<Context> {
 
   public subscribeToContiner<T extends keyof Context>(
     token: T,
-    cb: (container: UnpackFunction<Context[T]>) => void,
+    cb: (err: any, container: UnpackFunction<Context[T]>) => void,
   ): () => void {
     return this.ee.on("containerUpserted", async (ev) => {
       if (token === ev.key) {
-        cb(await this.get(token))
+        try {
+          const data = await this.get(token)
+          cb(null, data)
+        } catch (error) {
+          cb(error, undefined as any)
+        }
       }
     })
   }
@@ -232,14 +237,22 @@ export class NodeApi<Context extends {}> extends Node<Context> {
 
   public subscribeToContinerSet<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,
-    cb: (container: {
-      [K in T]: FullyUnpackObject<Context>[K]
-    }) => void,
+    cb: (
+      err: any,
+      container: {
+        [K in T]: FullyUnpackObject<Context>[K]
+      },
+    ) => void,
   ): () => void {
     let tokens = this._extractTokens(tokensOrCb)
     return this.ee.on("containerUpserted", async (ev) => {
       if (tokens.includes(ev.key)) {
-        cb(await this.getContainerSet(tokens))
+        try {
+          const cSet = await this.getContainerSet(tokens)
+          cb(null, cSet)
+        } catch (err) {
+          cb(err, undefined as any)
+        }
       }
     })
   }

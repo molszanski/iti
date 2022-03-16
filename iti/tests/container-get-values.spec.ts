@@ -2,7 +2,7 @@ import { makeRoot } from "../src/library.new-root-container"
 function printTokenValue(token, value) {
   console.log(`Token: ${token}  | ${value}  -- of ${typeof value}`)
 }
-describe.only("Node.get()", () => {
+describe("Node.get()", () => {
   let root: ReturnType<typeof makeRoot>
 
   beforeEach(() => {
@@ -68,6 +68,37 @@ describe.only("Node.get()", () => {
       })
       expect(await node.get("optimus")).toBe("prime")
       cb()
+    })()
+  })
+
+  it("should handle async errors with a simple try/catch", (cb) => {
+    ;(async () => {
+      const node = root
+        .add({
+          optimus: async () => "prime",
+          megatron: async () => {
+            throw "all hail megatron"
+          },
+        })
+        .add((ctx) => ({
+          decepticons: async () => {
+            leader: await ctx.megatron
+          },
+        }))
+
+      expect(await node.get("optimus")).toBe("prime")
+      try {
+        await node.get("megatron")
+      } catch (e) {
+        expect(e).toBe("all hail megatron")
+      }
+
+      try {
+        await node.containers.decepticons
+      } catch (e) {
+        expect(e).toBe("all hail megatron")
+        cb()
+      }
     })()
   })
 
