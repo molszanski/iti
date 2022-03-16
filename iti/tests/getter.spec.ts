@@ -121,12 +121,33 @@ describe("Node subscribeToContiner", () => {
       a: async () => "A",
       b: async () => "B",
     }))
-    node.subscribeToContiner("a", async (container) => {
+    node.subscribeToContiner("a", async (err, container) => {
       expect(await container).toBe("A")
     })
     node.get("a").then(() => {
       cb()
     })
+  })
+  it("should handle err on subscribes well ", (cb) => {
+    const node = root.add(() => ({
+      a: async () => "A",
+      b: async () => {
+        throw "B"
+      },
+    }))
+
+    node.subscribeToContiner("b", async (err, container) => {
+      if (err) {
+        expect(err).toBe("B")
+      }
+    })
+    node
+      .get("b")
+      .then(() => {})
+      .catch((e) => {
+        expect(e).toBe("B")
+        cb()
+      })
   })
 
   it("should not fire an event on a sync node", (cb) => {
