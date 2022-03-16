@@ -102,6 +102,30 @@ describe("Node.get()", () => {
     })()
   })
 
+  it("should handle async errors with for getContainerSet", (cb) => {
+    ;(async () => {
+      const node = root
+        .add({
+          optimus: async () => "prime",
+          megatron: async () => {
+            throw "all hail megatron"
+          },
+        })
+        .add((ctx) => ({
+          decepticons: async () => {
+            leader: await ctx.megatron
+          },
+        }))
+
+      try {
+        await node.getContainerSet(["optimus", "decepticons"])
+      } catch (e) {
+        expect(e).toBe("all hail megatron")
+        cb()
+      }
+    })()
+  })
+
   it("should call container provider once, but container token twice", () => {
     const fn1 = jest.fn()
     const fn2 = jest.fn()
