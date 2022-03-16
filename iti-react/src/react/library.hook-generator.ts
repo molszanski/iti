@@ -55,10 +55,11 @@ export function getContainerSetHooks<Context extends object>(
     TokenMap extends { [T in keyof Context]: T },
   >(
     tokensOrCallback: Tokens[] | ((keyMap: TokenMap) => Tokens[]),
-  ): ContainerSet<Tokens, Context> {
+  ): [ContainerSet<Tokens, Context>, any] {
     const [all, setAll] = useState<ContainerSet<Tokens, Context>>(
       undefined as any,
     )
+    const [err, setErr] = useState(undefined as any)
     const root = useContext(reactContext)
 
     // WIP
@@ -74,13 +75,17 @@ export function getContainerSetHooks<Context extends object>(
     }, tokens)
 
     useEffect(() => {
-      const unsub = root.subscribeToContinerSet(tokens, (contSet) => {
+      const unsub = root.subscribeToContinerSet(tokens, (err, contSet) => {
+        if (err) {
+          setErr(err)
+          return
+        }
         setAll(contSet)
       })
       return unsub
     }, tokens)
 
-    return all
+    return [all, err]
   }
   return {
     useContainer: useContainer,
