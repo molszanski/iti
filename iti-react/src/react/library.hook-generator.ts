@@ -40,7 +40,7 @@ export function getContainerSetHooks<Context extends object>(
       addGetter(FFF, contKey, () =>
         useBetterGenericContainer(
           () => appRoot.containers[contKey as any],
-          //@ts-expect-error
+          // @ts-expect-error
           (cb: () => any) => appRoot.subscribeToContiner(contKey, cb),
           contKey,
         ),
