@@ -170,6 +170,35 @@ describe("Node subscribeToContiner", () => {
     })()
   })
 
+  it("should handle err on subscribeToContainerSet", (cb) => {
+    ;(async () => {
+      const node = root
+        .add(() => ({
+          a: async () => "A",
+          b: "B",
+        }))
+        .add(() => ({
+          c: async () => {
+            throw "C"
+          },
+        }))
+      let f3 = jest.fn()
+      node.subscribeToContinerSet(["a", "c"], (err, containers) => {
+        if (err) {
+          expect(err).toBe("C")
+        }
+      })
+      node.subscribeToContinerSet((c) => [c.a, c.c], f3)
+
+      try {
+        await node.get("c")
+      } catch (e) {
+        expect(e).toBe("C")
+        setTimeout(cb, 10)
+      }
+    })()
+  })
+
   it("should use containerSet to subscribe to events", (cb) => {
     ;(async () => {
       const node = root
