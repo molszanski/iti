@@ -49,7 +49,7 @@ export const NewTestControls = observer(() => {
 
   const auth = useContainer().auth
   const kitchen = useContainer().kitchen
-  const cSet = useContainerSet((c) => [c.aCont, c.auth])
+  const [cSet, cSetErr] = useContainerSet((c) => [c.aCont, c.auth])
 
   if (!auth[0]) return <>AUTH is loading</>
   if (!kitchen[0]) return <>AUTH is loading</>
@@ -95,10 +95,13 @@ export const StuffControls = observer(() => {
 })
 
 export const NewPizzaPlaceControls = observer(() => {
-  const {
-    kitchen: { oven, kitchen },
-    pizzaContainer,
-  } = useNewKitchenContext()
+  const [
+    {
+      kitchen: { oven, kitchen },
+      pizzaContainer,
+    },
+    err,
+  ] = useNewKitchenContext()
   const { pizzaPlace } = pizzaContainer
   let f = useNewKitchenContext()
 
@@ -123,7 +126,7 @@ export const PizzaPlaceControls = observer(() => {
   const [kitchenManipulatorCont] = useContainer().kitchenManipulator
   const [authCont] = useContainer().auth
 
-  const x = useContainerSet(["auth"])
+  const [x] = useContainerSet(["auth"])
   if (!pizzaPlaceCont) return <>Pizza Place is loading</>
   if (!kitchenCont) return <>Kitchen is loading</>
   if (!kitchenManipulatorCont) return <>Kitchen is loading</>
