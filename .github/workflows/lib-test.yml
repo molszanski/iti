@@ -4,15 +4,18 @@ on:
   push:
     branches:
       - master
+      - beta
   pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: "16"
 
@@ -20,7 +23,7 @@ jobs:
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -45,3 +48,17 @@ jobs:
 
       - name: Check if a react package builds
         run: cd iti-react && yarn build
+
+      - name: Add Stryker Report
+        run: |
+          cd iti && yarn run stryker:run
+
+        # cd reports/mutation/ && curl -X PUT \
+        #   https://dashboard.stryker-mutator.io/api/reports/github.com/molszanski/iti/beta \
+        #   -H 'Content-Type: application/json' \
+        #   -H 'Host: dashboard.stryker-mutator.io' \
+        #   -H "X-Api-Key: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}" \
+        #   -d @mutation.json
+
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

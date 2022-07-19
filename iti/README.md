@@ -8,6 +8,10 @@
 [npm-img]: https://img.shields.io/npm/v/iti.svg
 [stryker-url]: https://dashboard.stryker-mutator.io/reports/github.com/molszanski/iti/master
 [stryker-img]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fmolszanski%2Fiti%2Fmaster
+[stryker-beta-url]: https://dashboard.stryker-mutator.io/reports/github.com/molszanski/iti/beta
+[stryker-beta-img]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fmolszanski%2Fiti%2Fbeta
+
+[![Muration Score][stryker-beta-img]][stryker-beta-url]
 
 > 1kB inversion of control container for Typescript and Javascript with a unique feature that supports **async flow**
 
