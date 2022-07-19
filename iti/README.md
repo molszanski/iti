@@ -1,4 +1,4 @@
-# Iti [![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url]
+# Iti [![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url] [![Muration Score][stryker-img]][stryker-url]
 
 [gzip-url]: https://unpkg.com/iti/dist/iti.modern.js
 [gzip-img]: https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip
@@ -6,6 +6,8 @@
 [ci-img]: https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg
 [npm-url]: https://www.npmjs.org/package/iti
 [npm-img]: https://img.shields.io/npm/v/iti.svg
+[stryker-url]: https://dashboard.stryker-mutator.io/reports/github.com/molszanski/iti/master
+[stryker-img]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fmolszanski%2Fiti%2Fmaster
 
 > 1kB inversion of control container for Typescript and Javascript with a unique feature that supports **async flow**
 
