@@ -1,7 +1,20 @@
-# Iti [![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url] [![Muration Score][stryker-img]][stryker-url]
-
-<img align="right" width="147" height="100" title="Lefthook logo"
+<p align="center">
+  <img align="center" width="128" height="128" title="Lefthook logo"
      src="./docs/logo.svg">
+  <br>
+
+[![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url] [![Muration Score][stryker-img]][stryker-url]
+
+</p>
+
+[![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url] [![Muration Score][stryker-img]][stryker-url]
+
+---
+
+<img align="left" width="128" height="128" title="Lefthook logo"
+     src="./docs/logo.svg">
+
+# Iti [![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url] [![Muration Score][stryker-img]][stryker-url]
 
 [gzip-url]: https://unpkg.com/iti/dist/iti.modern.js
 [gzip-img]: https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip
