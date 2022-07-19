@@ -3,16 +3,7 @@
      src="./docs/logo.svg">
   <br>
 
-[![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url] [![Muration Score][stryker-img]][stryker-url]
-
 </p>
-
-[![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url] [![Muration Score][stryker-img]][stryker-url]
-
----
-
-<img align="left" width="128" height="128" title="Lefthook logo"
-     src="./docs/logo.svg">
 
 # Iti [![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url] [![Muration Score][stryker-img]][stryker-url]
 
