@@ -11,18 +11,6 @@
     "configFile": "./jest.config.cjs",
     "enableFindRelatedTests": false
   },
-  "dasboard": {
-    "project-info": {
-      "name": "github.com/molszanski/iti",
-      "version": "beta",
-      "module": "iti"
-    },
-    "project": "github.com/molszanski/iti",
-    "version": "beta",
-    "module": "iti",
-    "baseUrl": "https://dashboard.stryker-mutator.io/api/reports",
-    "reportType": "full"
-  },
   "coverageAnalysis": "off",
   "checkers": ["typescript"],
   "tsconfigFile": "tsconfig.json"
