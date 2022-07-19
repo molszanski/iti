@@ -32,9 +32,23 @@ import { MockAppWrapper } from "./mocks/_mock-app-components"
 
 // useMockAppContainerSet should return exact types
 ;(() => {
-  const containerSet = useMockAppContainerSet(["aCont", "bCont"])
+  const [containerSet, containerSetErr] = useMockAppContainerSet([
+    "aCont",
+    "bCont",
+  ])
+
+  const [containerSet2, containerSetErr2] = useMockAppContainerSet((c) => [
+    c.aCont,
+    c.bCont,
+  ])
+
   if (containerSet != null) {
     expectType<A_Container>(containerSet.aCont)
+    // expectType<undefined>(containerSet.cCont)
+  }
+
+  if (containerSet2 != null) {
+    expectType<B_Container>(containerSet2.bCont)
     // expectType<undefined>(containerSet.cCont)
   }
 })()
