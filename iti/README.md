@@ -12,7 +12,7 @@
 </p>
 <br/>
 
-# Iti
+# Iti 🍇
 
 > 1kB Depenendency Injection Framework for Typescript and Javascript with a unique feature that supports **async flow**
 
