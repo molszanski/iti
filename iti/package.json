@@ -19,6 +19,7 @@
     "build": "rm -rf ./dist && microbundle build -o dist/",
     "jest": "jest",
     "stryker": "stryker",
+    "stryker:run": "stryker run",
     "test": "yarn jest && yarn tsd",
     "jestWatch": "jest --watch --verbose",
     "tsd": "tsd tsd_project"
