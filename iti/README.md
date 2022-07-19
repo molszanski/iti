@@ -1,19 +1,18 @@
-# Iti [![CI status][ci-img]][ci-url] [![Gzip][gzip-img]][gzip-url] [![npm version][npm-img]][npm-url] [![Muration Score][stryker-img]][stryker-url]
+<p align="center">
+  <a href="https://itijs.org" target="_blank" rel="noopener noreferrer">
+    <img width="180" src="./docs/logo.svg" alt="ITI Logo">
+  </a>
+</p>
+<p align="center">
+  <a href="https://github.com/molszanski/iti/actions?query=branch%3Amaster"><img src="https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg" alt="CI Statu"></a>
+  <a href="https://www.npmjs.org/package/iti"><img src="https://img.shields.io/npm/v/iti.svg" alt="npm version"></a>
+  <a href="https://unpkg.com/iti/dist/iti.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip" alt="gzip"></a>
+  <a href="https://dashboard.stryker-mutator.io/reports/github.com/molszanski/iti/master"><img src="https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fmolszanski%2Fiti%2Fmaster" alt="Mutation Score"></a>
+</p>
 
-[gzip-url]: https://unpkg.com/iti/dist/iti.modern.js
-[gzip-img]: https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip
-[ci-url]: https://github.com/molszanski/iti/actions?query=branch%3Amaster
-[ci-img]: https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg
-[npm-url]: https://www.npmjs.org/package/iti
-[npm-img]: https://img.shields.io/npm/v/iti.svg
-[stryker-url]: https://dashboard.stryker-mutator.io/reports/github.com/molszanski/iti/master
-[stryker-img]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fmolszanski%2Fiti%2Fmaster
-[stryker-beta-url]: https://dashboard.stryker-mutator.io/reports/github.com/molszanski/iti/beta
-[stryker-beta-img]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fmolszanski%2Fiti%2Fbeta
+# Iti
 
-[![Muration Score][stryker-beta-img]][stryker-beta-url]
-
-> 1kB inversion of control container for Typescript and Javascript with a unique feature that supports **async flow**
+> 1kB Depenendency Injection Framework for Typescript and Javascript with a unique feature that supports **async flow**
 
 - **supports async(!):** merges async code and constructor injection via plain **async** functions
 - **non-invasive:** does not require imported `@decorators` or framework `extends` in your application business logic
