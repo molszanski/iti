@@ -5,17 +5,16 @@
   "type": "module",
   "source": "src/index.ts",
   "exports": {
-    "require": "./dist/iti-react.cjs",
     "default": "./dist/iti-react.modern.js"
   },
-  "main": "./dist/iti-react.cjs",
+  "main": "./dist/iti-react.modern.js",
   "module": "./dist/iti-react.module.js",
   "typings": "./dist/src/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf ./dist && microbundle -o dist/  --jsx React.createElement",
+    "build": "rm -rf ./dist && microbundle -o dist/  --jsx React.createElement --format modern,esm",
     "dev": "microbundle watch -o dist/ --jsx React.createElement",
     "test": "yarn tsd",
     "tsd": "tsd tsd_project",
