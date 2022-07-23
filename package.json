@@ -6,7 +6,8 @@
   "workspaces": [
     "iti",
     "iti-react",
-    "examples/cra"
+    "examples/cra",
+    "examples/node-cli"
   ],
   "devDependencies": {
     "turbo": "^1.3.4"
