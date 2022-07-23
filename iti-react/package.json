@@ -1,6 +1,6 @@
 {
   "name": "iti-react",
-  "version": "0.4.0-next.0",
+  "version": "0.4.1",
   "description": "Handy React bindings for iti",
   "type": "module",
   "source": "src/index.ts",
@@ -27,7 +27,7 @@
   "devDependencies": {
     "@types/react": "^18.0.15",
     "install-peers-cli": "^2.2.0",
-    "iti": "0.4.0-next.0",
+    "iti": "0.4.1",
     "microbundle": "^0.15.0",
     "nodemon": "^2.0.19",
     "tsd": "^0.22.0",
