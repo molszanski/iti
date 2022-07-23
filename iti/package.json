@@ -61,7 +61,7 @@
     "typescript",
     "type-safe"
   ],
-  "homepage": "https://github.com/molszanski/iti",
+  "homepage": "https://itijs.org",
   "prettier": {
     "semi": false,
     "singleQuote": false,

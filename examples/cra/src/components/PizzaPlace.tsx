@@ -69,7 +69,7 @@ export const Inventory = observer(() => {
       <ul>
         {ingredients.ingredientsStats.map(([name, count], idx) => (
           <li key={idx}>
-            {name} - {count}
+            test {name} - {count as string}
           </li>
         ))}
       </ul>
