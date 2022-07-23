@@ -107,7 +107,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       return tokenValue as any
     }
 
-    throw new ItiResolveError(`Can't find token '${token}' value`)
+    throw new ItiResolveError(`Can't find token '${String(token)}' value`)
   }
   protected _updateContext(updatedContext: Context) {
     for (const [token, value] of Object.entries(updatedContext)) {
