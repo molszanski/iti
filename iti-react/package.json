@@ -26,8 +26,6 @@
     "utility-types": "^3.10.0"
   },
   "devDependencies": {
-    "@testing-library/react": "^12.1.4",
-    "@testing-library/react-hooks": "^7.0.2",
     "@types/jest": "^27.4.1",
     "@types/react": "^17.0.40",
     "install-peers-cli": "^2.2.0",
