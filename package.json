@@ -9,7 +9,7 @@
     "examples/cra"
   ],
   "devDependencies": {
-    "turbo": "^1.1.6"
+    "turbo": "^1.3.4"
   },
   "author": "Nick Olszanski <nick@dinosaurs-with-jetpacks.club>",
   "license": "MIT",
