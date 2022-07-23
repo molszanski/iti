@@ -1,12 +1,17 @@
-<a href="https://www.npmjs.org/package/iti-react"><img src="https://img.shields.io/npm/v/iti-react.svg" alt="npm"></a>
-![CI](https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg)
-<a href="https://unpkg.com/iti-react/dist/iti-react.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/iti-react/dist/iti-react.modern.js?compression=gzip" alt="gzip size"></a>
-
-🚧 **library in beta** 🚧
+<p align="center">
+  <a href="https://itijs.org" target="_blank" rel="noopener noreferrer">
+    <img width="180" src="./docs/logo.svg" alt="ITI Logo">
+  </a>
+</p>
+<p align="center">
+  <a href="https://github.com/molszanski/iti/actions?query=branch%3Amaster"><img src="https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg" alt="CI Status"></a>
+  <a href="https://www.npmjs.org/package/iti-react"><img src="https://img.shields.io/npm/v/iti-react.svg" alt="npm version"></a>
+  <a href="https://unpkg.com/iti-react/dist/iti-react.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/iti-react/dist/iti-react.modern.js?compression=gzip" alt="gzip size"></a>
+</p>
 
 # Iti React
 
-> ~2kB inversion of control container for Typescript/Javascript for constructor injection with a focus on async flow
+> 1kB Depenendency Injection Framework for Typescript and Javascript with a unique feature that supports **async flow**
 
 - **fully async:** merges async code and a constructor injection via async functions
 
