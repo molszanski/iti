@@ -25,7 +25,6 @@
     "tsd": "tsd tsd_project"
   },
   "dependencies": {
-    "stryker-cli": "^1.0.2",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {
@@ -35,6 +34,7 @@
     "@types/jest": "^27.4.1",
     "@types/react": "^18.0.15",
     "jest": "^27.4.7",
+    "stryker-cli": "^1.0.2",
     "microbundle": "^0.15.0",
     "nodemon": "^2.0.19",
     "ts-jest": "^27.1.3",

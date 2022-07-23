@@ -21,12 +21,12 @@
     "prepare-not": "install-peers"
   },
   "dependencies": {
+    "iti": "0.4.1",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.15",
     "install-peers-cli": "^2.2.0",
-    "iti": "0.4.1",
     "microbundle": "^0.15.0",
     "nodemon": "^2.0.19",
     "tsd": "^0.22.0",
