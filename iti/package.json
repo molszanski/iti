@@ -1,7 +1,7 @@
 {
   "name": "iti",
-  "version": "0.4.1",
-  "description": "~1kB inversion of control container for Typescript/Javascrith with a focus on async flow",
+  "version": "0.4.2",
+  "description": "~1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow",
   "type": "module",
   "source": "src/index.ts",
   "exports": {
