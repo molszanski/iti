@@ -8,8 +8,8 @@ const Lol = () => {
   // console.log(app)
   // const a = app.get("a")
   // console.log(a)
-  // const [b, bErr] = useContainer().b
-  // console.log("v", b, bErr)
+  const [b, bErr] = useContainer().b
+  console.log("render", b, bErr)
   return <p>123</p>
 }
 
