@@ -35,13 +35,20 @@ export function useBetterGenericContainer<T>(
   // We can add optimizations later.
   useEffect(() => {
     try {
-      containerPromise()
-        .then((container) => {
-          setData(container)
-        })
-        .catch((e) => {
-          setError(e)
-        })
+      // Apparently it will not always be a promise???
+      // Not sure what I meant to code :/
+      const providedValue = containerPromise()
+      if (providedValue instanceof Promise) {
+        providedValue
+          .then((container) => {
+            setData(container)
+          })
+          .catch((e) => {
+            setError(e)
+          })
+      } else {
+        setData(providedValue)
+      }
     } catch (e) {
       setError(e)
     }

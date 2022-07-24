@@ -289,6 +289,11 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     return containerDecoratedMap
   }
 
+  /**
+   * This is used to get a container from the context.
+   * It should always return a promise?
+   * But it seems that it is not possible to do that with the current implementation.
+   */
   public get containers(): ContextGetter<Context> {
     let containerMap = <ContextGetter<Context>>{}
     for (let key in this.getTokens()) {
