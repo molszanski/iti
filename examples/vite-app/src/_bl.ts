@@ -13,7 +13,7 @@ export const app = makeRoot()
     a: () => new A(),
   }))
   .add((ctx) => ({
-    b: () => new B(ctx.a),
+    b: async () => new B(ctx.a),
   }))
   .add((ctx) => ({
     c: () => new C(ctx.a, ctx.b),
