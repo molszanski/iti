@@ -31,4 +31,35 @@ describe("Deleting and destructuring: ", () => {
     r.upsert({ b: "new B" })
     expect(r.get("b")).toBe("new B")
   }, 100)
+
+  it("should be able to delete a token", () => {
+    let r = root.add({ a: "A", b: "B", c: "C" })
+
+    expect(r.getTokens()).toMatchObject({ a: "a", b: "b", c: "c" })
+
+    let updated = r.delete("b")
+    expect(r.getTokens()).toMatchObject({ a: "a", c: "c" })
+
+    // should throw
+    expect(() => {
+      // @ts-expect-error
+      updated.get("b")
+    }).toThrow()
+  })
+
+  it("should send containerUpdated event on overwrite", (cb) => {
+    ;(async () => {
+      root.on("containerDeleted", (k) => {
+        expect(k.key).toBe("b")
+        root.on("containerUpserted", (k) => {
+          expect(k.key).toBe("b")
+          expect(k.newContainer).toBe("new B")
+          cb()
+        })
+        root.upsert({ b: "new B" })
+      })
+
+      root.add({ a: "A", b: "B" }).delete("b")
+    })()
+  }, 100)
 })
