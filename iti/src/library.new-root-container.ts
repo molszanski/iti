@@ -77,10 +77,10 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     /**
      * FLOW A: We have this is in a current context
      */
-    if (this._context[token] != null) {
+    if (token in this._context) {
       // Case 1: If this token was a funtion / provider it might be in a cache
-      const cachedValue = this._cache[token]
-      if (cachedValue != null) {
+      if (token in this._cache) {
+        const cachedValue = this._cache[token]
         return cachedValue
       }
 
@@ -111,7 +111,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
   }
   protected _updateContext(updatedContext: Context) {
     for (const [token, value] of Object.entries(updatedContext)) {
-      if (this._context[token] != null) {
+      if (token in this._context) {
         this.ee.emit("containerUpdated", {
           key: token as any,
           newContainer: value as any,
@@ -119,7 +119,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       }
       // Save state and clear cache
       this._context[token] = value
-      this._cache[token] = null
+      delete this._cache[token]
 
       this.ee.emit("containerUpserted", {
         key: token as any,
@@ -214,7 +214,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
 
     // Step 1: Runtime check for existing tokens in context
     var existingTokens = Object.keys(this.getTokens())
-    let duplicates = existingTokens.filter((x) => newContext[x] != null)
+    let duplicates = existingTokens.filter((x) => x in newContext)
     if (duplicates.length !== 0) {
       throw new ItiTokenError(
         `Tokens already exist: ['${duplicates.join("', '")}']`,
