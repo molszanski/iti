@@ -1,4 +1,5 @@
 import { makeRoot } from "../src/library.new-root-container"
+import { wait } from "./_utils"
 
 describe("Deleting and destructuring: ", () => {
   let root: ReturnType<typeof makeRoot>
@@ -60,6 +61,32 @@ describe("Deleting and destructuring: ", () => {
       })
 
       root.add({ a: "A", b: "B" }).delete("b")
+    })()
+  }, 100)
+
+  it.only("should send containerUpdated event on overwrite", (cb) => {
+    ;(async () => {
+      const node = root.add(() => ({
+        a: "A",
+        b: "B",
+      }))
+      let f1 = jest.fn()
+      let f2 = jest.fn()
+
+      node.subscribeToContiner("a", f1)
+      node.subscribeToContinerSet(["a", "b"], f2)
+
+      node.delete("a")
+
+      await wait(10)
+
+      expect(f1).toHaveBeenCalledTimes(1)
+      /**
+       * 2 becaus we have subscribed to two container, and this will provide us
+       * with two of those, hence two updates because two creations
+       */
+      expect(f2).toHaveBeenCalledTimes(2)
+      cb()
     })()
   }, 100)
 })

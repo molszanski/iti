@@ -42,7 +42,7 @@ type Events<Context> = {
   }) => void
   containerUpserted: (payload: {
     key: keyof Context
-    newContainer: Context[keyof Context]
+    newContainer: Context[keyof Context] | null
   }) => void
   containerDeleted: (payload: { key: keyof Context }) => void
 
@@ -88,6 +88,11 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       const storeInCache = (token: SearchToken, v: any) => {
         this._cache[token] = v
 
+        /**
+         * Not remember why this is here.
+         * I think to indicate when we create an instance
+         * or cache a function result
+         */
         this.ee.emit("containerUpserted", {
           key: token,
           newContainer: v,
@@ -120,6 +125,10 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     this.ee.emit("containerDeleted", {
       key: token as any,
     })
+    this.ee.emit("containerUpserted", {
+      key: token,
+      newContainer: null,
+    })
     return this as any
   }
 
@@ -134,7 +143,6 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       // Save state and clear cache
       this._context[token] = value
       delete this._cache[token]
-
       this.ee.emit("containerUpserted", {
         key: token as any,
         newContainer: value,
