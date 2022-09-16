@@ -50,13 +50,14 @@ describe("Deleting and destructuring: ", () => {
 
   it("should send containerUpdated event on overwrite", (cb) => {
     ;(async () => {
-      root.on("containerDeleted", (k) => {
+      root.on("containerDeleted", async (k) => {
         expect(k.key).toBe("b")
         root.on("containerUpserted", (k) => {
           expect(k.key).toBe("b")
           expect(k.newContainer).toBe("new B")
           cb()
         })
+        await wait(5)
         root.upsert({ b: "new B" })
       })
 
@@ -64,7 +65,7 @@ describe("Deleting and destructuring: ", () => {
     })()
   }, 100)
 
-  it.only("should send containerUpdated event on overwrite", (cb) => {
+  it("should send containerUpdated event on overwrite", (cb) => {
     ;(async () => {
       const node = root.add(() => ({
         a: "A",
@@ -85,8 +86,32 @@ describe("Deleting and destructuring: ", () => {
        * 2 becaus we have subscribed to two container, and this will provide us
        * with two of those, hence two updates because two creations
        */
-      expect(f2).toHaveBeenCalledTimes(2)
+      expect(f2).toHaveBeenCalledTimes(1)
       cb()
     })()
+  }, 100)
+
+  it("should send error if we remove a token some container listens to", (cb) => {
+    const node = root.add(() => ({
+      a: "A",
+      b: "B",
+    }))
+    node.subscribeToContiner("a", (err) => {
+      expect(err).not.toBe(null)
+      cb()
+    })
+    node.delete("a")
+  }, 100)
+
+  it("should send error if we remove a token some containerSet listens to", (cb) => {
+    const node = root.add(() => ({
+      a: "A",
+      b: "B",
+    }))
+    node.subscribeToContinerSet(["a", "b"], (err) => {
+      expect(err).not.toBe(null)
+      cb()
+    })
+    node.delete("a")
   }, 100)
 })

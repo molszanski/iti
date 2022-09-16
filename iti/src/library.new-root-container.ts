@@ -125,10 +125,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     this.ee.emit("containerDeleted", {
       key: token as any,
     })
-    this.ee.emit("containerUpserted", {
-      key: token,
-      newContainer: null,
-    })
+
     return this as any
   }
 
@@ -154,7 +151,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     token: T,
     cb: (err: any, container: UnpackFunction<Context[T]>) => void,
   ): () => void {
-    return this.ee.on("containerUpserted", async (ev) => {
+    const upsertUnsub = this.ee.on("containerUpserted", async (ev) => {
       if (token === ev.key) {
         try {
           const data = await this.get(token)
@@ -164,6 +161,15 @@ class Node<Context extends {}> extends AbstractNode<Context> {
         }
       }
     })
+    const deleteUnsub = this.ee.on("containerDeleted", async (ev) => {
+      if (token === ev.key) {
+        cb({ containerRemoved: token }, undefined as any)
+      }
+    })
+    return () => {
+      upsertUnsub()
+      deleteUnsub()
+    }
   }
 
   public getTokens(): {
@@ -267,7 +273,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     ) => void,
   ): () => void {
     let tokens = this._extractTokens(tokensOrCb)
-    return this.ee.on("containerUpserted", async (ev) => {
+    const upsertUnsub = this.ee.on("containerUpserted", async (ev) => {
       if (tokens.includes(ev.key)) {
         try {
           const cSet = await this.getContainerSet(tokens)
@@ -277,6 +283,15 @@ export class NodeApi<Context extends {}> extends Node<Context> {
         }
       }
     })
+    const daleteUnsub = this.ee.on("containerDeleted", async (ev) => {
+      if (tokens.includes(ev.key)) {
+        cb({ containerRemoved: ev.key }, undefined as any)
+      }
+    })
+    return () => {
+      upsertUnsub()
+      daleteUnsub()
+    }
   }
 
   // this can be optimized
