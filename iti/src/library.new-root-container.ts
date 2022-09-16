@@ -44,6 +44,7 @@ type Events<Context> = {
     key: keyof Context
     newContainer: Context[keyof Context]
   }) => void
+  containerDeleted: (payload: { key: keyof Context }) => void
 
   // Older events
   // containerCreated: (payload: {
@@ -109,6 +110,19 @@ class Node<Context extends {}> extends AbstractNode<Context> {
 
     throw new ItiResolveError(`Can't find token '${String(token)}' value`)
   }
+
+  public delete<SearchToken extends keyof Context>(
+    token: SearchToken,
+  ): NodeApi<Omit<Context, SearchToken>> {
+    delete this._context[token]
+    delete this._cache[token]
+
+    this.ee.emit("containerDeleted", {
+      key: token as any,
+    })
+    return this as any
+  }
+
   protected _updateContext(updatedContext: Context) {
     for (const [token, value] of Object.entries(updatedContext)) {
       if (token in this._context) {
