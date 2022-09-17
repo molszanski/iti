@@ -9,6 +9,8 @@ import {
   MyRecord,
   FullyUnpackObject,
   intersectionKeys,
+  UnPromisify,
+  UnpackFunctionReturn,
 } from "./_utils"
 import { ItiResolveError, ItiTokenError } from "./errors"
 
@@ -132,7 +134,9 @@ class Node<Context extends {}, DisposeContext extends {}> extends AbstractNode<
       // First, we should only dispose values we've touched / created
       if (token in this._cache) {
         if (typeof disposerFn === "function") {
-          thingsToDispose.push(disposerFn(this._cache[token]))
+          const cachedValue = this._cache[token]
+          const cachedValueResolved = await Promise.resolve(cachedValue)
+          thingsToDispose.push(disposerFn(cachedValueResolved))
         }
       }
     }
@@ -253,16 +257,22 @@ export class NodeApi<
     // Step 2: If everything is fine add a newContext
     return this.upsert(newContext)
   }
-
+  // {! [T in keyof NewContext]: NewContext[T] }
   public addDisposer<
     // This "magic" type gives user an Error in an IDE with a helpfull message
-    NewDisposerContext extends Intersection<
-      MyRecord<
-        DisposeContext,
-        "You are overwriting this token. It is not safe. Use an unsafe `upsert` method"
-      >,
-      NewDisposerContext
-    >,
+    NewDisposerContext extends {
+      [T in keyof Context]?: (
+        cached: UnPromisify<UnpackFunctionReturn<Context[T]>>,
+      ) => any
+    },
+
+    // extends Intersection<
+    //   MyRecord<
+    //     DisposeContext,
+    //     "You are overwriting this token. It is not safe. Use an unsafe `upsert` method"
+    //   >,
+    //   NewDisposerContext
+    // >,
   >(
     newContextOrCb: (
       containers: ContextGetter<Context>,
