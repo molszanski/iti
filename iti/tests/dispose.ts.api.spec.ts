@@ -20,6 +20,26 @@ describe("Disposing: ", () => {
 
   it.only("should be able to call dispose", (cb) => {
     ;(async () => {
+      let x = root
+        .add({
+          a: "Swet JIZSA sdjfhjsdlfjdsjjflkdsjfklsdmflsk",
+          b: 123123123,
+        })
+        .addDisposer(() => ({
+          a: () => "Swet JIZSA sdjfhjsdlfjdsjjflkdsjfklsdmflsk",
+          // b: () => 2,
+          // d: () => 3,
+          // c: () => 123,
+        }))
+      // .addDisposer(() => ({
+      //   a: () => "Swet JIZSA sdjfhjsdlfjdsjjflkdsjfklsdmflsk",
+      //   c: () => 123,
+      // }))
+      // .addDisposer(() => ({
+      //   a: () => "Swet JIZSA sdjfhjsdlfjdsjjflkdsjfklsdmflsk",
+      //   b: () => 2,
+      // }))
+
       let r = root
         .add({ mf: "Swet JIZSA", bc: null })
         .add({
@@ -32,24 +52,8 @@ describe("Disposing: ", () => {
           },
         })
         .addDisposer((ctx) => ({
-          a: () => {
-            console.log("disposing a", ctx.a)
-          },
-          b: () => {
-            console.log("disposing b", ctx.b)
-          },
-          // db: () => ctx.db.then((db) => db.disconnect()),
-          // db: async (a) => {
-          //   // const db = await ctx.db
-          //   // await db.disconnect()
-          //   console.log("aaa", a)
-          //   await a.disconnect()
-          // },
-
           db: (db) => db.disconnect(),
-        }))
-        .addDisposer((ctx) => ({
-          db: (db) => db.disconnect(),
+          // lol: (df) => "sadf",
         }))
 
       await r.get("a")

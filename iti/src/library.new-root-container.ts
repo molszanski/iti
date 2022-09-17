@@ -10,9 +10,16 @@ import {
   FullyUnpackObject,
   intersectionKeys,
   UnPromisify,
+  ValidateShape,
   UnpackFunctionReturn,
 } from "./_utils"
 import { ItiResolveError, ItiTokenError } from "./errors"
+
+// type ValidateShape<T, Shape> = T extends Shape
+//   ? Exclude<keyof T, keyof Shape> extends never
+//     ? T
+//     : never
+//   : never
 
 abstract class AbstractNode<Context extends {}, DisposeContext extends {}> {
   public abstract get<T extends keyof Context>(
@@ -260,12 +267,7 @@ export class NodeApi<
   // {! [T in keyof NewContext]: NewContext[T] }
   public addDisposer<
     // This "magic" type gives user an Error in an IDE with a helpfull message
-    NewDisposerContext extends {
-      [T in keyof Context]?: (
-        cached: UnPromisify<UnpackFunctionReturn<Context[T]>>,
-      ) => any
-    },
-
+    NewDisposerContext extends {},
     // extends Intersection<
     //   MyRecord<
     //     DisposeContext,
@@ -277,7 +279,14 @@ export class NodeApi<
     newContextOrCb: (
       containers: ContextGetter<Context>,
       self: NodeApi<Context, DisposeContext>,
-    ) => NewDisposerContext,
+    ) => ValidateShape<
+      NewDisposerContext,
+      {
+        [T in keyof Context]?: (
+          cachedValue: UnPromisify<UnpackFunctionReturn<Context[T]>>,
+        ) => any
+      }
+    >,
   ): NodeApi<Context, Assign4<DisposeContext, NewDisposerContext>> {
     let newDisposingCtx = newContextOrCb(this.containers, this)
 

@@ -82,3 +82,26 @@ export function intersectionKeys(
 // Promise.resolve(valueOrPromiseItDoesntMatter).then(function(value) {
 
 // })
+
+// type Person = {
+//   first: string
+//   last: string
+// }
+
+// const tooFew = { first: "Stefan" }
+// const exact = { first: "Stefan", last: "Baumgartner" }
+// const tooMany = { first: "Stefan", last: "Baumgartner", age: 37 }
+
+export type ValidateShape<T, Shape> = T extends Shape
+  ? Exclude<keyof T, keyof Shape> extends never
+    ? Shape
+    : never
+  : T
+
+// Exclude<keyof T, keyof Shape> extends never
+//     ? T
+// declare function savePerson<T>(person: ValidateShape<T, Person>): void
+
+// savePerson(tooFew) // ✅ doesn't work
+// savePerson(exact) // ✅ satisfies the contract
+// savePerson(tooMany) // 💥 doesn't work
