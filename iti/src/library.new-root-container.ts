@@ -1,32 +1,18 @@
 import { Intersection } from "utility-types"
 import { createNanoEvents, Emitter } from "./nanoevents"
-import { addGetter, Assign4, UnPromisify } from "./_utils"
+import {
+  addGetter,
+  Assign4,
+  KeysOrCb,
+  ContextGetter,
+  UnpackFunction,
+  MyRecord,
+  FullyUnpackObject,
+  intersectionKeys,
+} from "./_utils"
 import { ItiResolveError, ItiTokenError } from "./errors"
-type Prettify<T> = T extends infer U ? { [K in keyof U]: U[K] } : never
 
-export type UnpackFunction<T> = T extends (...args: any) => infer U ? U : T
-
-type T1 = UnpackFunction<() => string>
-type T2 = UnpackFunction<number>
-
-type UnpackObject<T> = {
-  [K in keyof T]: UnpackFunction<T[K]>
-}
-
-type T3 = UnpackObject<{ a: 1; b: 2 }>
-type T4 = UnpackObject<{ a: 1; b: () => Promise<3> }>
-
-type UnpromisifyObject<T> = {
-  [K in keyof T]: UnPromisify<T[K]>
-}
-// keep
-// type AssignAndUnpackObjects<O1 extends {}, O2 extends {}> = UnpromisifyObject<
-//   UnpackObject<Assign4<O1, O2>>
-// >
-
-type FullyUnpackObject<T extends {}> = UnpromisifyObject<UnpackObject<T>>
-
-abstract class AbstractNode<Context extends {}> {
+abstract class AbstractNode<Context extends {}, DisposeContext extends {}> {
   public abstract get<T extends keyof Context>(
     token: T,
   ): UnpackFunction<Context[T]>
@@ -55,9 +41,13 @@ type Events<Context> = {
   // containerRequested: (payload: { key: keyof Context }) => void
 }
 
-class Node<Context extends {}> extends AbstractNode<Context> {
+class Node<Context extends {}, DisposeContext extends {}> extends AbstractNode<
+  Context,
+  DisposeContext
+> {
   private _cache: { [K in keyof Context]?: any } = {}
   public _context: Context = <Context>{}
+  public _disposeCtx: { [K in keyof Context]?: any } = {}
 
   /**
    * EventEmitter Logic
@@ -99,9 +89,8 @@ class Node<Context extends {}> extends AbstractNode<Context> {
         })
       }
 
-      const tokenValue = this._context[token]
-      // console.log("tok", token, typeof tokenValue, tokenValue)
       // Case 2: If this token is a function we must launch and cache it
+      const tokenValue = this._context[token]
       if (typeof tokenValue === "function") {
         const providedValue = tokenValue()
         storeInCache(token, providedValue)
@@ -118,15 +107,41 @@ class Node<Context extends {}> extends AbstractNode<Context> {
 
   public delete<SearchToken extends keyof Context>(
     token: SearchToken,
-  ): NodeApi<Omit<Context, SearchToken>> {
+  ): NodeApi<Omit<Context, SearchToken>, DisposeContext> {
     delete this._context[token]
     delete this._cache[token]
+    delete this._disposeCtx[token]
 
     this.ee.emit("containerDeleted", {
       key: token as any,
     })
 
     return this as any
+  }
+
+  /**
+   * Will naively dispose all the containers in the dispose context.
+   *
+   * It will only dispose values we've touched / created.
+   *
+   * Always async, because disposing is 95% async anyway
+   */
+  public async disposeAll() {
+    const thingsToDispose: any[] = []
+    for (const [token, disposerFn] of Object.entries(this._disposeCtx)) {
+      // First, we should only dispose values we've touched / created
+      if (token in this._cache) {
+        if (typeof disposerFn === "function") {
+          thingsToDispose.push(disposerFn(this._cache[token]))
+        }
+      }
+    }
+    console.log("lol")
+    // We wait for all the disposers to finish and clear all cache
+    await Promise.all(thingsToDispose)
+    this._cache = {}
+
+    return thingsToDispose
   }
 
   protected _updateContext(updatedContext: Context) {
@@ -182,20 +197,10 @@ class Node<Context extends {}> extends AbstractNode<Context> {
   }
 }
 
-type ReduceToKeys<T extends {}> = { [K in keyof T]: K }
-type KeysOrCb<Context extends {}> =
-  | Array<keyof Context>
-  | ((t: { [K in keyof Context]: K }) => Array<keyof Context>)
-type KeysOrCbWIthArg<Context, ARG> = Context | ((t: ARG) => Context)
-
-type MyRecord<O extends {}, T> = {
-  [K in keyof O]: T
-}
-type ContextGetter<Context extends {}> = {
-  [CK in keyof Context]: UnpackFunction<Context[CK]>
-}
-
-export class NodeApi<Context extends {}> extends Node<Context> {
+export class NodeApi<
+  Context extends {},
+  DisposeContext extends {},
+> extends Node<Context, DisposeContext> {
   constructor() {
     super()
   }
@@ -206,9 +211,9 @@ export class NodeApi<Context extends {}> extends Node<Context> {
       | NewContext
       | ((
           containers: ContextGetter<Context>,
-          self: NodeApi<Context>,
+          self: NodeApi<Context, DisposeContext>,
         ) => NewContext),
-  ): NodeApi<Assign4<Context, NewContext>> {
+  ): NodeApi<Assign4<Context, NewContext>, DisposeContext> {
     let nc =
       typeof newContext === "function"
         ? // @ts-expect-error
@@ -232,25 +237,51 @@ export class NodeApi<Context extends {}> extends Node<Context> {
       | NewContext
       | ((
           containers: ContextGetter<Context>,
-          self: NodeApi<Context>,
+          self: NodeApi<Context, DisposeContext>,
         ) => NewContext),
-  ): NodeApi<Assign4<Context, NewContext>> {
+  ): NodeApi<Assign4<Context, NewContext>, DisposeContext> {
     let newContext =
       typeof newContextOrCb === "function"
         ? newContextOrCb(this.containers, this)
         : newContextOrCb
 
     // Step 1: Runtime check for existing tokens in context
-    var existingTokens = Object.keys(this.getTokens())
-    let duplicates = existingTokens.filter((x) => x in newContext)
-    if (duplicates.length !== 0) {
-      throw new ItiTokenError(
-        `Tokens already exist: ['${duplicates.join("', '")}']`,
-      )
-    }
+    const duplicates = intersectionKeys(newContext, this.getTokens())
+    if (duplicates)
+      throw new ItiTokenError(`Tokens already exist: ['${duplicates}']`)
 
     // Step 2: If everything is fine add a newContext
     return this.upsert(newContext)
+  }
+
+  public addDisposer<
+    // This "magic" type gives user an Error in an IDE with a helpfull message
+    NewDisposerContext extends Intersection<
+      MyRecord<
+        DisposeContext,
+        "You are overwriting this token. It is not safe. Use an unsafe `upsert` method"
+      >,
+      NewDisposerContext
+    >,
+  >(
+    newContextOrCb: (
+      containers: ContextGetter<Context>,
+      self: NodeApi<Context, DisposeContext>,
+    ) => NewDisposerContext,
+  ): NodeApi<Context, Assign4<DisposeContext, NewDisposerContext>> {
+    let newDisposingCtx = newContextOrCb(this.containers, this)
+
+    //Step 1: Runtime check for existing tokens in Dispose context
+    const duplicates = intersectionKeys(newDisposingCtx, this._disposeCtx)
+    if (duplicates)
+      throw new ItiTokenError(`Tokens already exist: ['${duplicates}']`)
+
+    // Step 2: Add disposer context
+    for (const [token, value] of Object.entries(newDisposingCtx)) {
+      this._disposeCtx[token] = value
+    }
+
+    return this as any
   }
 
   public _extractTokens<T extends keyof Context>(
