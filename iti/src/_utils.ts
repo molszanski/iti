@@ -57,7 +57,7 @@ export type ContextGetterWithCache<Context extends {}> = {
   [CK in keyof Context]: UnpackFunctionReturn<Context[CK]>
 }
 
-export function intersectionKeys(
+export function _intersectionKeys(
   needle: { [key: string]: any },
   haystack: { [key: string]: any },
 ) {
@@ -92,15 +92,15 @@ export function intersectionKeys(
 // const exact = { first: "Stefan", last: "Baumgartner" }
 // const tooMany = { first: "Stefan", last: "Baumgartner", age: 37 }
 
-export type ValidateShape<T, Shape> = T extends Shape
+export type CastToShape<T, Shape> = T extends Shape
   ? Exclude<keyof T, keyof Shape> extends never
     ? Shape
     : never
-  : T
+  : Shape
 
-// Exclude<keyof T, keyof Shape> extends never
-//     ? T
-// declare function savePerson<T>(person: ValidateShape<T, Person>): void
+// // Exclude<keyof T, keyof Shape> extends never
+// //     ? T
+// declare function savePerson<T>(person: CastToShape<T, Person>): void
 
 // savePerson(tooFew) // ✅ doesn't work
 // savePerson(exact) // ✅ satisfies the contract

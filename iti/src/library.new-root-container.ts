@@ -8,9 +8,9 @@ import {
   UnpackFunction,
   MyRecord,
   FullyUnpackObject,
-  intersectionKeys,
+  _intersectionKeys,
   UnPromisify,
-  ValidateShape,
+  CastToShape,
   UnpackFunctionReturn,
 } from "./_utils"
 import { ItiResolveError, ItiTokenError } from "./errors"
@@ -54,8 +54,21 @@ class Node<Context extends {}, DisposeContext extends {}> extends AbstractNode<
   Context,
   DisposeContext
 > {
+  /**
+   * When we create a new class instance or function, we cache the output
+   */
   private _cache: { [K in keyof Context]?: any } = {}
+
+  /**
+   * Holds key:value factories in a form token:factory
+   */
   public _context: Context = <Context>{}
+
+  /**
+   * Here we hold references to "disposers".
+   * A disposer is a function assigned to a token that will be called when
+   * `dispose` call is made.
+   */
   public _disposeCtx: { [K in keyof Context]?: any } = {}
 
   /**
@@ -147,7 +160,6 @@ class Node<Context extends {}, DisposeContext extends {}> extends AbstractNode<
         }
       }
     }
-    console.log("lol")
     // We wait for all the disposers to finish and clear all cache
     await Promise.all(thingsToDispose)
     this._cache = {}
@@ -257,7 +269,7 @@ export class NodeApi<
         : newContextOrCb
 
     // Step 1: Runtime check for existing tokens in context
-    const duplicates = intersectionKeys(newContext, this.getTokens())
+    const duplicates = _intersectionKeys(newContext, this.getTokens())
     if (duplicates)
       throw new ItiTokenError(`Tokens already exist: ['${duplicates}']`)
 
@@ -266,32 +278,21 @@ export class NodeApi<
   }
   // {! [T in keyof NewContext]: NewContext[T] }
   public addDisposer<
-    // This "magic" type gives user an Error in an IDE with a helpfull message
-    NewDisposerContext extends {},
-    // extends Intersection<
-    //   MyRecord<
-    //     DisposeContext,
-    //     "You are overwriting this token. It is not safe. Use an unsafe `upsert` method"
-    //   >,
-    //   NewDisposerContext
-    // >,
+    NewDisposerContext extends {
+      [T in keyof Context]?: (
+        cachedValue: UnPromisify<UnpackFunctionReturn<Context[T]>>,
+      ) => any
+    },
   >(
     newContextOrCb: (
       containers: ContextGetter<Context>,
       self: NodeApi<Context, DisposeContext>,
-    ) => ValidateShape<
-      NewDisposerContext,
-      {
-        [T in keyof Context]?: (
-          cachedValue: UnPromisify<UnpackFunctionReturn<Context[T]>>,
-        ) => any
-      }
-    >,
+    ) => NewDisposerContext,
   ): NodeApi<Context, Assign4<DisposeContext, NewDisposerContext>> {
     let newDisposingCtx = newContextOrCb(this.containers, this)
 
-    //Step 1: Runtime check for existing tokens in Dispose context
-    const duplicates = intersectionKeys(newDisposingCtx, this._disposeCtx)
+    // Step 1: Runtime check for existing tokens in a Dispose Context
+    const duplicates = _intersectionKeys(newDisposingCtx, this._disposeCtx)
     if (duplicates)
       throw new ItiTokenError(`Tokens already exist: ['${duplicates}']`)
 
