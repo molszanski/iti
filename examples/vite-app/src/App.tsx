@@ -5,9 +5,6 @@ import { MyAppContext, useContainer } from "./hooks"
 import { app } from "./_bl"
 
 const Lol = () => {
-  // console.log(app)
-  // const a = app.get("a")
-  // console.log(a)
   const [b, bErr] = useContainer().b
   console.log("render", b, bErr)
   return <p>123</p>
