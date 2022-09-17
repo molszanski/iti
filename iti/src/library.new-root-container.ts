@@ -42,8 +42,9 @@ type Events<Context> = {
   }) => void
   containerUpserted: (payload: {
     key: keyof Context
-    newContainer: Context[keyof Context]
+    newContainer: Context[keyof Context] | null
   }) => void
+  containerDeleted: (payload: { key: keyof Context }) => void
 
   // Older events
   // containerCreated: (payload: {
@@ -87,6 +88,11 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       const storeInCache = (token: SearchToken, v: any) => {
         this._cache[token] = v
 
+        /**
+         * Not remember why this is here.
+         * I think to indicate when we create an instance
+         * or cache a function result
+         */
         this.ee.emit("containerUpserted", {
           key: token,
           newContainer: v,
@@ -109,6 +115,20 @@ class Node<Context extends {}> extends AbstractNode<Context> {
 
     throw new ItiResolveError(`Can't find token '${String(token)}' value`)
   }
+
+  public delete<SearchToken extends keyof Context>(
+    token: SearchToken,
+  ): NodeApi<Omit<Context, SearchToken>> {
+    delete this._context[token]
+    delete this._cache[token]
+
+    this.ee.emit("containerDeleted", {
+      key: token as any,
+    })
+
+    return this as any
+  }
+
   protected _updateContext(updatedContext: Context) {
     for (const [token, value] of Object.entries(updatedContext)) {
       if (token in this._context) {
@@ -120,7 +140,6 @@ class Node<Context extends {}> extends AbstractNode<Context> {
       // Save state and clear cache
       this._context[token] = value
       delete this._cache[token]
-
       this.ee.emit("containerUpserted", {
         key: token as any,
         newContainer: value,
@@ -132,7 +151,7 @@ class Node<Context extends {}> extends AbstractNode<Context> {
     token: T,
     cb: (err: any, container: UnpackFunction<Context[T]>) => void,
   ): () => void {
-    return this.ee.on("containerUpserted", async (ev) => {
+    const upsertUnsub = this.ee.on("containerUpserted", async (ev) => {
       if (token === ev.key) {
         try {
           const data = await this.get(token)
@@ -142,6 +161,15 @@ class Node<Context extends {}> extends AbstractNode<Context> {
         }
       }
     })
+    const deleteUnsub = this.ee.on("containerDeleted", async (ev) => {
+      if (token === ev.key) {
+        cb({ containerRemoved: token }, undefined as any)
+      }
+    })
+    return () => {
+      upsertUnsub()
+      deleteUnsub()
+    }
   }
 
   public getTokens(): {
@@ -245,7 +273,7 @@ export class NodeApi<Context extends {}> extends Node<Context> {
     ) => void,
   ): () => void {
     let tokens = this._extractTokens(tokensOrCb)
-    return this.ee.on("containerUpserted", async (ev) => {
+    const upsertUnsub = this.ee.on("containerUpserted", async (ev) => {
       if (tokens.includes(ev.key)) {
         try {
           const cSet = await this.getContainerSet(tokens)
@@ -255,6 +283,15 @@ export class NodeApi<Context extends {}> extends Node<Context> {
         }
       }
     })
+    const daleteUnsub = this.ee.on("containerDeleted", async (ev) => {
+      if (tokens.includes(ev.key)) {
+        cb({ containerRemoved: ev.key }, undefined as any)
+      }
+    })
+    return () => {
+      upsertUnsub()
+      daleteUnsub()
+    }
   }
 
   // this can be optimized
