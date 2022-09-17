@@ -323,6 +323,39 @@ When containers are updated React is updated too via hooks
 
 Plainly removes token and value from an instance
 
+### `dispose`
+
+Related toa a conversation with @moltar
+https://github.com/molszanski/iti/issues/21
+
+Propblem
+
+```ts
+class DatabaseConnection {
+  disconnect(): Promise<void> {
+    // ... disconnect
+  }
+}
+
+let node = makeRoot()
+  .add({
+    db: () => new DatabaseConnection(),
+  })
+  .dispose({
+    db: (containers) => containers.db.disconnect(),
+  })
+
+// disposes of for all resources that have it defined
+await node.dispose()
+
+// under the hood (internals)
+class Node {
+  async dispose(): Promise<void> {
+    await Promise.all(this.getDisposableResources().map((r) => r()))
+  }
+}
+```
+
 # Alternaitves
 
 ## No async support
