@@ -97,6 +97,9 @@ await node.containers.kitchen // same as above
 await root.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
 await root.getContainerSet((c) => [c.userManual, c.oven]) // same as above
 
+// Plain deletion
+node.delete("kitchen")
+
 // Subscribe to container changes
 node.subscribeToContiner("oven", (oven) => {})
 node.subscribeToContinerSet(["oven", "kitchen"], ({ oven, kitchen }) => {})
@@ -104,6 +107,7 @@ node.subscribeToContinerSet(["oven", "kitchen"], ({ oven, kitchen }) => {})
 node.subscribeToContinerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
 node.on("containerUpdated", ({ key, newContainer }) => {})
 node.on("containerUpserted", ({ key, newContainer }) => {})
+node.on("containerDeleted", ({ key, newContainer }) => {})
 ```
 
 **Writing**
@@ -314,6 +318,10 @@ kitchen.oven.pizzaCapacity // 4
 ### `upsert`
 
 When containers are updated React is updated too via hooks
+
+### `delete`
+
+Plainly removes token and value from an instance
 
 # Alternaitves
 
