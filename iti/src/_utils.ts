@@ -12,7 +12,7 @@ export function addGetter(object, key, fn: any) {
   })
 }
 
-export type Assign4<OldContext extends object, NewContext extends object> = {
+export type Assign<OldContext extends object, NewContext extends object> = {
   [Token in keyof ({
     [K in keyof OldContext]: OldContext[K]
   } & {
