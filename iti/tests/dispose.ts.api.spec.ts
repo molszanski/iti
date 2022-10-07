@@ -100,7 +100,7 @@ describe("Disposing: ", () => {
   })
 })
 
-describe("Disposing graph: ", () => {
+describe("Individual disposing: ", () => {
   let root = makeRoot()
   let disposerOfA = jest.fn()
   let node = root.add({ a: "A" }).addDisposer({ a: disposerOfA })
@@ -130,6 +130,25 @@ describe("Disposing graph: ", () => {
     expect(disposerOfA).toHaveBeenCalledTimes(1)
   })
 
+  it("should emit a dispose event when disposed", () => {
+    return new Promise(async (resolve) => {
+      node.get("a")
+      node.on("containerDisposed", (payload) => {
+        expect(payload.key).toBe("a")
+        resolve(true)
+      })
+      node.dispose("a")
+    })
+  })
+})
+
+describe("Disposing graph: ", () => {
+  let root = makeRoot()
+
+  beforeEach(() => {
+    root = makeRoot()
+  })
+
   class DB {
     public connected = false
     constructor() {}
@@ -143,7 +162,7 @@ describe("Disposing graph: ", () => {
     }
   }
 
-  it("should call async dispose with correct instances and correct times", async () => {
+  it.skip("should call async dispose with correct instances and correct times", async () => {
     const disposerDb = jest.fn()
     const node = makeRoot()
       .add({

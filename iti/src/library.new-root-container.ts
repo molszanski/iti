@@ -39,6 +39,7 @@ type Events<Context> = {
     newContainer: Context[keyof Context] | null
   }) => void
   containerDeleted: (payload: { key: keyof Context }) => void
+  containerDisposed: (payload: { key: keyof Context }) => void
 
   // Older events
   // containerCreated: (payload: {
@@ -159,6 +160,7 @@ class Node<
     }
     delete this._cache[token]
     delete this._disposeCtx[token]
+    this.ee.emit("containerDisposed", { key: token })
   }
 
   /**
