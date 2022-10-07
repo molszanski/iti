@@ -156,11 +156,20 @@ class Node<
     if (typeof disposerFn === "function") {
       const cachedValue = this._cache[token]
       const cachedValueResolved = await Promise.resolve(cachedValue)
-      await disposerFn(cachedValueResolved)
+
+      const disposeResult = disposerFn(cachedValueResolved)
+
+      const cleanup = () => {
+        delete this._cache[token]
+        this.ee.emit("containerDisposed", { key: token })
+      }
+      if (disposeResult instanceof Promise) {
+        disposeResult.then(cleanup)
+      } else {
+        cleanup()
+      }
+      return disposeResult
     }
-    delete this._cache[token]
-    delete this._disposeCtx[token]
-    this.ee.emit("containerDisposed", { key: token })
   }
 
   /**
@@ -171,22 +180,12 @@ class Node<
    * Always async, because disposing is 95% async anyway
    */
   public async disposeAll() {
-    const thingsToDispose: any[] = []
-    for (const [token, disposerFn] of Object.entries(this._disposeCtx)) {
-      // First, we should only dispose values we've touched / created
-      if (token in this._cache) {
-        if (typeof disposerFn === "function") {
-          const cachedValue = this._cache[token]
-          const cachedValueResolved = await Promise.resolve(cachedValue)
-          thingsToDispose.push(disposerFn(cachedValueResolved))
-        }
-      }
-    }
+    const thingsToDispose = Object.keys(this._disposeCtx).map((token) =>
+      this.dispose(token as any),
+    )
+
     // We wait for all the disposers to finish and clear all cache
     await Promise.all(thingsToDispose)
-    this._cache = {}
-
-    return thingsToDispose
   }
 
   protected _updateContext(updatedContext: Context) {
