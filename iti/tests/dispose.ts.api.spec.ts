@@ -162,7 +162,7 @@ describe("Disposing graph: ", () => {
     }
   }
 
-  it.skip("should call async dispose with correct instances and correct times", async () => {
+  it("should call async dispose with correct instances and correct times", async () => {
     const disposerDb = jest.fn()
     const node = makeRoot()
       .add({
