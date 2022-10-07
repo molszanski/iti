@@ -12,9 +12,10 @@ type ContainerSet<Tokens extends keyof Context, Context extends {}> = {
   [S in Tokens]: UnpackTokenFromContext<S, Context>
 }
 
-export function getContainerSetHooks<Context extends object>(
-  reactContext: React.Context<NodeApi<Context>>,
-) {
+export function getContainerSetHooks<
+  Context extends object,
+  DisposeContext extends object,
+>(reactContext: React.Context<NodeApi<Context, DisposeContext>>) {
   function useContainer() {
     const root = useContext(reactContext)
     return useRootStores(root)
@@ -32,7 +33,7 @@ export function getContainerSetHooks<Context extends object>(
         ? [UnpackTokenFromContext<CK, Context> | undefined, any, CK]
         : never
     },
-  >(appRoot: NodeApi<Context>): ContainerGetter {
+  >(appRoot: NodeApi<Context, DisposeContext>): ContainerGetter {
     let FFF = <ContainerGetter>{}
     let tokens = appRoot.getTokens()
 

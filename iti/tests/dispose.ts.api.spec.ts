@@ -70,7 +70,7 @@ describe("Disposing: ", () => {
         db: () => new DB(),
       })
       .addDisposer((ctx) => ({
-        db: (db) => (db) => {
+        db: (db) => {
           disposers.db()
           return db.disconnect()
         },
