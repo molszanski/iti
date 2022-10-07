@@ -20,7 +20,7 @@ import { ItiResolveError, ItiTokenError } from "./errors"
 //     : never
 //   : never
 
-abstract class AbstractNode<Context extends {}, DisposeContext extends {}> {
+abstract class AbstractNode<Context extends {}> {
   public abstract get<T extends keyof Context>(
     token: T,
   ): UnpackFunction<Context[T]>
@@ -49,10 +49,10 @@ type Events<Context> = {
   // containerRequested: (payload: { key: keyof Context }) => void
 }
 
-class Node<Context extends {}, DisposeContext extends {}> extends AbstractNode<
-  Context,
-  DisposeContext
-> {
+class Node<
+  Context extends {},
+  DisposeContext extends {},
+> extends AbstractNode<Context> {
   /**
    * When we create a new class instance or function, we cache the output
    */
@@ -68,7 +68,7 @@ class Node<Context extends {}, DisposeContext extends {}> extends AbstractNode<
    * A disposer is a function assigned to a token that will be called when
    * `dispose` call is made.
    */
-  public _disposeCtx: { [K in keyof Context]?: any } = {}
+  public _disposeCtx: { [K in keyof DisposeContext]?: any } = {}
 
   /**
    * EventEmitter Logic
@@ -131,6 +131,8 @@ class Node<Context extends {}, DisposeContext extends {}> extends AbstractNode<
   ): NodeApi<Omit<Context, SearchToken>, DisposeContext> {
     delete this._context[token]
     delete this._cache[token]
+    // There is no need to check for disposer existence, since delete will not throw
+    // @ts-expect-error
     delete this._disposeCtx[token]
 
     this.ee.emit("containerDeleted", {
@@ -138,6 +140,25 @@ class Node<Context extends {}, DisposeContext extends {}> extends AbstractNode<
     })
 
     return this as any
+  }
+
+  public async dispose<
+    DisposeToken extends keyof DisposeContext & keyof Context,
+  >(token: DisposeToken): Promise<void> {
+    const tokenHasDisposerFn = token in this._disposeCtx
+    const tokenHasBeenResolved = token in this._cache
+
+    if (!tokenHasDisposerFn || !tokenHasBeenResolved) return
+
+    const disposerFn = this._disposeCtx[token]
+
+    if (typeof disposerFn === "function") {
+      const cachedValue = this._cache[token]
+      const cachedValueResolved = await Promise.resolve(cachedValue)
+      await disposerFn(cachedValueResolved)
+    }
+    delete this._cache[token]
+    delete this._disposeCtx[token]
   }
 
   /**
@@ -283,12 +304,17 @@ export class NodeApi<
       ) => any
     },
   >(
-    newContextOrCb: (
-      containers: ContextGetter<Context>,
-      self: NodeApi<Context, DisposeContext>,
-    ) => NewDisposerContext,
+    newContextOrCb:
+      | NewDisposerContext
+      | ((
+          containers: ContextGetter<Context>,
+          self: NodeApi<Context, DisposeContext>,
+        ) => NewDisposerContext),
   ): NodeApi<Context, Assign4<DisposeContext, NewDisposerContext>> {
-    let newDisposingCtx = newContextOrCb(this.containers, this)
+    let newDisposingCtx =
+      typeof newContextOrCb === "function"
+        ? newContextOrCb(this.containers, this)
+        : newContextOrCb
 
     // Step 1: Runtime check for existing tokens in a Dispose Context
     const duplicates = _intersectionKeys(newDisposingCtx, this._disposeCtx)

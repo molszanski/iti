@@ -99,3 +99,69 @@ describe("Disposing: ", () => {
     }).toThrow()
   })
 })
+
+describe("Disposing graph: ", () => {
+  let root = makeRoot()
+  let disposerOfA = jest.fn()
+  let node = root.add({ a: "A" }).addDisposer({ a: disposerOfA })
+
+  beforeEach(() => {
+    disposerOfA.mockReset()
+    root = makeRoot()
+    node = root.add({ a: "A" }).addDisposer({ a: disposerOfA })
+  })
+
+  it("should dispose a resolved value call a never resolved object", async () => {
+    node.get("a")
+    await node.dispose("a")
+    expect(disposerOfA).toHaveBeenCalledTimes(1)
+  })
+
+  it("should not call a never resolved object", async () => {
+    await node.dispose("a")
+    expect(disposerOfA).toHaveBeenCalledTimes(0)
+  })
+
+  it("should not call dispose on already disposed object", async () => {
+    node.get("a")
+    await node.dispose("a")
+    await node.dispose("a")
+
+    expect(disposerOfA).toHaveBeenCalledTimes(1)
+  })
+
+  class DB {
+    public connected = false
+    constructor() {}
+    async connect() {
+      this.connected = true
+      await wait(10)
+    }
+    async disconnect() {
+      await wait(20)
+      this.connected = false
+    }
+  }
+
+  it("should call async dispose with correct instances and correct times", async () => {
+    const disposerDb = jest.fn()
+    const node = makeRoot()
+      .add({
+        db: () => new DB(),
+      })
+      .addDisposer((ctx) => ({
+        db: async (db) => {
+          expect((await ctx.db) instanceof DB).toBe(true)
+          expect(db instanceof DB).toBe(true)
+          disposerDb()
+          return
+        },
+      }))
+
+    node.get("db")
+    await node.dispose("db")
+    await node.dispose("db")
+
+    expect(disposerDb).toHaveBeenCalledTimes(1)
+  })
+})
