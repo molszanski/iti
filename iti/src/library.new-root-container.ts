@@ -2,7 +2,8 @@ import { Intersection } from "utility-types"
 import { createNanoEvents, Emitter } from "./nanoevents"
 import {
   addGetter,
-  Assign4,
+  Prettify,
+  Assign,
   KeysOrCb,
   ContextGetter,
   UnpackFunction,
@@ -251,7 +252,7 @@ export class NodeApi<
           containers: ContextGetter<Context>,
           self: NodeApi<Context, DisposeContext>,
         ) => NewContext),
-  ): NodeApi<Assign4<Context, NewContext>, DisposeContext> {
+  ): NodeApi<Assign<Context, NewContext>, DisposeContext> {
     let nc =
       typeof newContext === "function"
         ? // @ts-expect-error
@@ -277,7 +278,7 @@ export class NodeApi<
           containers: ContextGetter<Context>,
           self: NodeApi<Context, DisposeContext>,
         ) => NewContext),
-  ): NodeApi<Assign4<Context, NewContext>, DisposeContext> {
+  ): NodeApi<Assign<Context, NewContext>, DisposeContext> {
     let newContext =
       typeof newContextOrCb === "function"
         ? newContextOrCb(this.containers, this)
@@ -289,7 +290,8 @@ export class NodeApi<
       throw new ItiTokenError(`Tokens already exist: ['${duplicates}']`)
 
     // Step 2: If everything is fine add a newContext
-    return this.upsert(newContext)
+    let m = this.upsert(newContext)
+    return m
   }
   // {! [T in keyof NewContext]: NewContext[T] }
   public addDisposer<
@@ -305,7 +307,7 @@ export class NodeApi<
           containers: ContextGetter<Context>,
           self: NodeApi<Context, DisposeContext>,
         ) => NewDisposerContext),
-  ): NodeApi<Context, Assign4<DisposeContext, NewDisposerContext>> {
+  ): NodeApi<Context, Assign<DisposeContext, NewDisposerContext>> {
     let newDisposingCtx =
       typeof newContextOrCb === "function"
         ? newContextOrCb(this.containers, this)
