@@ -74,8 +74,8 @@ describe("Deleting and destructuring: ", () => {
       let f1 = jest.fn()
       let f2 = jest.fn()
 
-      node.subscribeToContiner("a", f1)
-      node.subscribeToContinerSet(["a", "b"], f2)
+      node.subscribeToContainer("a", f1)
+      node.subscribeToContainerSet(["a", "b"], f2)
 
       node.delete("a")
 
@@ -96,7 +96,7 @@ describe("Deleting and destructuring: ", () => {
       a: "A",
       b: "B",
     }))
-    node.subscribeToContiner("a", (err) => {
+    node.subscribeToContainer("a", (err) => {
       expect(err).not.toBe(null)
       cb()
     })
@@ -108,7 +108,7 @@ describe("Deleting and destructuring: ", () => {
       a: "A",
       b: "B",
     }))
-    node.subscribeToContinerSet(["a", "b"], (err) => {
+    node.subscribeToContainerSet(["a", "b"], (err) => {
       expect(err).not.toBe(null)
       cb()
     })

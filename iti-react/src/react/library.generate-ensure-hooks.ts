@@ -9,7 +9,7 @@ export function generateEnsureContainerSet<ContainerSetContext>(
     return useContext(EnsureReactContext)
   }
 
-  const EnsureConainer = (props: {
+  const EnsureContainer = (props: {
     fallback?: JSX.Element
     children: React.ReactNode
   }) => {
@@ -30,7 +30,7 @@ export function generateEnsureContainerSet<ContainerSetContext>(
   }
 
   return {
-    EnsureWrapper: EnsureConainer,
+    EnsureWrapper: EnsureContainer,
     contextHook: useThatContext,
   }
 }

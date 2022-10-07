@@ -25,7 +25,7 @@ export function getContainerSetHooks<
     /**
      * Basically a nice api for hooks
      * {
-     *   name: () => [containerInstance, errr ]
+     *   name: () => [containerInstance, err ]
      * }
      */
     ContainerGetter extends {
@@ -42,7 +42,7 @@ export function getContainerSetHooks<
         useBetterGenericContainer(
           () => appRoot.containers[contKey as any],
           // @ts-expect-error
-          (cb: () => any) => appRoot.subscribeToContiner(contKey, cb),
+          (cb: () => any) => appRoot.subscribeToContainer(contKey, cb),
           contKey,
         ),
       )
@@ -76,14 +76,17 @@ export function getContainerSetHooks<
     }, tokens)
 
     useEffect(() => {
-      const unsub = root.subscribeToContinerSet(tokens, (err, contSet) => {
-        if (err) {
-          setErr(err)
-          return
-        }
-        setAll(contSet)
-      })
-      return unsub
+      const unsubscribe = root.subscribeToContainerSet(
+        tokens,
+        (err, contSet) => {
+          if (err) {
+            setErr(err)
+            return
+          }
+          setAll(contSet)
+        },
+      )
+      return unsubscribe
     }, tokens)
 
     return [all, err]

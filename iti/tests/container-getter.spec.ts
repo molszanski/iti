@@ -24,7 +24,7 @@ it("should subscribe to a single container", (cb) => {
     expect(cont.containers.aCont).toBeInstanceOf(Promise)
 
     let m = jest.fn()
-    cont.subscribeToContiner("cCont", m)
+    cont.subscribeToContainer("cCont", m)
     let cCont = await cont.get("cCont")
     cCont.upgradeCContainer()
 

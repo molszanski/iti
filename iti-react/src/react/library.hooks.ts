@@ -7,7 +7,7 @@ export type ContainerGeneric<T> = {
   key?: string
 }
 
-export type ContainerGenericBettter<T> = [
+export type ContainerGenericBetter<T> = [
   container?: T,
   error?: Error,
   key?: string,
@@ -17,7 +17,7 @@ export function useBetterGenericContainer<T>(
   containerPromise: () => Promise<T>,
   subscribeFunction: (cb: (err: any, container: T) => void) => () => void,
   containerKey: string,
-): ContainerGenericBettter<T> {
+): ContainerGenericBetter<T> {
   const [data, setData] = useState<any>(undefined)
   const [error, setError] = useState<any>(undefined)
 

@@ -14,12 +14,6 @@ import {
 } from "./_utils"
 import { ItiResolveError, ItiTokenError } from "./errors"
 
-// type ValidateShape<T, Shape> = T extends Shape
-//   ? Exclude<keyof T, keyof Shape> extends never
-//     ? T
-//     : never
-//   : never
-
 abstract class AbstractNode<Context extends {}> {
   public abstract get<T extends keyof Context>(
     token: T,
@@ -91,7 +85,7 @@ class Node<
      * FLOW A: We have this is in a current context
      */
     if (token in this._context) {
-      // Case 1: If this token was a funtion / provider it might be in a cache
+      // Case 1: If this token was a function / provider it might be in a cache
       if (token in this._cache) {
         const cachedValue = this._cache[token]
         return cachedValue
@@ -206,11 +200,11 @@ class Node<
     }
   }
 
-  public subscribeToContiner<T extends keyof Context>(
+  public subscribeToContainer<T extends keyof Context>(
     token: T,
     cb: (err: any, container: UnpackFunction<Context[T]>) => void,
   ): () => void {
-    const upsertUnsub = this.ee.on("containerUpserted", async (ev) => {
+    const upsertUnsubscribe = this.ee.on("containerUpserted", async (ev) => {
       if (token === ev.key) {
         try {
           const data = await this.get(token)
@@ -220,14 +214,14 @@ class Node<
         }
       }
     })
-    const deleteUnsub = this.ee.on("containerDeleted", async (ev) => {
+    const deleteUnsubscribe = this.ee.on("containerDeleted", async (ev) => {
       if (token === ev.key) {
         cb({ containerRemoved: token }, undefined as any)
       }
     })
     return () => {
-      upsertUnsub()
-      deleteUnsub()
+      upsertUnsubscribe()
+      deleteUnsubscribe()
     }
   }
 
@@ -268,7 +262,7 @@ export class NodeApi<
   }
 
   public add<
-    // This "magic" type gives user an Error in an IDE with a helpfull message
+    // This "magic" type gives user an Error in an IDE with a helpful message
     NewContext extends Intersection<
       MyRecord<
         Context,
@@ -340,7 +334,7 @@ export class NodeApi<
     }
   }
 
-  public subscribeToContinerSet<T extends keyof Context>(
+  public subscribeToContainerSet<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,
     cb: (
       err: any,
@@ -350,7 +344,7 @@ export class NodeApi<
     ) => void,
   ): () => void {
     let tokens = this._extractTokens(tokensOrCb)
-    const upsertUnsub = this.ee.on("containerUpserted", async (ev) => {
+    const upsertUnsubscribe = this.ee.on("containerUpserted", async (ev) => {
       if (tokens.includes(ev.key)) {
         try {
           const cSet = await this.getContainerSet(tokens)
@@ -360,14 +354,14 @@ export class NodeApi<
         }
       }
     })
-    const daleteUnsub = this.ee.on("containerDeleted", async (ev) => {
+    const deleteUnsubscribe = this.ee.on("containerDeleted", async (ev) => {
       if (tokens.includes(ev.key)) {
         cb({ containerRemoved: ev.key }, undefined as any)
       }
     })
     return () => {
-      upsertUnsub()
-      daleteUnsub()
+      upsertUnsubscribe()
+      deleteUnsubscribe()
     }
   }
 
