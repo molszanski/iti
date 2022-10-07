@@ -328,8 +328,6 @@ Plainly removes token and value from an instance
 Related toa a conversation with @moltar
 https://github.com/molszanski/iti/issues/21
 
-Propblem
-
 ```ts
 class DatabaseConnection {
   disconnect(): Promise<void> {
@@ -341,20 +339,20 @@ let node = makeRoot()
   .add({
     db: () => new DatabaseConnection(),
   })
-  .dispose({
-    db: (containers) => containers.db.disconnect(),
+  .addDisposer({
+    // Note that for convenience we provide an instance of the cached value as an argument
+    db: (db) => db.disconnect(),
   })
 
-// disposes of for all resources that have it defined
-await node.dispose()
+// We can dispose nodes individually
+await node.dispose("db")
 
-// under the hood (internals)
-class Node {
-  async dispose(): Promise<void> {
-    await Promise.all(this.getDisposableResources().map((r) => r()))
-  }
-}
+// dispose all resources
+await node.disposeAll()
 ```
+
+please note that `.dispose('token')` doesn't dispose child elements. This would be risky to implement due to reasons explained in
+[dispose-graph.ts.api.spec.ts](./iti/tests/dispose-graph.ts.api.spec.ts.)
 
 # Alternaitves
 

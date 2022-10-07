@@ -142,7 +142,7 @@ describe("Individual disposing: ", () => {
   })
 })
 
-describe("Disposing graph: ", () => {
+describe("Disposing complex async: ", () => {
   let root = makeRoot()
 
   beforeEach(() => {
