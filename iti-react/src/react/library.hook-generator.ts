@@ -1,4 +1,4 @@
-import type { NodeApi, UnpackFunction } from "iti"
+import type { Container, UnpackFunction } from "iti"
 import React, { useContext, useEffect, useState } from "react"
 import { useBetterGenericContainer } from "./library.hooks"
 import { addGetter, UnPromisify } from "../_utils"
@@ -15,7 +15,7 @@ type ContainerSet<Tokens extends keyof Context, Context extends {}> = {
 export function getContainerSetHooks<
   Context extends object,
   DisposeContext extends object,
->(reactContext: React.Context<NodeApi<Context, DisposeContext>>) {
+>(reactContext: React.Context<Container<Context, DisposeContext>>) {
   function useContainer() {
     const root = useContext(reactContext)
     return useRootStores(root)
@@ -33,7 +33,7 @@ export function getContainerSetHooks<
         ? [UnpackTokenFromContext<CK, Context> | undefined, any, CK]
         : never
     },
-  >(appRoot: NodeApi<Context, DisposeContext>): ContainerGetter {
+  >(appRoot: Container<Context, DisposeContext>): ContainerGetter {
     let FFF = <ContainerGetter>{}
     let tokens = appRoot.getTokens()
 
