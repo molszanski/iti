@@ -124,7 +124,7 @@ class Node<
 
   public delete<SearchToken extends keyof Context>(
     token: SearchToken,
-  ): NodeApi<Omit<Context, SearchToken>, DisposeContext> {
+  ): Container<Omit<Context, SearchToken>, DisposeContext> {
     delete this._context[token]
     delete this._cache[token]
     // There is no need to check for disposer existence, since delete will not throw
@@ -236,7 +236,7 @@ class Node<
   }
 }
 
-export class NodeApi<
+export class Container<
   Context extends {},
   DisposeContext extends {},
 > extends Node<Context, DisposeContext> {
@@ -250,9 +250,9 @@ export class NodeApi<
       | NewContext
       | ((
           containers: ContextGetter<Context>,
-          self: NodeApi<Context, DisposeContext>,
+          self: Container<Context, DisposeContext>,
         ) => NewContext),
-  ): NodeApi<Prettify<Assign<Context, NewContext>>, DisposeContext> {
+  ): Container<Prettify<Assign<Context, NewContext>>, DisposeContext> {
     let nc =
       typeof newContext === "function"
         ? // @ts-expect-error
@@ -276,9 +276,9 @@ export class NodeApi<
       | NewContext
       | ((
           containers: ContextGetter<Context>,
-          self: NodeApi<Context, DisposeContext>,
+          self: Container<Context, DisposeContext>,
         ) => NewContext),
-  ): NodeApi<Prettify<Assign<Context, NewContext>>, DisposeContext> {
+  ): Container<Prettify<Assign<Context, NewContext>>, DisposeContext> {
     let newContext =
       typeof newContextOrCb === "function"
         ? newContextOrCb(this.containers, this)
@@ -305,9 +305,9 @@ export class NodeApi<
       | NewDisposerContext
       | ((
           containers: ContextGetter<Context>,
-          self: NodeApi<Context, DisposeContext>,
+          self: Container<Context, DisposeContext>,
         ) => NewDisposerContext),
-  ): NodeApi<Context, Assign<DisposeContext, NewDisposerContext>> {
+  ): Container<Context, Assign<DisposeContext, NewDisposerContext>> {
     let newDisposingCtx =
       typeof newContextOrCb === "function"
         ? newContextOrCb(this.containers, this)
@@ -416,6 +416,5 @@ export class NodeApi<
 }
 
 export function makeRoot() {
-  const lol = new NodeApi()
-  return lol
+  return new Container()
 }
