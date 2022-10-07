@@ -29,7 +29,7 @@ it("should check getContainerSet function types", async () => {
 
 it("should check subscribe types", async () => {
   const cont = getMainMockAppContainer()
-  cont.subscribeToContinerSet(
+  cont.subscribeToContainerSet(
     (c) => {
       expectNotType<any>(c)
       expectType<"aCont">(c.aCont)

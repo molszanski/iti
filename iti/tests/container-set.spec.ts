@@ -23,7 +23,7 @@ it("should subscribe to container set change", (cb) => {
     expect(containerSet.cCont.c2.size).toBe(5)
 
     containerSet.cCont.upgradeCContainer()
-    cont.subscribeToContinerSet(
+    cont.subscribeToContainerSet(
       ["aCont", "bCont", "cCont"],
       (err, containerSet) => {
         expect(containerSet.cCont.c2.size).toBe(10)
@@ -55,7 +55,7 @@ it("should subscribe to container set change via a new APi", (cb) => {
     let containerSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
     expect(containerSet).toHaveProperty("aCont")
 
-    cont.subscribeToContinerSet(
+    cont.subscribeToContainerSet(
       (c) => {
         return [c.aCont, c.cCont]
       },
@@ -75,7 +75,7 @@ it("should subscribe to container set change via a old APi", (cb) => {
     let containerSet = await cont.getContainerSet(["aCont", "cCont"])
     expect(containerSet).toHaveProperty("aCont")
 
-    cont.subscribeToContinerSet(
+    cont.subscribeToContainerSet(
       (c) => {
         return [c.aCont, c.cCont]
       },
@@ -97,13 +97,13 @@ it("should be able to unsubscribe from container set change", (cb) => {
 
     const fn = jest.fn()
 
-    const unsub = cont.subscribeToContinerSet(
+    const unsub = cont.subscribeToContainerSet(
       (c) => [c.cCont],
       () => {
         unsub()
         fn()
 
-        cont.subscribeToContinerSet(
+        cont.subscribeToContainerSet(
           (c) => [c.cCont],
           () => {
             // TODO: well this should be an error probably

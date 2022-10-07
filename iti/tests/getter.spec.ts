@@ -121,7 +121,7 @@ describe("Node subscribeToContiner", () => {
       a: async () => "A",
       b: async () => "B",
     }))
-    node.subscribeToContiner("a", async (err, container) => {
+    node.subscribeToContainer("a", async (err, container) => {
       expect(await container).toBe("A")
     })
     node.get("a").then(() => {
@@ -136,7 +136,7 @@ describe("Node subscribeToContiner", () => {
       },
     }))
 
-    node.subscribeToContiner("b", async (err, container) => {
+    node.subscribeToContainer("b", async (err, container) => {
       if (err) {
         expect(err).toBe("B")
       }
@@ -158,11 +158,11 @@ describe("Node subscribeToContiner", () => {
       })
       let f1 = jest.fn()
       let f2 = jest.fn()
-      node.subscribeToContiner("a", f1)
+      node.subscribeToContainer("a", f1)
 
       await node.get("a")
       node.get("b")
-      node.subscribeToContiner("b", f2)
+      node.subscribeToContainer("b", f2)
 
       expect(f1).toBeCalled()
       expect(f2).not.toBeCalled()
@@ -183,12 +183,12 @@ describe("Node subscribeToContiner", () => {
           },
         }))
       let f3 = jest.fn()
-      node.subscribeToContinerSet(["a", "c"], (err, containers) => {
+      node.subscribeToContainerSet(["a", "c"], (err, containers) => {
         if (err) {
           expect(err).toBe("C")
         }
       })
-      node.subscribeToContinerSet((c) => [c.a, c.c], f3)
+      node.subscribeToContainerSet((c) => [c.a, c.c], f3)
 
       try {
         await node.get("c")
@@ -216,11 +216,11 @@ describe("Node subscribeToContiner", () => {
       let f3 = jest.fn()
       let f4 = jest.fn()
 
-      node.subscribeToContinerSet(["a", "c"], f1)
-      node.subscribeToContinerSet(["c", "d"], f2)
+      node.subscribeToContainerSet(["a", "c"], f1)
+      node.subscribeToContainerSet(["c", "d"], f2)
       // TODO: Warning, if called before seal, this will fail
-      node.subscribeToContinerSet((c) => [c.a, c.c], f3)
-      node.subscribeToContinerSet((c) => [c.c, c.d], f4)
+      node.subscribeToContainerSet((c) => [c.a, c.c], f3)
+      node.subscribeToContainerSet((c) => [c.c, c.d], f4)
       await node.get("c")
       await node.get("c")
       await node.get("c")
