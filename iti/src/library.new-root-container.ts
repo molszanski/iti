@@ -10,7 +10,6 @@ import {
   FullyUnpackObject,
   _intersectionKeys,
   UnPromisify,
-  CastToShape,
   UnpackFunctionReturn,
 } from "./_utils"
 import { ItiResolveError, ItiTokenError } from "./errors"
