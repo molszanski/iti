@@ -19,5 +19,8 @@
   },
   "author": "Nick Olszanski <nick@dinosaurs-with-jetpacks.club>",
   "license": "MIT",
-  "packageManager": "yarn@1.22.17"
+  "packageManager": "yarn@1.22.17",
+  "dependencies": {
+    "prettier": "^2.7.1"
+  }
 }
