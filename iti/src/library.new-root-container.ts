@@ -252,7 +252,7 @@ export class NodeApi<
           containers: ContextGetter<Context>,
           self: NodeApi<Context, DisposeContext>,
         ) => NewContext),
-  ): NodeApi<Assign<Context, NewContext>, DisposeContext> {
+  ): NodeApi<Prettify<Assign<Context, NewContext>>, DisposeContext> {
     let nc =
       typeof newContext === "function"
         ? // @ts-expect-error
@@ -278,7 +278,7 @@ export class NodeApi<
           containers: ContextGetter<Context>,
           self: NodeApi<Context, DisposeContext>,
         ) => NewContext),
-  ): NodeApi<Assign<Context, NewContext>, DisposeContext> {
+  ): NodeApi<Prettify<Assign<Context, NewContext>>, DisposeContext> {
     let newContext =
       typeof newContextOrCb === "function"
         ? newContextOrCb(this.containers, this)
@@ -291,7 +291,7 @@ export class NodeApi<
 
     // Step 2: If everything is fine add a newContext
     let m = this.upsert(newContext)
-    return m
+    return m as any
   }
   // {! [T in keyof NewContext]: NewContext[T] }
   public addDisposer<
