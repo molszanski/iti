@@ -1,11 +1,11 @@
-import { makeRoot } from "../src/iti"
+import { createContainer } from "../src/iti"
 import { wait } from "./_utils"
 
 describe("Perf and exotic tests:", () => {
-  let root = makeRoot()
+  let root = createContainer()
 
   beforeEach(() => {
-    root = makeRoot()
+    root = createContainer()
   })
 
   describe("Node get:", () => {

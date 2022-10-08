@@ -1,4 +1,4 @@
-import { makeRoot } from "iti"
+import { createContainer } from "iti"
 // prettier-ignore
 interface Logger { info: (msg: string) => void }
 // prettier-ignore
@@ -43,7 +43,7 @@ export async function runMyApp() {
 }
 
 export async function runMyApp2() {
-  const root = makeRoot()
+  const root = createContainer()
     .add({
       logger: () =>
         process.env.NODE_ENV === "production"

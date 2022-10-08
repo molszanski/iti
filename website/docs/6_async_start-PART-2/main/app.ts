@@ -1,5 +1,5 @@
 // Part 2: ITI boilerplate. Manual DI alternative
-import { makeRoot } from "iti"
+import { createContainer } from "iti"
 import {
   PaymentService,
   AuthService,
@@ -7,7 +7,7 @@ import {
 } from "./business-logic"
 import { PinoLogger, ConsoleLogger } from "./loggers"
 
-export const app = makeRoot()
+export const app = createContainer()
   .add({
     // Add token `logger` and assign some logger instance
     logger: () =>

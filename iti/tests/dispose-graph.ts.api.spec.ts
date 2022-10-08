@@ -1,5 +1,5 @@
 import { expect, jest, describe, beforeEach, it } from "@jest/globals"
-import { makeRoot } from "../src"
+import { createContainer } from "../src"
 import { wait } from "./_utils"
 import { A, X, B, C, D, L, K, E, M, F } from "./mock-graph"
 
@@ -24,7 +24,7 @@ import { A, X, B, C, D, L, K, E, M, F } from "./mock-graph"
        └─────┘    └─────┘        └─────┘   └─────┘
 */
 function getGraph() {
-  return makeRoot()
+  return createContainer()
     .add({ a: () => new A(), x: () => new X() })
     .add((ctx) => ({
       b: () => new B(ctx.a),

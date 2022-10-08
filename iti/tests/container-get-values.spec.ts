@@ -1,12 +1,12 @@
-import { makeRoot } from "../src/iti"
+import { createContainer } from "../src/iti"
 function printTokenValue(token, value) {
   console.log(`Token: ${token}  | ${value}  -- of ${typeof value}`)
 }
 describe("Node.get()", () => {
-  let root: ReturnType<typeof makeRoot>
+  let root: ReturnType<typeof createContainer>
 
   beforeEach(() => {
-    root = makeRoot()
+    root = createContainer()
   })
 
   it("should return a value as a value", async () => {

@@ -1,6 +1,6 @@
 import { expectType, expectNotType } from "tsd"
 
-import { makeRoot } from "../src/iti"
+import { createContainer } from "../src/iti"
 
 enum UniqueResult {
   A,
@@ -10,7 +10,7 @@ enum UniqueResult {
 }
 // results produced by an add should valid
 ;(async () => {
-  const node = makeRoot()
+  const node = createContainer()
     .add({
       a: UniqueResult.A,
       b: () => UniqueResult.B,

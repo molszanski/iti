@@ -65,7 +65,7 @@ paymentService.sendMoney()
 <TabItem value="iti" label="ITI">
 
 ```tsx title="./src/app.ts"
-const root = makeRoot()
+const root = createContainer()
   .add({
     logger: () =>
       process.env.NODE_ENV === "production"

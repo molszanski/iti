@@ -1,13 +1,13 @@
-import { makeRoot } from "../src/iti"
+import { createContainer } from "../src/iti"
 
 import { provideAContainer } from "./mocks/container.a"
 import { provideBContainer } from "./mocks/container.b"
 
 describe("Node long chain async", () => {
-  let root: ReturnType<typeof makeRoot>
+  let root: ReturnType<typeof createContainer>
 
   beforeEach(() => {
-    root = makeRoot()
+    root = createContainer()
   })
 
   it("should test long chain", (cb) => {
@@ -110,10 +110,10 @@ describe("Node long chain async", () => {
 })
 
 describe("Node subscribeToContiner", () => {
-  let root: ReturnType<typeof makeRoot>
+  let root: ReturnType<typeof createContainer>
 
   beforeEach(() => {
-    root = makeRoot()
+    root = createContainer()
   })
 
   it("should subscribe to async container creation", (cb) => {
@@ -242,10 +242,10 @@ describe("Node subscribeToContiner", () => {
 })
 
 describe("Node getter", () => {
-  let root: ReturnType<typeof makeRoot>
+  let root: ReturnType<typeof createContainer>
 
   beforeEach(() => {
-    root = makeRoot()
+    root = createContainer()
   })
 
   it("should get nested conatainers", (cb) => {
@@ -271,11 +271,11 @@ describe("Node getter", () => {
 })
 
 describe("Node add", () => {
-  let root: ReturnType<typeof makeRoot>
+  let root: ReturnType<typeof createContainer>
   let node: ReturnType<typeof mockNode>
 
   function mockNode() {
-    return makeRoot().add({
+    return createContainer().add({
       a: "A",
       b: () => "B",
       c: async () => "C",
@@ -283,7 +283,7 @@ describe("Node add", () => {
     })
   }
   beforeEach(() => {
-    root = makeRoot()
+    root = createContainer()
     node = mockNode()
   })
 
@@ -374,10 +374,10 @@ describe("Node add", () => {
 })
 
 describe("Node getContainerSet", () => {
-  let root: ReturnType<typeof makeRoot>
+  let root: ReturnType<typeof createContainer>
   let node: ReturnType<typeof mockNode>
   function mockNode() {
-    return makeRoot().add({
+    return createContainer().add({
       a: "A",
       b: () => "B",
       c: async () => "C",
@@ -385,7 +385,7 @@ describe("Node getContainerSet", () => {
     })
   }
   beforeEach(() => {
-    root = makeRoot()
+    root = createContainer()
     node = mockNode()
   })
 

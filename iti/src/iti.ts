@@ -415,6 +415,6 @@ export class Container<
   }
 }
 
-export function makeRoot() {
+export function createContainer() {
   return new Container()
 }

@@ -1,4 +1,4 @@
-// export { makeRoot, RootContainer } from "./library.root-container"
+// export { createContainer, RootContainer } from "./library.root-container"
 export type { GetContainerFormat, UnPromisify } from "./_utils"
 
 // React
