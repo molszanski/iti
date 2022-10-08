@@ -1,5 +1,5 @@
 import _ from "lodash"
-import { createContainer, createContainer } from "iti"
+import { createContainer } from "iti"
 
 // Step 1: Your application logic stays clean
 class Oven {
@@ -19,7 +19,7 @@ let root = createContainer().add({
 })
 root.get("oven")
 
-// Step 3: Add a usefull async provider / container
+// Step 3: Add a useful async provider / container
 const kitchenContainer = async ({ oven, userManual }) => {
   await oven.preheat()
   return {
