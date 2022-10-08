@@ -1,0 +1,36 @@
+---
+sidebar_position: 6
+---
+
+# Getting Started
+
+
+## Getting Started
+
+The best way to get started is to check [a CRA Pizza example](https://github.com/molszanski/iti/tree/master/examples/cra/src/containers)
+
+Initial wiring
+
+```ts
+import { makeRoot } from "../../src/library.new-root-container"
+
+import { provideAContainer } from "./container.a"
+import { provideBContainer } from "./container.b"
+import { provideCContainer } from "./container.c"
+
+export type MockAppNode = ReturnType<typeof getMainMockAppContainer>
+export function getMainMockAppContainer() {
+  return makeRoot()
+    .add({ aCont: async () => provideAContainer() })
+    .add((containers) => {
+      return {
+        bCont: async () => provideBContainer(await containers.aCont),
+      }
+    })
+    .add((c) => {
+      return {
+        cCont: async () => provideCContainer(await c.aCont, await c.bCont, k),
+      }
+    })
+}
+```
