@@ -1,4 +1,4 @@
-import { makeRoot } from "../src/library.new-root-container"
+import { makeRoot } from "../src/iti"
 function printTokenValue(token, value) {
   console.log(`Token: ${token}  | ${value}  -- of ${typeof value}`)
 }
