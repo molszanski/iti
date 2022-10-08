@@ -8,12 +8,14 @@
 
 # Iti
 
-<h4>1kB Dependency Injection Library for Typescript and React with a unique support of <strong>async flow</strong></h4>
+<h4>~1kB Dependency Injection Library for Typescript and React with a unique <strong>async flow</strong> support</h4>
 
 <p align="center">
   <a href="https://github.com/molszanski/iti/actions?query=branch%3Amaster"><img src="https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg" alt="CI Status"></a>
   <a href="https://www.npmjs.org/package/iti"><img src="https://img.shields.io/npm/v/iti.svg" alt="npm version"></a>
   <a href="https://unpkg.com/iti/dist/iti.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip" alt="gzip"></a>
+  <!-- Manually checked at b1683832 on OCT 8 2022-->
+  <a href="https://dashboard.stryker-mutator.io/reports/github.com/molszanski/iti/master"><img src="https://img.shields.io/badge/coverage-98.6%25-brightgreen" alt="Coverage"></a>
   <a href="https://dashboard.stryker-mutator.io/reports/github.com/molszanski/iti/master"><img src="https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fmolszanski%2Fiti%2Fmaster" alt="Mutation Score"></a>
 </p>
 
@@ -330,34 +332,31 @@ Plainly removes token and value from an instance
 
 ### `dispose`
 
-Related toa a conversation with @moltar
-https://github.com/molszanski/iti/issues/21
+Please check a full [documentation](https://itijs.org/docs/api#disposing) on disposing.
+
+Short version:
 
 ```ts
 class DatabaseConnection {
-  disconnect(): Promise<void> {
-    // ... disconnect
-  }
+  connect(): Promise<void> {}
+  disconnect(): Promise<void> {}
 }
-
-let node = createContainer()
-  .add({
-    db: () => new DatabaseConnection(),
-  })
+const container = createContainer()
+  .add(() => ({
+    dbConnection: async () => {
+      const db = new DatabaseConnection()
+      await db.connect()
+      return db
+    },
+  }))
   .addDisposer({
-    // Note that for convenience we provide an instance of the cached value as an argument
-    db: (db) => db.disconnect(),
+    //              ↓ `db` is a resolved value of a `dbConnection` token. Pretty handy
+    dbConnection: (db) => db.disconnect(),
   })
 
-// We can dispose nodes individually
-await node.dispose("db")
-
-// dispose all resources
-await node.disposeAll()
+const db = await container.get("dbConnection")
+await container.disposeAll()
 ```
-
-please note that `.dispose('token')` doesn't dispose child elements. This would be risky to implement due to reasons explained in
-[dispose-graph.ts.api.spec.ts](./iti/tests/dispose-graph.ts.api.spec.ts.)
 
 # Alternatives
 
