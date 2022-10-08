@@ -1,4 +1,4 @@
-import { makeRoot } from "../src/library.new-root-container"
+import { makeRoot } from "../src/iti"
 import { wait } from "./_utils"
 
 describe("Perf and exotic tests:", () => {

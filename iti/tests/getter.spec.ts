@@ -1,4 +1,4 @@
-import { makeRoot } from "../src/library.new-root-container"
+import { makeRoot } from "../src/iti"
 
 import { provideAContainer } from "./mocks/container.a"
 import { provideBContainer } from "./mocks/container.b"

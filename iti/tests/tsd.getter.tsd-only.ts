@@ -1,6 +1,6 @@
 import { expectType, expectNotType } from "tsd"
 
-import { makeRoot } from "../src/library.new-root-container"
+import { makeRoot } from "../src/iti"
 
 enum UniqueResult {
   A,
