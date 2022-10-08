@@ -1,5 +1,5 @@
 // Main lib
-export { makeRoot, Container } from "./iti"
+export { makeRoot, makeRoot as createContainer, Container } from "./iti"
 
 // Helper types
 export type { GetContainerFormat, UnPromisify, UnpackFunction } from "./_utils"

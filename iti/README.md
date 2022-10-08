@@ -3,21 +3,26 @@
     <img width="180" src="./docs/logo.svg" alt="ITI Logo">
   </a>
 </p>
+
+<div align="center">
+
+# Iti
+
+<h4>1kB Dependency Injection Library for Typescript and React with a unique support of <strong>async flow</strong></h4>
+
 <p align="center">
-  <a href="https://github.com/molszanski/iti/actions?query=branch%3Amaster"><img src="https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg" alt="CI Statu"></a>
+  <a href="https://github.com/molszanski/iti/actions?query=branch%3Amaster"><img src="https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg" alt="CI Status"></a>
   <a href="https://www.npmjs.org/package/iti"><img src="https://img.shields.io/npm/v/iti.svg" alt="npm version"></a>
   <a href="https://unpkg.com/iti/dist/iti.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/iti/dist/iti.modern.js?compression=gzip" alt="gzip"></a>
   <a href="https://dashboard.stryker-mutator.io/reports/github.com/molszanski/iti/master"><img src="https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fmolszanski%2Fiti%2Fmaster" alt="Mutation Score"></a>
 </p>
 
-# Iti
-
-> 1kB Depenendency Injection Framework for Typescript and Javascript with a unique feature that supports **async flow**
+</div>
 
 - **supports async(!):** merges async code and constructor injection via plain **async** functions
 - **non-invasive:** does not require imported `@decorators` or framework `extends` in your application business logic
 - **strongly typed:** has great IDE autocomplete and compile time check. Without any [manual type casting](https://github.com/inversify/InversifyJS/blob/master/wiki/container_api.md#containergettserviceidentifier-interfacesserviceidentifiert-t)
-- **lazy:** initialises your app modules and containers on demand
+- **lazy:** initializes your app modules and containers on demand
 - **split chunks:** enables **[dynamic imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports)** via a [one liner](#dynamic-imports) thanks to a fully async core
 - **React friendly:** has useful **[React](https://github.com/molszanski/iti/tree/master/iti-react)** bindings to help you separate application business logic and a React view layer
 - **starter friendly:** works with starters like [Create React App](https://create-React-app.dev/) or [Next.js](https://nextjs.org/docs/getting-started) unlike existing libraries
@@ -50,10 +55,10 @@ export class Kitchen {
 
 ```tsx
 // app.ts
-import { makeRoot } from "iti"
+import { createContainer } from "iti"
 import { Oven, Kitchen } from "./kitchen"
 
-const node = makeRoot()
+const node = createContainer()
   .add({
     oven: () => new Oven(),
     userManual: async () => "Please preheat before use",
@@ -69,7 +74,7 @@ await node.get("kitchen") // Kitchen
 // MyPizzaComponent.tsx
 export const PizzaData = () => {
   const kitchen = useContainer().kitchen
-  return <>Pizzaz In Oven: {kitchen.oven.pizzasInOven()}</>
+  return <>Pizzas In Oven: {kitchen.oven.pizzasInOven()}</>
 }
 ```
 
@@ -101,10 +106,10 @@ await root.getContainerSet((c) => [c.userManual, c.oven]) // same as above
 node.delete("kitchen")
 
 // Subscribe to container changes
-node.subscribeToContiner("oven", (oven) => {})
-node.subscribeToContinerSet(["oven", "kitchen"], ({ oven, kitchen }) => {})
+node.subscribeToContainer("oven", (oven) => {})
+node.subscribeToContainerSet(["oven", "kitchen"], ({ oven, kitchen }) => {})
 // prettier-ignore
-node.subscribeToContinerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
+node.subscribeToContainerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
 node.on("containerUpdated", ({ key, newContainer }) => {})
 node.on("containerUpserted", ({ key, newContainer }) => {})
 node.on("containerDeleted", ({ key, newContainer }) => {})
@@ -113,7 +118,7 @@ node.on("containerDeleted", ({ key, newContainer }) => {})
 **Writing**
 
 ```ts
-let node1 = makeRoot()
+let node1 = createContainer()
   .add({
     userManual: "Please preheat before use",
     oven: () => new Oven(),
@@ -145,7 +150,7 @@ try {
 **Single Instance (a.k.a. Singleton)**
 
 ```ts
-let node = makeRoot().add({
+let node = createContainer().add({
   oven: () => new Oven(),
 })
 node.get("oven") === node.get("oven") // true
@@ -154,7 +159,7 @@ node.get("oven") === node.get("oven") // true
 **Transient**
 
 ```ts
-let node = makeRoot().add({
+let node = createContainer().add({
   oven: () => () => new Oven(),
 })
 node.get("oven") === node.get("oven") // false
@@ -180,9 +185,9 @@ export async function provideKitchenContainer() {
 
 ```ts
 // ./index.ts
-import { makeRoot } from "iti"
+import { createContainer } from "iti"
 import { provideKitchenContainer } from "./kitchen"
-let node = makeRoot().add({
+let node = createContainer().add({
   kitchen: async () => provideKitchenContainer(),
 })
 
@@ -198,7 +203,7 @@ await node.containers.kitchen.oven
 If you use callback pattern across your app, you will be able to mass rename your containerKeys using typescript. With strings, you will have to manually go through the app. But even if you use string literals compiler will not compile until you fix your rename manually across the app.
 
 ```ts
-const node = makeRoot().addNode({
+const node = createContainer().addNode({
   a: "A",
   b: "B",
 })
@@ -218,7 +223,7 @@ The best way to get started is to check [a CRA Pizza example](https://github.com
 Initial wiring
 
 ```ts
-import { makeRoot } from "../../src/library.new-root-container"
+import { createContainer } from "../../src/library.new-root-container"
 
 import { provideAContainer } from "./container.a"
 import { provideBContainer } from "./container.b"
@@ -226,7 +231,7 @@ import { provideCContainer } from "./container.c"
 
 export type MockAppNode = ReturnType<typeof getMainMockAppContainer>
 export function getMainMockAppContainer() {
-  return makeRoot()
+  return createContainer()
     .add({ aCont: async () => provideAContainer() })
     .add((containers) => {
       return {
@@ -270,7 +275,7 @@ const kitchenApp = new RootContainer((ctx) => ({
 
 kitchenApp.on("containerCreated", (event) => {
   console.log(`event: 'containerCreated' ~~> token: '${event.key}'`)
-  // `event.container` is also avaliable here
+  // `event.container` is also available here
 })
 
 kitchenApp.on("containerRequested", (event) => {
@@ -289,17 +294,17 @@ await kitchenApp.containers.kitchen
 // event: 'containerCreated'   ~~> token: 'kitchen'
 
 // Notice how oven was created before kitchen.
-// This is because kitcen depends on oven
+// This is because kitchen depends on oven
 ```
 
 ## API documentation JS / TS
 
-### `makeRoot` Setting app root
+### `createContainer` Setting app root
 
 ```ts
-import { makeRoot } from "../../library.root-container"
+import { createContainer } from "../../library.root-container"
 export function getMainMockAppContainer() {
-  return makeRoot().add({ kitchen: () => new Kitchen(/* deps */) })
+  return createContainer().add({ kitchen: () => new Kitchen(/* deps */) })
 }
 ```
 
@@ -335,7 +340,7 @@ class DatabaseConnection {
   }
 }
 
-let node = makeRoot()
+let node = createContainer()
   .add({
     db: () => new DatabaseConnection(),
   })
@@ -354,7 +359,7 @@ await node.disposeAll()
 please note that `.dispose('token')` doesn't dispose child elements. This would be risky to implement due to reasons explained in
 [dispose-graph.ts.api.spec.ts](./iti/tests/dispose-graph.ts.api.spec.ts.)
 
-# Alternaitves
+# Alternatives
 
 ## No async support
 
@@ -380,7 +385,7 @@ Inversion of Control (IoC) is a great way to decouple code and the most popular 
 
 In JavaScript there is not way to create a dependency injection without mixing application business logic with a specific IoC library code or hacking a compiler (reflect-metadata).
 
-**`inversifyjs` and `tsyringe` use decorators and `reflect-metada`**
+**`inversifyjs` and `tsyringe` use decorators and `reflect-metadata`**
 
 ```ts
 import { injectable } from "tsyringe"
@@ -417,7 +422,7 @@ class Baz {
 With Iti your application business logic is not mixed with the framework code
 
 ```ts
-import type { Ingredients } from "./store.ingrediets"
+import type { Ingredients } from "./store.ingredients"
 import type { Oven } from "./store.oven"
 
 export class Kitchen {
