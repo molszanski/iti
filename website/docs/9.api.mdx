@@ -1,0 +1,240 @@
+---
+sidebar_position: 9
+---
+
+import CodeBlock from "@theme/CodeBlock"
+import addDisposerExample from "!!raw-loader!./9.api/addDisposer.ts"
+import disposeAllExample from "!!raw-loader!./9.api/disposeAll.ts"
+
+# API
+
+_work in progress_
+
+## Docs
+
+### Tokens
+
+### Containers
+
+Containers are an important unit.
+If you replace them, users will be notified. In React it happens automatically
+
+### Events
+
+```ts
+const kitchenApp = new RootContainer((ctx) => ({
+  // you can use tokens (`oven`, `kitchen`) here and later on
+  oven: async () => ovenContainer(),
+  kitchen: async () => kitchenContainer(await ctx.oven()),
+}))
+
+kitchenApp.on("containerCreated", (event) => {
+  console.log(`event: 'containerCreated' ~~> token: '${event.key}'`)
+  // `event.container` is also avaliable here
+})
+
+kitchenApp.on("containerRequested", (event) => {
+  console.log(`event: 'containerRequested' ~~> token: '${event.key}' `)
+})
+
+kitchenApp.on("containerRemoved", (event) => {
+  console.log(`event: 'containerRemoved' ~~> token: '${event.key}' `)
+})
+
+await kitchenApp.containers.kitchen
+
+// event: 'containerRequested' ~~> token: 'kitchen'
+// event: 'containerRequested' ~~> token: 'oven'
+// event: 'containerCreated'   ~~> token: 'oven'
+// event: 'containerCreated'   ~~> token: 'kitchen'
+
+// Notice how oven was created before kitchen.
+// This is because kitcen depends on oven
+```
+
+## API documentation JS / TS
+
+### `makeRoot` Setting app root
+
+```ts
+import { makeRoot } from "../../library.root-container"
+export function getMainMockAppContainer() {
+  return makeRoot().add({ kitchen: () => new Kitchen(/* deps */) })
+}
+```
+
+### `containers` getter
+
+```ts
+let appRoot = getMainPizzaAppContainer()
+let kitchen = await appRoot.containers.kitchen
+kitchen.oven.pizzaCapacity // 4
+```
+
+### `getContainerSet`
+
+### `getContainerSetNew`
+
+### `upsert`
+
+### `delete`
+
+When containers are updated React is updated too via hooks
+
+## Disposing
+
+You can launch a live [playground on Stackblitz](https://stackblitz.com/github/molszanski/iti-playground/tree/main?file=src%2Fexamples%2F0.disposing.ts&file=src%2Fexamples%2F0.disposing.ts,src%2FApp.tsx)
+or `checkout` the [playground repo](https://github.com/molszanski/iti-playground) with the playground locally
+
+```bash
+git clone git@github.com:molszanski/iti-playground.git
+cd iti-playground
+cat src/examples/0.disposing.ts
+```
+
+### `disposeAll(): Promise<void>`
+
+Runs clenup functions on provided (created) dependendcies.
+
+Returns a Promise that resolves when all disposers of cached resolutions have resolved.
+
+```ts
+import { createContainer } from "iti"
+
+container = createContainer()
+  .add({ a: () => "123" })
+  .addDisposer({ a: () => {} })
+
+container.get("a") === "123" // true
+await container.disposeAll() // Promise<void>
+```
+
+Practical example
+
+<CodeBlock language="ts">{disposeAllExample}</CodeBlock>
+
+### `dispose(token:): Promise<void>`
+
+Disposes individual container
+
+```ts
+class A {}
+class B {}
+const container = createContainer()
+  .add({
+    a: () => new A(),
+    b: () => new B(),
+  })
+  .addDisposer({
+    a: (a) => console.log("disposing a", a),
+    b: (a) => throw new Error("this should not be called"),
+  })
+
+container.get("a")
+// will print `disposing a A {}`
+container.dispose("a")
+```
+
+### `addDisposer(disposer: fn | {}): Promise<void>`
+
+```ts
+import { createContainer } from "iti"
+
+class A {
+  dispose() {}
+}
+class B {}
+container = createContainer().add({
+  a: () => new A(),
+  b: () => new B(),
+})
+
+// Adding disposer for token `a`
+container.addDisposer({ a: () => {} })
+
+// Accessing `A` instance in disposer for token `a`
+container.addDisposer({
+  a: (a: A) => a instanceof A === true,
+})
+
+// Accessing ctx in disposer for token `a`
+container.addDisposer((ctx) => ({
+  a: () => ctx.b instanceof B === true,
+}))
+```
+
+<CodeBlock language="ts">{addDisposerExample}</CodeBlock>
+
+### `.on('containerDisposed', ({ key: string }) => void)`
+
+```ts
+import { createContainer } from "iti"
+
+container = createContainer()
+  .add({ a: () => "123" })
+  .addDisposer({ a: () => {} })
+  .on("containerDisposed", (payload) => {
+    console.log(payload.key) // prints 'a'
+  })
+
+container.get("a") === "123" // true
+await container.disposeAll()
+```
+
+### Notes on disposing
+
+**disposal graph**
+Please note that `.dispose('token')` doesn't dispose child elements.
+
+This would be risky to implement due to reasons explained in
+[dispose-graph.ts.api.spec.ts](https://github.com/molszanski/iti/blob/master/iti/tests/dispose-graph.ts.api.spec.ts).
+
+In a nutshell, due to an async nature of `iti` we could potentially dispose unrelated dependencies as well.
+
+But there are a few workarounds:
+
+you can create your custom dispose function that will dispose dependencies you care about
+
+```ts
+import { createContainer } from "iti"
+container = createContainer()
+  .add({
+    a: () => "A",
+    b: () => "B",
+  })
+  .addDisposer((ctx) => ({
+    a: () => {
+      console.log("do something to dispose a: ", ctx.a)
+      console.log("do something to dispose b: ", ctx.b)
+    },
+  }))
+```
+
+**you can create multiple containers (`createContainer`) and dispose them separately**
+
+```ts
+import { createContainer } from "iti"
+class A {}
+class B {}
+class C {}
+class D {
+  constructor(b: B) {}
+}
+const cont1 = createContainer()
+  .add({
+    a: () => new A(),
+    b: () => new B(),
+  })
+  .addDisposer({
+    a: (a) => console.log("disposing a", a),
+    b: (b) => console.log("disposing b", b),
+  })
+
+const cont2 = createContainer().add({
+  c: () => new C(),
+  d: () => new D(cont1.get("b")),
+})
+
+cont2.get("d") // Creates a new instance of D, which in turn creates a new instance of B
+cont1.disposeAll() // Disposes B
+```

@@ -5150,18 +5150,18 @@ isobject@^3.0.1:
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha512-WhB9zCku7EGTj/HQQRz5aUQEUeoQZH2bWcltRErOpymJ4boYE6wL9Tbr23krRPSZ+C5zqNSrSw+Cc7sZZ4b7vg==
 
-iti-react@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/iti-react/-/iti-react-0.4.2.tgz#3ef3b3762b8c5568099c8f090a50b0a4f87cf2ad"
-  integrity sha512-LyP6hrsCAyT+ler2zbTgKor3oPZrALCKEH52cCKFpbOwtrYmx1+qiMfBaGl9oLBaS8l7U/ZlbdvmVOFijpMH6Q==
+iti-react@^0.5.0-next.0:
+  version "0.5.0-next.0"
+  resolved "https://registry.yarnpkg.com/iti-react/-/iti-react-0.5.0-next.0.tgz#0f30325798a1b261bb1e2918bdd3af63dd404ace"
+  integrity sha512-gAEUDuet73ZPNUG09jG8maFlJHutviIXX2GlUbeSOjogFPAM4Y19Uex7+B567SjiujppNO9Rswjbf4EeQq5EGg==
   dependencies:
-    iti "0.4.2"
+    iti "0.5.0-next.0"
     utility-types "^3.10.0"
 
-iti@0.4.2, iti@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/iti/-/iti-0.4.2.tgz#a4380620fa3b33d88b116e61e15f8f2b83ccbdff"
-  integrity sha512-s9MRrz8qn7tig2sIo+YYaPTTdfAECTqew3XsRVPnc1Ytc6yu1p3lcZVYax7k5cuBot3Q7DDuRGtB/JyZd7ogIQ==
+iti@0.5.0-next.0, iti@^0.5.0-next.0:
+  version "0.5.0-next.0"
+  resolved "https://registry.yarnpkg.com/iti/-/iti-0.5.0-next.0.tgz#d823030fed9bc7ef13cf1c8591243678cc855869"
+  integrity sha512-s8gISd+6prJDMrGUbVFkc8H0c0G+sxGZ+U9rbyKYKsPNEe95JjkEZJsYNL6XGRNcUusE0qBMsD+LBY5158bQQw==
   dependencies:
     utility-types "^3.10.0"
 
