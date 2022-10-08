@@ -1,4 +1,4 @@
-import { makeRoot } from "iti"
+import { createContainer } from "iti"
 
 export class A {}
 export class B {
@@ -8,7 +8,7 @@ export class C {
   constructor(a: A, b: B) {}
 }
 
-export const app = makeRoot()
+export const app = createContainer()
   .add(() => ({
     a: () => new A(),
   }))

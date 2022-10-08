@@ -1,4 +1,4 @@
-import { makeRoot } from "iti"
+import { createContainer } from "iti"
 
 import { provideAContainer } from "./container.a"
 import { provideBContainer } from "./container.b"
@@ -6,7 +6,7 @@ import { provideCContainer } from "./container.c"
 
 export type MockAppNode = ReturnType<typeof getMainMockAppContainer>
 export function getMainMockAppContainer() {
-  let node = makeRoot()
+  let node = createContainer()
   let k = node
     .upsert({ aCont: async () => provideAContainer() })
     .upsert((c) => {

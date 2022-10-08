@@ -3,7 +3,7 @@
 For runtime optimizations of the search in async nodes we can provide tokens as a second argument in an `addPromise `
 
 ```ts
-let n = makeRoot()
+let n = createContainer()
   .addNode({ a: 1, b: 2 })
   .addPromise(
     async (c) => {

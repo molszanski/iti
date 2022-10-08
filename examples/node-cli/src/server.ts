@@ -1,5 +1,5 @@
 import _ from "lodash"
-import { makeRoot } from "iti"
+import { createContainer, createContainer } from "iti"
 
 // Step 1: Your application logic stays clean
 class Oven {
@@ -13,7 +13,7 @@ class Kitchen {
 }
 
 // Step 2: Add and read simple tokens
-let root = makeRoot().add({
+let root = createContainer().add({
   userManual: "Please preheat before use",
   oven: () => new Oven(),
 })
@@ -61,7 +61,7 @@ node.on("containerUpserted", ({ key, newContainer }) => {})
 
 // ----Adding
 
-let node1 = makeRoot()
+let node1 = createContainer()
   .add({
     userManual: "Please preheat before use",
     oven: () => new Oven(),

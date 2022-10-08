@@ -1,11 +1,11 @@
-import { makeRoot } from "../src/iti"
+import { createContainer } from "../src/iti"
 import { wait } from "./_utils"
 
 describe("Deleting and destructuring: ", () => {
-  let root: ReturnType<typeof makeRoot>
+  let root: ReturnType<typeof createContainer>
 
   beforeEach(() => {
-    root = makeRoot()
+    root = createContainer()
   })
   it("should be able to store null", () => {
     let r = root.add({ a: "A", b: null })

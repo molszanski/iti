@@ -12,7 +12,7 @@ The best way to get started is to check [a CRA Pizza example](https://github.com
 Initial wiring
 
 ```ts
-import { makeRoot } from "../../src/library.new-root-container"
+import { createContainer } from "../../src/library.new-root-container"
 
 import { provideAContainer } from "./container.a"
 import { provideBContainer } from "./container.b"
@@ -20,7 +20,7 @@ import { provideCContainer } from "./container.c"
 
 export type MockAppNode = ReturnType<typeof getMainMockAppContainer>
 export function getMainMockAppContainer() {
-  return makeRoot()
+  return createContainer()
     .add({ aCont: async () => provideAContainer() })
     .add((containers) => {
       return {

@@ -1,4 +1,4 @@
-import { makeRoot } from "iti"
+import { createContainer } from "iti"
 
 import { provideAContainer } from "./container.a"
 import { provideAuthContainer } from "./container.auth"
@@ -12,7 +12,7 @@ import { provideFatLib2 } from "./container.fat-lib2"
 
 export type PizzaAppCoreContainer = ReturnType<typeof pizzaAppCore>
 export function pizzaAppCore() {
-  return makeRoot()
+  return createContainer()
     .add(() => ({
       auth: async () => provideAuthContainer(),
     }))

@@ -1,12 +1,12 @@
 import { expect, jest, describe, beforeEach, it } from "@jest/globals"
-import { makeRoot } from "../src"
+import { createContainer } from "../src"
 import { wait } from "./_utils"
 
 describe("Disposing: ", () => {
-  let root: ReturnType<typeof makeRoot>
+  let root: ReturnType<typeof createContainer>
 
   beforeEach(() => {
-    root = makeRoot()
+    root = createContainer()
   })
 
   class DB {
@@ -101,13 +101,13 @@ describe("Disposing: ", () => {
 })
 
 describe("Individual disposing: ", () => {
-  let root = makeRoot()
+  let root = createContainer()
   let disposerOfA = jest.fn()
   let node = root.add({ a: "A" }).addDisposer({ a: disposerOfA })
 
   beforeEach(() => {
     disposerOfA.mockReset()
-    root = makeRoot()
+    root = createContainer()
     node = root.add({ a: "A" }).addDisposer({ a: disposerOfA })
   })
 
@@ -143,10 +143,10 @@ describe("Individual disposing: ", () => {
 })
 
 describe("Disposing complex async: ", () => {
-  let root = makeRoot()
+  let root = createContainer()
 
   beforeEach(() => {
-    root = makeRoot()
+    root = createContainer()
   })
 
   class DB {
@@ -164,7 +164,7 @@ describe("Disposing complex async: ", () => {
 
   it("should call async dispose with correct instances and correct times", async () => {
     const disposerDb = jest.fn()
-    const node = makeRoot()
+    const node = createContainer()
       .add({
         db: () => new DB(),
       })

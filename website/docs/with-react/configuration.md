@@ -7,10 +7,10 @@ sidebar_position: 3
 Basically, we create an ITI instance, add it to `React.Context` and generate fetch hooks.
 
 ```tsx title="./src/_containers/main-app"
-import { makeRoot } from "iti"
+import { createContainer } from "iti"
 
 export const mainApp = () =>
-  makeRoot().add(() => ({
+  createContainer().add(() => ({
     auth: async () => {
       const res = await fetch("/api/profile")
       return {

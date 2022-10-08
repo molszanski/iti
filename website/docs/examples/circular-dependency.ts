@@ -1,4 +1,4 @@
-import { makeRoot } from "iti"
+import { createContainer } from "iti"
 
 /*
 // Part 1: You can create a circular dependency
@@ -27,7 +27,7 @@ class E {
 }
 
 // Part 2: You can't express a circular dependency because of typescript checks
-makeRoot()
+createContainer()
   .add((ctx) => ({
     a: () => new A(),
   }))
