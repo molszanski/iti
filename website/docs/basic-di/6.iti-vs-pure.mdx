@@ -1,0 +1,87 @@
+---
+sidebar_position: 7
+---
+
+import Tabs from "@theme/Tabs"
+import TabItem from "@theme/TabItem"
+
+# Pure DI vs ITI
+
+## Business logic
+
+With ITI and Pure DI your business logic stays exatly the same.
+There is no need to add any framework specific decorators or `extends`.
+
+```ts
+export interface Logger {
+  info: (msg: string) => void
+  warn: (msg: string) => void
+  error: (msg: string) => void
+}
+
+export class ConsoleLogger implements Logger {
+  info(msg: string): void {
+    console.log("Console Logger:    ", msg)
+  }
+  warn(msg: string): void {}
+  error(msg: string): void {}
+}
+
+export class PinoLogger implements Logger {
+  info(msg: string): void {
+    console.log("Pino Logger:    ", msg)
+  }
+  warn(msg: string): void {}
+  error(msg: string): void {}
+}
+
+export class PaymentService {
+  private readonly logger: Logger
+  constructor(_logger: Logger) {
+    this.logger = _logger
+  }
+
+  sendMoney() {
+    this.logger.info("inversify logger info")
+    return true
+  }
+}
+```
+
+## Wiring
+
+<Tabs>
+<TabItem value="pure" label="Pure">
+
+```ts title="./src/app.ts"
+const logger =
+  process.env.NODE_ENV === "production" ? new PinoLogger() : new ConsoleLogger()
+
+const paymentService = new PaymentService(logger)
+paymentService.sendMoney()
+```
+
+</TabItem>
+<TabItem value="iti" label="ITI">
+
+```tsx title="./src/app.ts"
+const root = makeRoot()
+  .add({
+    logger: () =>
+      process.env.NODE_ENV === "production"
+        ? new PinoLogger()
+        : new ConsoleLogger(),
+  })
+  .add((ctx) => ({
+    paymentService: () => new PaymentService(ctx.logger),
+  }))
+
+const ps = root.congainers.paymentService
+ps.sendMoney()
+```
+
+</TabItem>
+
+</Tabs>
+
+## Async Request for single item in ITI

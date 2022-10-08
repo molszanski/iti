@@ -1,0 +1,34 @@
+---
+sidebar_position: 11
+slug: faq
+---
+
+import TOCInline from "@theme/TOCInline"
+
+import CodeBlock from "@theme/CodeBlock"
+import circularDependency from "!!raw-loader!./examples/circular-dependency.ts"
+
+# FAQ
+
+:::note
+
+Please know, that the docs is still work in progress. Many features or use cases are probably already in the lib but not documented well. We are working on it.
+
+:::
+
+<TOCInline toc={toc} />
+
+## Questions
+
+### Why should I use ITI?
+
+We strongly belive that helps to implement good DI patterns in your codebase and offers
+better tradeoffs compared to alternative DI frameworks or solutions.
+Check our [alternatives](/docs/alternatives) section
+
+### How does handle circular dependency?
+
+You can not create a circular dependency with iti and typescript.
+It will throw a typescript error if you try :)
+
+<CodeBlock language="ts">{circularDependency}</CodeBlock>

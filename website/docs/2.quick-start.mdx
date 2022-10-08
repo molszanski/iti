@@ -1,0 +1,86 @@
+---
+sidebar_position: 2
+---
+
+import CodeBlock from "@theme/CodeBlock"
+import withIti from "!!raw-loader!./6_async_start-PART-2/main/with.tsx"
+import without from "!!raw-loader!./6_async_start-PART-2/main/without.ts"
+import quickStartCode from "!!raw-loader!./6_async_start-PART-2/main/business-logic.ts"
+import wiringCode from "!!raw-loader!./6_async_start-PART-2/main/app.ts"
+
+# Quick Start
+
+ITI is a 1kb dependendcy injections framework for asynchronous applications.
+You are probably using some form of manual DI and ITI is a logical upgrade.
+
+If you are building a react there are usefull react bindings are available.
+
+:::note
+
+Please know, that the docs is still work in progress. Many features or use cases are probably already in the lib but not documented well. We are working on it.
+
+:::
+
+## Adding ITI to your Project
+
+```
+# with npm
+npm install -S iti iti-react
+
+# or with yarn
+yarn add iti iti-react
+```
+
+:::tip
+
+If you are building a React App there are usefull React bindings (`iti-react`) are available.
+
+:::
+
+## TLDR
+
+**with ITI**
+
+<CodeBlock language="tsx">{withIti}</CodeBlock>
+
+**Without ITI**
+
+<CodeBlock language="ts">{without}</CodeBlock>
+
+## Usage
+
+```tsx
+// (Optional) With React
+import { useContainer } from "./_containers/main-app"
+
+function Profile() {
+  const [user, userErr] = useContainer().userData
+  if (!user || userErr) return <div>loading... or error</div>
+
+  return <div>Hello {user.name}!</div>
+}
+```
+
+<CodeBlock language="ts">{quickStartCode}</CodeBlock>
+<CodeBlock language="ts">{wiringCode}</CodeBlock>
+
+```tsx
+// Part 3: Usage
+import { app } from "./app"
+
+// Will lazily fetch data and create PaymentService instance
+const paymentService = await app.containers.paymentService
+paymentService.sendMoney()
+```
+
+```tsx
+// (Optional) With React
+import { useContainer } from "./_containers/main-app"
+
+function Profile() {
+  const [user, userErr] = useContainer().userData
+  if (!user || userErr) return <div>loading... or error</div>
+
+  return <div>Hello {user.name}!</div>
+}
+```
