@@ -109,7 +109,7 @@ describe("Node long chain async", () => {
   }, 100)
 })
 
-describe("Node subscribeToContiner", () => {
+describe("Node subscribeToContainer", () => {
   let root: ReturnType<typeof createContainer>
 
   beforeEach(() => {
