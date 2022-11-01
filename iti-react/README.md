@@ -3,17 +3,20 @@
     <img width="180" src="./docs/logo.svg" alt="ITI Logo">
   </a>
 </p>
+
+<div align="center">
+
+# Iti React
+
+<h4>~1kB Dependency Injection Library for Typescript and React with a unique <strong>async flow</strong> support</h4>
+
 <p align="center">
   <a href="https://github.com/molszanski/iti/actions?query=branch%3Amaster"><img src="https://github.com/molszanski/iti/actions/workflows/lib-test.yml/badge.svg" alt="CI Status"></a>
   <a href="https://www.npmjs.org/package/iti-react"><img src="https://img.shields.io/npm/v/iti-react.svg" alt="npm version"></a>
   <a href="https://unpkg.com/iti-react/dist/iti-react.modern.js"><img src="https://img.badgesize.io/https://unpkg.com/iti-react/dist/iti-react.modern.js?compression=gzip" alt="gzip size"></a>
 </p>
 
-# Iti React
-
-> 1kB Depenendency Injection Framework for Typescript and Javascript with a unique feature that supports **async flow**
-
-- **fully async:** merges async code and a constructor injection via async functions
+</div>
 
 ## Usage
 
@@ -48,7 +51,6 @@ import { getProviders, PizzaAppContainer } from "./_root.store"
 export const MyRootCont = React.createContext(<PizzaAppContainer>{})
 
 let mega = getContainerSetHooks(getProviders, MyRootCont)
-export const useContainerSet = mega.useContainerSet
 export const useContainerSet = mega.useContainerSet
 ```
 
@@ -107,7 +109,7 @@ import { generateEnsureContainerSet } from "iti-react"
 const x = generateEnsureContainerSet(() =>
   useContainerSet(["kitchen", "pizzaContainer", "auth"]),
 )
-export const EnsureNewKitchenConainer = x.EnsureWrapper
+export const EnsureNewKitchenContainer = x.EnsureWrapper
 export const useNewKitchenContext = x.contextHook
 ```
 
@@ -116,11 +118,11 @@ export const PizzaApp = () => {
   return (
     <div>
       Pizza App:
-      <EnsureNewKitchenConainer
+      <EnsureNewKitchenContainer
         fallback={<>Pizza App is still loading please wait</>}
       >
         <NewPizzaPlaceControls />
-      </EnsureNewKitchenConainer>
+      </EnsureNewKitchenContainer>
     </div>
   )
 }

@@ -30,7 +30,7 @@ const kitchenApp = new RootContainer((ctx) => ({
 
 kitchenApp.on("containerCreated", (event) => {
   console.log(`event: 'containerCreated' ~~> token: '${event.key}'`)
-  // `event.container` is also avaliable here
+  // `event.container` is also available here
 })
 
 kitchenApp.on("containerRequested", (event) => {
@@ -49,7 +49,7 @@ await kitchenApp.items.kitchen
 // event: 'containerCreated'   ~~> token: 'kitchen'
 
 // Notice how oven was created before kitchen.
-// This is because kitcen depends on oven
+// This is because kitchen depends on oven
 ```
 
 ## API documentation JS / TS
@@ -94,7 +94,7 @@ cat src/examples/0.disposing.ts
 
 ### `disposeAll(): Promise<void>`
 
-Runs clenup functions on provided (created) dependendcies.
+Runs cleanup functions on provided (created) dependencies.
 
 Returns a Promise that resolves when all disposers of cached resolutions have resolved.
 

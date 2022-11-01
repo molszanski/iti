@@ -4,7 +4,7 @@ import { wait } from "./_utils"
 
 export interface AuthContainer {
   auth: Auth
-  authroization: Authorization
+  authorization: Authorization
 }
 
 export async function provideAuthContainer(): Promise<AuthContainer> {
@@ -14,6 +14,6 @@ export async function provideAuthContainer(): Promise<AuthContainer> {
   let x = await auth.getUserType()
   return {
     auth: auth,
-    authroization: new Authorization(x),
+    authorization: new Authorization(x),
   }
 }
