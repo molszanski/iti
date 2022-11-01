@@ -41,7 +41,7 @@ kitchenApp.on("containerRemoved", (event) => {
   console.log(`event: 'containerRemoved' ~~> token: '${event.key}' `)
 })
 
-await kitchenApp.containers.kitchen
+await kitchenApp.items.kitchen
 
 // event: 'containerRequested' ~~> token: 'kitchen'
 // event: 'containerRequested' ~~> token: 'oven'
@@ -67,7 +67,7 @@ export function getMainMockAppContainer() {
 
 ```ts
 let appRoot = getMainPizzaAppContainer()
-let kitchen = await appRoot.containers.kitchen
+let kitchen = await appRoot.items.kitchen
 kitchen.oven.pizzaCapacity // 4
 ```
 

@@ -45,7 +45,7 @@ root.get("oven") // Creates a new Oven instance
 root.get("oven") // Gets a cached Oven instance
 
 await node.get("kitchen") // { kitchen: Kitchen } also cached
-await node.containers.kitchen // same as above
+await node.items.kitchen // same as above
 
 // Get multiple instances at once
 await root.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
