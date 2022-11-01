@@ -22,7 +22,7 @@
     "prepare-not": "install-peers"
   },
   "dependencies": {
-    "iti": "0.5.0",
+    "iti": "0.6.0",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {

@@ -45,6 +45,6 @@ it("should check subscribe types", async () => {
 
 it("should be able to delete token types", () => {
   const cont = getMainMockAppContainer().delete("aCont")
-  expectNotType<any>(cont.containers)
+  expectNotType<any>(cont.items)
   expectType<{ bCont: "bCont"; cCont: "cCont" }>(cont.getTokens())
 })

@@ -94,7 +94,7 @@ describe("Node.get()", () => {
       }
 
       try {
-        await node.containers.decepticons
+        await node.items.decepticons
       } catch (e) {
         expect(e).toBe("all hail megatron")
         cb()

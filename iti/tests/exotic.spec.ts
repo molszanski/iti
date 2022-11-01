@@ -15,7 +15,7 @@ describe("Perf and exotic tests:", () => {
           .add((c) => ({ a: async () => "A", b: "B", c: "C" }))
           .add((c, node) => ({
             d: async () => {
-              expect(await node.containers.b).toBe("B")
+              expect(await node.items.b).toBe("B")
               return "D"
             },
           }))
@@ -25,7 +25,7 @@ describe("Perf and exotic tests:", () => {
               return "D"
             },
           }))
-        expect(await r.containers.d).toBe("D")
+        expect(await r.items.d).toBe("D")
         cb()
       })()
     }, 100)
@@ -49,7 +49,7 @@ describe("Perf and exotic tests:", () => {
             }
           })
         let a = r.get("d")
-        expect(await r.containers.d).toBe("D")
+        expect(await r.items.d).toBe("D")
         cb()
       })()
     }, 100)
@@ -69,13 +69,13 @@ describe("Perf and exotic tests:", () => {
           .add((c, node) => {
             return {
               d: async () => {
-                expect(await node.containers.c).toBe("C")
+                expect(await node.items.c).toBe("C")
                 return "D"
               },
             }
           })
 
-        expect(await r.containers.d).toBe("D")
+        expect(await r.items.d).toBe("D")
         cb()
       })()
     }, 100)

@@ -98,7 +98,7 @@ root.get("oven") // Creates a new Oven instance
 root.get("oven") // Gets a cached Oven instance
 
 await node.get("kitchen") // { kitchen: Kitchen } also cached
-await node.containers.kitchen // same as above
+await node.items.kitchen // same as above
 
 // Get multiple instances at once
 await root.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
@@ -194,10 +194,10 @@ let node = createContainer().add({
 })
 
 // Next line will load `./kitchen/kitchen` module
-await node.containers.kitchen
+await node.items.kitchen
 
 // Next line will load `./kitchen/oven` module
-await node.containers.kitchen.oven
+await node.items.kitchen.oven
 ```
 
 ### Tip: Prefer callbacks over of strings (in progress)
@@ -288,7 +288,7 @@ kitchenApp.on("containerRemoved", (event) => {
   console.log(`event: 'containerRemoved' ~~> token: '${event.key}' `)
 })
 
-await kitchenApp.containers.kitchen
+await kitchenApp.items.kitchen
 
 // event: 'containerRequested' ~~> token: 'kitchen'
 // event: 'containerRequested' ~~> token: 'oven'
@@ -314,7 +314,7 @@ export function getMainMockAppContainer() {
 
 ```ts
 let appRoot = getMainPizzaAppContainer()
-let kitchen = await appRoot.containers.kitchen
+let kitchen = await appRoot.items.kitchen
 kitchen.oven.pizzaCapacity // 4
 ```
 

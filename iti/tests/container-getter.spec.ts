@@ -6,10 +6,10 @@ it("should get a single container", (cb) => {
   ;(async () => {
     const cont = getMainMockAppContainer()
 
-    expect(cont.containers).toHaveProperty("bCont")
-    expect(cont.containers.aCont).toBeInstanceOf(Promise)
+    expect(cont.items).toHaveProperty("bCont")
+    expect(cont.items.aCont).toBeInstanceOf(Promise)
 
-    let b = await cont.containers.bCont
+    let b = await cont.items.bCont
     expect(b).toHaveProperty("b2")
     expect(b).toMatchSnapshot()
     cb()
@@ -20,8 +20,8 @@ it("should subscribe to a single container", (cb) => {
   // This is silly
   ;(async () => {
     const cont = getMainMockAppContainer()
-    expect(cont.containers).toHaveProperty("bCont")
-    expect(cont.containers.aCont).toBeInstanceOf(Promise)
+    expect(cont.items).toHaveProperty("bCont")
+    expect(cont.items.aCont).toBeInstanceOf(Promise)
 
     let m = jest.fn()
     cont.subscribeToContainer("cCont", m)
