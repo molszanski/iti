@@ -26,7 +26,7 @@ export const AdminControls = observer(() => {
   const [showFatLib1, setShowFatLib1] = useState(false)
   if (!authCont) return <>AUTH is loading</>
 
-  if (authCont.authroization.userType !== "admin") {
+  if (authCont.authorization.userType !== "admin") {
     return null
   }
 
@@ -60,24 +60,24 @@ export const NewTestControls = observer(() => {
   console.log("pizza capacity: ", kitchen[0].oven.pizzaCapacity)
   console.log("pizza capacity22: ", cSet.aCont.a1.getName())
 
-  return <div>new Test constroles</div>
+  return <div>new Test controls</div>
 })
 
 export const AuthControls = observer(() => {
   const [authCont] = useContainer().auth
 
   if (!authCont) return <>AUTH is loading</>
-  const { authroization } = authCont
+  const { authorization: authorization } = authCont
 
   return (
     <div>
-      <button onClick={() => authroization.changeUser("unauthenticated")}>
+      <button onClick={() => authorization.changeUser("unauthenticated")}>
         Sign Out
       </button>
-      <button onClick={() => authroization.changeUser("manager")}>
+      <button onClick={() => authorization.changeUser("manager")}>
         Sign in as Manager
       </button>
-      <button onClick={() => authroization.changeUser("admin")}>
+      <button onClick={() => authorization.changeUser("admin")}>
         Sign in as Admin
       </button>
     </div>
@@ -91,7 +91,7 @@ export const StuffControls = observer(() => {
 
   return (
     <div>
-      <button onClick={() => console.log("sdfsd")}>Stuff with URl</button>
+      <button onClick={() => console.log("test")}>Stuff with URl</button>
     </div>
   )
 })
@@ -133,9 +133,9 @@ export const PizzaPlaceControls = observer(() => {
 
   const { orderManager } = kitchenCont
   const { pizzaPlace, diningTables } = pizzaPlaceCont
-  const { auth, authroization } = x.auth
+  const { auth, authorization: authorization } = x.auth
 
-  const actions = authroization.getAvaliableActions()[authroization.userType]
+  const actions = authorization.getAvailableActions()[authorization.userType]
 
   return (
     <div>

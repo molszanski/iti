@@ -9,7 +9,7 @@ import TabItem from "@theme/TabItem"
 
 ## Business logic
 
-With ITI and Pure DI your business logic stays exatly the same.
+With ITI and Pure DI your business logic stays exactly the same.
 There is no need to add any framework specific decorators or `extends`.
 
 ```ts
@@ -76,7 +76,7 @@ const root = createContainer()
     paymentService: () => new PaymentService(ctx.logger),
   }))
 
-const ps = root.congainers.paymentService
+const ps = root.items.paymentService
 ps.sendMoney()
 ```
 

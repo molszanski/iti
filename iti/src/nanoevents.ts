@@ -2,7 +2,7 @@
  * From
  * https://github.com/ai/nanoevents
  *
- * Sadly, can't install it via np. Some build issue
+ * Sadly, can't install it via npm. Some build issue
  */
 
 //////////////////

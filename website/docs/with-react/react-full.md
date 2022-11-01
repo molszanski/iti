@@ -9,9 +9,9 @@ import TabItem from '@theme/TabItem';
 
 _work in progress_
 
-Fetching sync and async dependencis from ITI in React is conceptually similar to data fetching. If you've used libraries like [React Query](https://react-query.tanstack.com/), [swr](https://swr.vercel.app/), [Apollo Client](https://www.apollographql.com/docs/react/) or similar this will feel familiar.
+Fetching sync and async dependencies from ITI in React is conceptually similar to data fetching. If you've used libraries like [React Query](https://react-query.tanstack.com/), [swr](https://swr.vercel.app/), [Apollo Client](https://www.apollographql.com/docs/react/) or similar this will feel familiar.
 
-## Data fetchiing
+## Data fetching
 
 <Tabs>
 <TabItem value="swr" label="SWR">

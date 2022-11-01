@@ -41,9 +41,9 @@ export class Authorization {
 
   /**
    * this API might look weird but this helps typescript
-   * k.getAvaliableActions()["admin"]
+   * k.getAvailableActions()["admin"]
    */
-  public getAvaliableActions() {
+  public getAvailableActions() {
     return rightsLookup(RightsDB)
   }
 
