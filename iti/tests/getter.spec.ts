@@ -256,7 +256,7 @@ describe("Node getter", () => {
       const node2 = node1.add({
         bCont: async () => provideBContainer(await node1.get("aCont")),
       })
-      const containers = node2.containers
+      const containers = node2.items
 
       expect(containers).toHaveProperty("bCont")
       expect(containers.aCont).toBeInstanceOf(Promise)

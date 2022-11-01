@@ -256,7 +256,7 @@ export class Container<
     let nc =
       typeof newContext === "function"
         ? // @ts-expect-error
-          newContext(this.containers, this)
+          newContext(this.items, this)
         : newContext
     this._updateContext(nc)
     return this as any
@@ -275,13 +275,13 @@ export class Container<
     newContextOrCb:
       | NewContext
       | ((
-          containers: ContextGetter<Context>,
+          items: ContextGetter<Context>,
           self: Container<Context, DisposeContext>,
         ) => NewContext),
   ): Container<Prettify<Assign<Context, NewContext>>, DisposeContext> {
     let newContext =
       typeof newContextOrCb === "function"
-        ? newContextOrCb(this.containers, this)
+        ? newContextOrCb(this.items, this)
         : newContextOrCb
 
     // Step 1: Runtime check for existing tokens in context
@@ -304,13 +304,13 @@ export class Container<
     newContextOrCb:
       | NewDisposerContext
       | ((
-          containers: ContextGetter<Context>,
+          items: ContextGetter<Context>,
           self: Container<Context, DisposeContext>,
         ) => NewDisposerContext),
   ): Container<Context, Assign<DisposeContext, NewDisposerContext>> {
     let newDisposingCtx =
       typeof newContextOrCb === "function"
-        ? newContextOrCb(this.containers, this)
+        ? newContextOrCb(this.items, this)
         : newContextOrCb
 
     // Step 1: Runtime check for existing tokens in a Dispose Context
@@ -375,9 +375,9 @@ export class Container<
     let promiseTokens: T[] = []
     let allPromises: any = []
     for (let token of tokens) {
-      if (this.containers[token] instanceof Promise) {
+      if (this.items[token] instanceof Promise) {
         promiseTokens.push(token)
-        allPromises.push(this.containers[token])
+        allPromises.push(this.items[token])
       }
     }
 
@@ -387,7 +387,7 @@ export class Container<
 
     // Step 1: Assign all values
     tokens.forEach((token) => {
-      containerDecoratedMap[token as any] = this.containers[token]
+      containerDecoratedMap[token as any] = this.items[token]
     })
 
     // Step 2: Overwrite Promise like values with promise results
@@ -403,15 +403,20 @@ export class Container<
    * This is used to get a container from the context.
    * It should always return a promise?
    * But it seems that it is not possible to do that with the current implementation.
+   * @deprecated
    */
-  public get containers(): ContextGetter<Context> {
-    let containerMap = <ContextGetter<Context>>{}
+  public get containers() {
+    return this.items
+  }
+
+  public get items(): ContextGetter<Context> {
+    let itemMap = <ContextGetter<Context>>{}
     for (let key in this.getTokens()) {
-      addGetter(containerMap, key, () => {
+      addGetter(itemMap, key, () => {
         return this.get(key as any)
       })
     }
-    return containerMap
+    return itemMap
   }
 }
 
