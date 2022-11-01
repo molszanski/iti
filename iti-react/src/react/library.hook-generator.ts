@@ -1,7 +1,7 @@
-import type { Container, UnpackFunction } from "iti"
 import React, { useContext, useEffect, useState } from "react"
 import { useBetterGenericContainer } from "./library.hooks"
 import { addGetter, UnPromisify } from "../_utils"
+import type { Container, UnpackFunction, Prettify } from "iti"
 
 type UnpackTokenFromContext<
   CK extends keyof Context,
@@ -56,7 +56,7 @@ export function getContainerSetHooks<
     TokenMap extends { [T in keyof Context]: T },
   >(
     tokensOrCallback: Tokens[] | ((keyMap: TokenMap) => Tokens[]),
-  ): [ContainerSet<Tokens, Context>, any] {
+  ): [Prettify<ContainerSet<Tokens, Context>>, any] {
     const [all, setAll] = useState<ContainerSet<Tokens, Context>>(
       undefined as any,
     )
@@ -89,7 +89,7 @@ export function getContainerSetHooks<
       return unsubscribe
     }, tokens)
 
-    return [all, err]
+    return [all as any, err]
   }
   return {
     useContainer: useContainer,
