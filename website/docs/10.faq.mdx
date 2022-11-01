@@ -20,6 +20,15 @@ Please know, that the docs is still work in progress. Many features or use cases
 
 ## Questions
 
+**Can I have multiple application containers?**
+
+Yes, no problem at all. If you want, they can even share tokens and hence instances!
+
+**Why `getContainerSet` is always async?**
+
+This is temporary(?) limitation to keep typescript happy and typescript types reasonably sane.
+In most real world scenarios your frontend dependencies are already async.
+
 ### Why should I use ITI?
 
 We strongly believe that helps to implement good DI patterns in your codebase and offers

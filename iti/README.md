@@ -60,16 +60,17 @@ export class Kitchen {
 import { createContainer } from "iti"
 import { Oven, Kitchen } from "./kitchen"
 
-const node = createContainer()
+const container = createContainer()
   .add({
+    key: () => new Item(),
     oven: () => new Oven(),
     userManual: async () => "Please preheat before use",
   })
-  .add((ctx) => ({
-    kitchen: async () => new Kitchen(ctx.oven, await ctx.userManual),
+  .add((items) => ({
+    kitchen: async () => new Kitchen(items.oven, await items.userManual),
   }))
 
-await node.get("kitchen") // Kitchen
+await container.get("kitchen") // Kitchen
 ```
 
 ```tsx
@@ -94,48 +95,58 @@ Also it is hard to use `reflect-metadata` with starters like CRA, Next.js etc. Y
 
 ```ts
 // Get a single instance
-root.get("oven") // Creates a new Oven instance
-root.get("oven") // Gets a cached Oven instance
+container.get("oven") // Creates a new Oven instance
+container.get("oven") // Gets a cached Oven instance
 
-await node.get("kitchen") // { kitchen: Kitchen } also cached
-await node.items.kitchen // same as above
+await container.get("kitchen") // { kitchen: Kitchen } also cached
+await container.items.kitchen // same as above
 
 // Get multiple instances at once
-await root.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
-await root.getContainerSet((c) => [c.userManual, c.oven]) // same as above
+await container.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
+await container.getContainerSet((c) => [c.userManual, c.oven]) // same as above
 
 // Plain deletion
-node.delete("kitchen")
+container.delete("kitchen")
 
 // Subscribe to container changes
-node.subscribeToContainer("oven", (oven) => {})
-node.subscribeToContainerSet(["oven", "kitchen"], ({ oven, kitchen }) => {})
+container.subscribeToContainer("oven", (oven) => {})
+container.subscribeToContainerSet(
+  ["oven", "kitchen"],
+  ({ oven, kitchen }) => {},
+)
 // prettier-ignore
-node.subscribeToContainerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
-node.on("containerUpdated", ({ key, newContainer }) => {})
-node.on("containerUpserted", ({ key, newContainer }) => {})
-node.on("containerDeleted", ({ key, newContainer }) => {})
+container.subscribeToContainerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
+container.on("containerUpdated", ({ key, newItem }) => {})
+container.on("containerUpserted", ({ key, newItem }) => {})
+container.on("containerDeleted", ({ key, newItem }) => {})
+
+// Disposing
+container
+  .add({ dbConnection: () => connectToDb(process.env.dbUrl) })
+  .addDisposer({ dbConnection: (db) => db.disconnect() }) // waits for promise
+await container.dispose("dbConnection")
+await container.disposeAll()
 ```
 
 **Writing**
 
 ```ts
-let node1 = createContainer()
+let container = createContainer()
   .add({
     userManual: "Please preheat before use",
     oven: () => new Oven(),
   })
-  .upsert((containers, node) => ({
+  .upsert((items, cont) => ({
     userManual: "Works better when hot",
     preheatedOven: async () => {
-      await containers.oven.preheat()
-      return containers.oven
+      await items.oven.preheat()
+      return items.oven
     },
   }))
 
 // `add` is typesafe and a runtime safe method. Hence we've used `upsert`
 try {
-  node1.add({
+  container.add({
     // @ts-expect-error
     userManual: "You shall not pass",
     // Type Error: (property) userManual: "You are overwriting this token. It is not safe. Use an unsafe `upsert` method"
@@ -152,19 +163,19 @@ try {
 **Single Instance (a.k.a. Singleton)**
 
 ```ts
-let node = createContainer().add({
+let cont = createContainer().add({
   oven: () => new Oven(),
 })
-node.get("oven") === node.get("oven") // true
+cont.get("oven") === cont.get("oven") // true
 ```
 
 **Transient**
 
 ```ts
-let node = createContainer().add({
+let cont = createContainer().add({
   oven: () => () => new Oven(),
 })
-node.get("oven") === node.get("oven") // false
+cont.get("oven") === cont.get("oven") // false
 ```
 
 ### Dynamic Imports
@@ -189,68 +200,24 @@ export async function provideKitchenContainer() {
 // ./index.ts
 import { createContainer } from "iti"
 import { provideKitchenContainer } from "./kitchen"
-let node = createContainer().add({
+let cont = createContainer().add({
   kitchen: async () => provideKitchenContainer(),
 })
 
 // Next line will load `./kitchen/kitchen` module
-await node.items.kitchen
+await cont.items.kitchen
 
 // Next line will load `./kitchen/oven` module
-await node.items.kitchen.oven
+await cont.items.kitchen.oven
 ```
-
-### Tip: Prefer callbacks over of strings (in progress)
-
-If you use callback pattern across your app, you will be able to mass rename your containerKeys using typescript. With strings, you will have to manually go through the app. But even if you use string literals compiler will not compile until you fix your rename manually across the app.
-
-```ts
-const node = createContainer().addNode({
-  a: "A",
-  b: "B",
-})
-
-await node.get((containerKeys) => containerKeys.a) // BEST!!!
-await node.get("a") // it will work but...
-```
-
-## Anti Patterns
-
-in progress
 
 ## Getting Started
 
 The best way to get started is to check [a CRA Pizza example](https://github.com/molszanski/iti/tree/master/examples/cra/src/containers)
 
-Initial wiring
-
-```ts
-import { createContainer } from "../../src/library.new-root-container"
-
-import { provideAContainer } from "./container.a"
-import { provideBContainer } from "./container.b"
-import { provideCContainer } from "./container.c"
-
-export type MockAppNode = ReturnType<typeof getMainMockAppContainer>
-export function getMainMockAppContainer() {
-  return createContainer()
-    .add({ aCont: async () => provideAContainer() })
-    .add((containers) => {
-      return {
-        bCont: async () => provideBContainer(await containers.aCont),
-      }
-    })
-    .add((c) => {
-      return {
-        cCont: async () => provideCContainer(await c.aCont, await c.bCont, k),
-      }
-    })
-}
-```
-
 ## Typescript
 
-Iti has a great typescript support. All types are resolved automatically and check at compile time.
+Iti has a great typescript support. All types are resolved automatically and checked at compile time.
 
 ![Autocomplete](./docs/1.png)
 ![Autocomplete](./docs/2.png)
@@ -259,209 +226,13 @@ Iti has a great typescript support. All types are resolved automatically and che
 
 ## Docs
 
-### Tokens
+Read more at [itijs.org/docs/api](https://itijs.org/docs/api#api-documentation-js--ts)
 
-### Containers
+**Notable inspiration**
 
-Containers are an important unit.
-If you replace them, users will be notified. In React it happens automatically
-
-### Events
-
-```ts
-const kitchenApp = new RootContainer((ctx) => ({
-  // you can use tokens (`oven`, `kitchen`) here and later on
-  oven: async () => ovenContainer(),
-  kitchen: async () => kitchenContainer(await ctx.oven()),
-}))
-
-kitchenApp.on("containerCreated", (event) => {
-  console.log(`event: 'containerCreated' ~~> token: '${event.key}'`)
-  // `event.container` is also available here
-})
-
-kitchenApp.on("containerRequested", (event) => {
-  console.log(`event: 'containerRequested' ~~> token: '${event.key}' `)
-})
-
-kitchenApp.on("containerRemoved", (event) => {
-  console.log(`event: 'containerRemoved' ~~> token: '${event.key}' `)
-})
-
-await kitchenApp.items.kitchen
-
-// event: 'containerRequested' ~~> token: 'kitchen'
-// event: 'containerRequested' ~~> token: 'oven'
-// event: 'containerCreated'   ~~> token: 'oven'
-// event: 'containerCreated'   ~~> token: 'kitchen'
-
-// Notice how oven was created before kitchen.
-// This is because kitchen depends on oven
-```
-
-## API documentation JS / TS
-
-### `createContainer` Setting app root
-
-```ts
-import { createContainer } from "../../library.root-container"
-export function getMainMockAppContainer() {
-  return createContainer().add({ kitchen: () => new Kitchen(/* deps */) })
-}
-```
-
-### `containers` getter
-
-```ts
-let appRoot = getMainPizzaAppContainer()
-let kitchen = await appRoot.items.kitchen
-kitchen.oven.pizzaCapacity // 4
-```
-
-### `getContainerSet`
-
-### `getContainerSetNew`
-
-### `upsert`
-
-When containers are updated React is updated too via hooks
-
-### `delete`
-
-Plainly removes token and value from an instance
-
-### `dispose`
-
-Please check a full [documentation](https://itijs.org/docs/api#disposing) on disposing.
-
-Short version:
-
-```ts
-class DatabaseConnection {
-  connect(): Promise<void> {}
-  disconnect(): Promise<void> {}
-}
-const container = createContainer()
-  .add(() => ({
-    dbConnection: async () => {
-      const db = new DatabaseConnection()
-      await db.connect()
-      return db
-    },
-  }))
-  .addDisposer({
-    //              ↓ `db` is a resolved value of a `dbConnection` token. Pretty handy
-    dbConnection: (db) => db.disconnect(),
-  })
-
-const db = await container.get("dbConnection")
-await container.disposeAll()
-```
-
-# Alternatives
-
-## No async support
-
-Existing libraries like inversify and others don’t support asynchronous code.
-
-They either provide a promise to your constructor or require one to imperatively execute all potentially async code before the binding phase.
-
-This is far from ideal.
-
-## Heavy use of decorators
-
-Secondly, they rely on decorators and `reflect-metadata`
-
-Decorators create unnecessary coupling of an application business logic with a framework. The whole idea of DI is to decouple the application business logic. Coupling classes with a DI framework is still coupling and turns DI into a service locator.
-
-Also, decorator support is an experimental feature in Typescript and current implementation is not compatible with the TC39 proposal. This will probably cause problems for any non-trivial decorators and babel hacks.
-
-In addition to that it is very hard to use `reflect-metadata` with starters like CRA, Next.js etc. To use `reflect-metadata` you need to tweak your compilers (babel, typescript, esbuild, swc etc.) configuration. So if you can’t use `reflect-metadata` you can’t use `inversify` or `tsyringe`.
-
-## Comparison with `inversifyjs`, `tsyringe` and others
-
-Inversion of Control (IoC) is a great way to decouple code and the most popular pattern of IoC is dependency injection (DI) [but it is not limited to one](https://martinfowler.com/articles/injection.html).
-
-In JavaScript there is not way to create a dependency injection without mixing application business logic with a specific IoC library code or hacking a compiler (reflect-metadata).
-
-**`inversifyjs` and `tsyringe` use decorators and `reflect-metadata`**
-
-```ts
-import { injectable } from "tsyringe"
-
-@injectable()
-class Foo {
-  constructor(private database: Database) {}
-}
-
-// some other file
-import "reflect-metadata"
-import { container } from "tsyringe"
-import { Foo } from "./foo"
-
-const instance = container.resolve(Foo)
-```
-
-**`typed-inject` uses monkey-patching**
-
-```ts
-import { createInjector } from "typed-inject"
-function barFactory(foo: number) {
-  return foo + 1
-}
-barFactory.inject = ["foo"] as const
-class Baz {
-  constructor(bar: number) {
-    console.log(`bar is: ${bar}`)
-  }
-  static inject = ["bar"] as const
-}
-```
-
-With Iti your application business logic is not mixed with the framework code
-
-```ts
-import type { Ingredients } from "./store.ingredients"
-import type { Oven } from "./store.oven"
-
-export class Kitchen {
-  constructor(private oven: Oven, private ingredients: Ingredients) {}
-}
-
-// provider / factory
-import { IngredientsService } from "../services/ingredients-manager"
-import { Kitchen } from "../stores/store.kitchen"
-import { Oven } from "../stores/store.oven"
-
-export async function provideKitchenContainer() {
-  let oven = new Oven()
-  let ingredients = await IngredientsService.buySomeIngredients()
-  let kitchen = new Kitchen(oven, ingredients)
-
-  return {
-    oven: oven,
-    ingredients: ingredients,
-    kitchen: kitchen,
-  }
-}
-```
-
-Notable inspirations:
-
-- https://github.com/inversify/InversifyJS
-- https://github.com/microsoft/tsyringe
 - https://github.com/nicojs/typed-inject
+- https://github.com/microsoft/tsyringe
 - https://github.com/asvetliakov/Huject
+  https://github.com/jeffijoe/awilix
 - https://github.com/typestack/typedi
-
-## Questions and tips
-
-**Can I have multiple application containers?**
-
-Yes, no problem at all. If you want, they can even share tokens and hence instances!
-
-**Why `getContainerSet` is always async?**
-
-This is temporary(?) limitation to keep typescript happy and typescript types reasonable sane
-
-[^1]: Kudos to [typed-inject](https://github.com/nicojs/typed-inject) for finding a reasonable alternative to decorators and Reflect. Sadly, it doesn't support async and there are some other limits
+- https://github.com/inversify/InversifyJS
