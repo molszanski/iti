@@ -6,6 +6,7 @@ import { app } from "./_bl"
 
 const Lol = () => {
   const [b, bErr] = useContainer().b
+
   console.log("render", b, bErr)
   return <p>123</p>
 }

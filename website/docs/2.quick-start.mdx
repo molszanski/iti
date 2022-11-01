@@ -69,7 +69,7 @@ function Profile() {
 import { app } from "./app"
 
 // Will lazily fetch data and create PaymentService instance
-const paymentService = await app.containers.paymentService
+const paymentService = await app.items.paymentService
 paymentService.sendMoney()
 ```
 

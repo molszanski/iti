@@ -15,7 +15,7 @@ export async function provideKitchenManipulatorContainer(
 ): Promise<KitchenManipulator_Container> {
   let ksc = new KitchenSizeUIController({
     onKitchenResize: async () => {
-      const currentKitchen = await node.containers.kitchen
+      const currentKitchen = await node.items.kitchen
       return await node.upsert({
         kitchen: () => provideUpgradedKitchenContainer(currentKitchen),
       })

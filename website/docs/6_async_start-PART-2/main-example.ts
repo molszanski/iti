@@ -56,7 +56,7 @@ export async function runMyApp2() {
         new PaymentService(ctx.logger, await ctx.auth.getUserData()),
     }))
 
-  const paymentService = await root.containers.paymentService
+  const paymentService = await root.items.paymentService
   paymentService.sendMoney()
 }
 
