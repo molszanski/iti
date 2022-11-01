@@ -24,7 +24,7 @@ import { MockAppWrapper } from "./mocks/_mock-app-components"
   }
 })()
 
-// useMockAppContainerSet should not retun any
+// useMockAppContainerSet should not return any
 ;(() => {
   const containerSet = useMockAppContainerSet(["aCont", "bCont"])
   expectNotType<any>(containerSet)
