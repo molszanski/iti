@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react"
-import { useBetterGenericContainer } from "./library.hooks"
-import { addGetter, UnPromisify } from "../_utils"
+import { useBetterGenericContainer } from "./library.hooks.js"
+import { addGetter, UnPromisify } from "../_utils.js"
 import type { Container, UnpackFunction, Prettify } from "iti"
 
 type UnpackTokenFromContext<

@@ -1,5 +1,5 @@
 import { Intersection } from "utility-types"
-import { createNanoEvents, Emitter } from "./nanoevents"
+import { createNanoEvents, Emitter } from "./nanoevents.js"
 import {
   addGetter,
   Prettify,
@@ -12,8 +12,8 @@ import {
   _intersectionKeys,
   UnPromisify,
   UnpackFunctionReturn,
-} from "./_utils"
-import { ItiResolveError, ItiTokenError } from "./errors"
+} from "./_utils.js"
+import { ItiResolveError, ItiTokenError } from "./errors.js"
 
 abstract class AbstractNode<Context extends {}> {
   public abstract get<T extends keyof Context>(
