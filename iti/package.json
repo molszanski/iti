@@ -2,22 +2,26 @@
   "name": "iti",
   "version": "0.6.0",
   "description": "~1kB Dependency Injection Library for Typescript and React with a unique async flow support",
-  "type": "module",
   "sideEffects": false,
-  "source": "src/index.ts",
-  "exports": {
-    "require": "./dist/iti.cjs",
-    "default": "./dist/iti.modern.js"
-  },
+  "type": "module",
   "main": "./dist/iti.cjs",
-  "module": "./dist/iti.module.js",
+  "module": "./dist/iti.modern.mjs",
   "typings": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/iti.modern.mjs",
+      "require": "./dist/iti.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "source": "src/index.ts",
   "files": [
     "dist"
   ],
   "scripts": {
     "_build": "rm -rf ./dist && microbundle build -o dist/ && cp -R src/* dist/src",
-    "build": "rm -rf ./dist && microbundle build -o dist/",
+    "build": "rm -rf ./dist && microbundle build -o dist/ --format modern,cjs",
     "jest": "jest",
     "stryker": "stryker",
     "stryker:run": "stryker run",

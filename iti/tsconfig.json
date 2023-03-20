@@ -3,11 +3,7 @@
     "target": "ESNext",
     "outDir": "dist/",
     "declarationDir": "dist/",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "types": ["@types/jest"],
     "noImplicitAny": false,
     "experimentalDecorators": true,
@@ -25,9 +21,6 @@
     "declaration": true,
     "jsx": "react"
   },
-  "include": [
-    "src/**/*",
-    "tests/**/*",
-  ],
-  "exclude":["node_modules"]
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules"]
 }
