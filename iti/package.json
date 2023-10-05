@@ -21,7 +21,7 @@
   ],
   "scripts": {
     "_build": "rm -rf ./dist && microbundle build -o dist/ && cp -R src/* dist/src",
-    "build": "rm -rf ./dist microbundle build && cp dist/index.d.ts dist/index.d.cts",
+    "build": "rm -rf ./dist && microbundle build && cp dist/index.d.ts dist/index.d.cts",
     "jest": "jest",
     "stryker": "stryker",
     "stryker:run": "stryker run",
