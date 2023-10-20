@@ -92,11 +92,14 @@ export function createNanoEvents<
   return {
     events: {},
     emit(event, ...args) {
+      // @ts-ignore
       ;(this.events[event] || []).forEach((i) => i(...args))
     },
     on(event, cb) {
+      // @ts-ignore
       ;(this.events[event] = this.events[event] || []).push(cb)
       return () =>
+        // @ts-ignore
         (this.events[event] = (this.events[event] || []).filter(
           (i) => i !== cb,
         ))
