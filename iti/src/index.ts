@@ -11,5 +11,5 @@ export type {
   UnPromisify,
   UnpackFunction,
   Prettify,
-} from "./_utils"
+} from "./_utils.js"
 export type { Emitter } from "./nanoevents.js"

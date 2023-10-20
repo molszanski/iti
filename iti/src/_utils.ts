@@ -12,15 +12,6 @@ export function addGetter(object, key, fn: any) {
   })
 }
 
-setTimeout(
-  () => "lol",
-  () => "lol",
-  () => "lol",
-  () => "lol",
-  () => "lol",
-  2,
-)
-
 export type Assign<OldContext extends object, NewContext extends object> = {
   [Token in keyof ({
     [K in keyof OldContext]: OldContext[K]

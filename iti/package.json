@@ -4,14 +4,14 @@
   "description": "~1kB Dependency Injection Library for Typescript and React with a unique async flow support",
   "sideEffects": false,
   "type": "module",
-  "main": "./dist/iti.cjs",
-  "module": "./dist/iti.modern.mjs",
+  "main": "./dist/js/index.umd.js",
+  "module": "./dist/esm/index.mjs",
   "typings": "./dist/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "import": "./dist/iti.modern.mjs",
-      "require": "./dist/iti.cjs"
+      "import": "./dist/ems/index.mjs",
+      "require": "./dist/cjs/index.cjs",
+      "types": "./dist/src/index.d.ts"
     },
     "./package.json": "./package.json"
   },
@@ -22,6 +22,11 @@
   "scripts": {
     "_build": "rm -rf ./dist && microbundle build -o dist/ && cp -R src/* dist/src",
     "build": "rm -rf ./dist && microbundle build -o dist/ --format modern,cjs",
+    "s1": "microbundle build -o dist/js  --format umd",
+    "s2": "microbundle build -o dist/cjs --format cjs",
+    "s3": "microbundle build -o dist/esm --format modern",
+    "s4": "cp dist/index.d.ts dist/cjs/index.d.cts && cp dist/index.d.ts dist/js/index.d.ts",
+    "s5": "rm -rf ./dist && yarn s1 && yarn s2 && yarn s3 && yarn s4",
     "jest": "jest",
     "stryker": "stryker",
     "stryker:run": "stryker run",
