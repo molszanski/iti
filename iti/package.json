@@ -1,23 +1,23 @@
 {
   "name": "iti",
-  "version": "0.7.0-alpha.2",
+  "version": "0.7.0-alpha.3",
   "description": "~1kB Dependency Injection Library for Typescript and React with a unique async flow support",
   "sideEffects": false,
-  "main": "./dist/iti.js",
-  "module": "./dist/iti.mjs",
-  "typings": "./dist/index.d.ts",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "typings": "./dist/index.d.mts",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/iti.mjs"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       },
       "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/iti.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
       },
-      "default": "./dist/iti.mjs"
+      "default": "./dist/index.mjs"
     },
     "./package.json": "./package.json"
   },
@@ -26,10 +26,7 @@
     "dist"
   ],
   "scripts": {
-    "_build": "rm -rf ./dist && microbundle build -o dist/ --format cjs,modern",
-    "_make-cts": "for f in ./dist/*.d.ts; do cp \"$f\" \"${f%%.d.ts}.d.cts\"; done",
-    "_make-names": "mv ./dist/iti.modern.mjs ./dist/iti.mjs && mv ./dist/iti.modern.mjs.map ./dist/iti.mjs.map",
-    "build": "yarn _build && yarn _make-cts && yarn _make-names",
+    "build": "make build",
     "jest": "jest",
     "stryker": "stryker",
     "stryker:run": "stryker run",

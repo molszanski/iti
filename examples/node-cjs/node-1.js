@@ -8,4 +8,7 @@ const container = iti
   .add((c) => ({
     sayName: () => console.log("Doggo's name is " + c.doggoName),
   }))
-container.items.sayName
+let a = container.items.sayName
+let b = container.items.doggoName
+
+console.log(a, b)
