@@ -6,8 +6,8 @@
   "sideEffects": false,
   "source": "src/index.ts",
   "module": "./dist/iti-react.mjs",
-  "typings": "./dist/src/index.d.ts",
-  "types": "./dist/src/index.d.ts",
+  "typings": "./dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
