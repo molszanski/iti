@@ -23,6 +23,11 @@
     "./package.json": "./package.json"
   },
   "source": "src/index.ts",
+  "publishConfig": {
+    "source": "./src/index.ts",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs"
+  },
   "files": [
     "dist"
   ],

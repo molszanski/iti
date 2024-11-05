@@ -21,6 +21,8 @@ build: ## Build the project
 	mv ./dist/iti.cjs.map ./dist/index.cjs.map
 	mv ./dist/iti.mjs ./dist/index.mjs
 	mv ./dist/iti.mjs.map ./dist/index.mjs.map
+	sed -i '' 's/iti.mjs.map/index.mjs.map/g' ./dist/index.mjs
+	sed -i '' 's/iti.cjs.map/index.cjs.map/g' ./dist/index.cjs
 	ls -l ./dist
 # find ./dist -name "*.d.ts" -exec sh -c 'cp "$$1" "$${1%%.d.ts}.d.cts"' sh {} \;
 # find ./dist -name "*.d.ts" -delete;
