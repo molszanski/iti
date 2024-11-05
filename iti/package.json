@@ -1,6 +1,6 @@
 {
   "name": "iti",
-  "version": "0.7.0-alpha.0",
+  "version": "0.7.0-alpha.1",
   "description": "~1kB Dependency Injection Library for Typescript and React with a unique async flow support",
   "sideEffects": false,
   "main": "./dist/iti.js",
@@ -27,11 +27,9 @@
   ],
   "scripts": {
     "_build": "rm -rf ./dist && microbundle build -o dist/ --format cjs,modern",
-    "build": "rm -rf ./dist && microbundle build -o dist/",
-    "s2": "microbundle build -o dist/cjs --format cjs",
-    "s3": "microbundle build -o dist/esm --format modern",
-    "s5": "rm -rf ./dist && yarn s2 && yarn s3 && rm -rf dist/tests",
-    "s6": "rm -rf ./dist && yarn s2 && yarn s3 && rm -rf dist/tests",
+    "_make-cts": "for f in ./dist/*.d.ts; do cp \"$f\" \"${f%%.d.ts}.d.cts\"; done",
+    "_make-names": "mv ./dist/iti.modern.mjs ./dist/iti.mjs && mv ./dist/iti.modern.mjs.map ./dist/iti.mjs.map",
+    "build": "yarn _build && yarn _make-cts && yarn _make-names",
     "jest": "jest",
     "stryker": "stryker",
     "stryker:run": "stryker run",
