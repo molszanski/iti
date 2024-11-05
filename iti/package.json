@@ -3,6 +3,7 @@
   "version": "0.7.0-alpha.3",
   "description": "~1kB Dependency Injection Library for Typescript and React with a unique async flow support",
   "sideEffects": false,
+  "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "typings": "./dist/index.d.mts",
