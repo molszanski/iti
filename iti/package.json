@@ -26,7 +26,7 @@
     "dist"
   ],
   "scripts": {
-    "_build": "rm -rf ./dist && microbundle build -o dist/ && cp -R src/* dist/src",
+    "_build": "rm -rf ./dist && microbundle build -o dist/ --format cjs,modern",
     "build": "rm -rf ./dist && microbundle build -o dist/",
     "s2": "microbundle build -o dist/cjs --format cjs",
     "s3": "microbundle build -o dist/esm --format modern",
