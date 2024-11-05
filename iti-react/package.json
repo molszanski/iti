@@ -1,6 +1,6 @@
 {
   "name": "iti-react",
-  "version": "0.7.0-alpha.1",
+  "version": "0.7.0-alpha.2",
   "description": "Handy React bindings for iti, a ~1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow",
   "type": "module",
   "sideEffects": false,
@@ -29,7 +29,7 @@
     "prepare-not": "install-peers"
   },
   "dependencies": {
-    "iti": "0.7.0-alpha.1",
+    "iti": "0.7.0-alpha.2",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {

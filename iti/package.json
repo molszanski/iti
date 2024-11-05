@@ -1,6 +1,6 @@
 {
   "name": "iti",
-  "version": "0.7.0-alpha.1",
+  "version": "0.7.0-alpha.2",
   "description": "~1kB Dependency Injection Library for Typescript and React with a unique async flow support",
   "sideEffects": false,
   "main": "./dist/iti.js",
@@ -14,7 +14,7 @@
         "default": "./dist/iti.mjs"
       },
       "require": {
-        "types": "./dist/index.d.ts",
+        "types": "./dist/index.d.cts",
         "default": "./dist/iti.js"
       },
       "default": "./dist/iti.mjs"

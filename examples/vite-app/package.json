@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "iti": "0.7.0-alpha.1",
-    "iti-react": "0.7.0-alpha.1",
+    "iti": "0.7.0-alpha.2",
+    "iti-react": "0.7.0-alpha.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
