@@ -16,14 +16,14 @@ bin = ./node_modules/.bin
 build: ## Build the project
 	@ rm -rf ./dist
 	$(bin)/microbundle build -o dist/ --format cjs,modern
-# find ./dist -name "*.d.ts" -exec sh -c 'cp "$$1" "$${1%%.d.ts}.d.cts"' sh {} \;
 	find ./dist -name "*.d.ts" -exec sh -c 'cp "$$1" "$${1%%.d.ts}.d.mts"' sh {} \;
-# find ./dist -name "*.d.ts" -delete;
-	mv ./dist/iti.js ./dist/index.cjs
-	mv ./dist/iti.js.map ./dist/index.cjs.map
-	mv ./dist/iti.modern.mjs ./dist/index.mjs
-	mv ./dist/iti.modern.mjs.map ./dist/index.mjs.map
+	mv ./dist/iti.cjs ./dist/index.cjs
+	mv ./dist/iti.cjs.map ./dist/index.cjs.map
+	mv ./dist/iti.mjs ./dist/index.mjs
+	mv ./dist/iti.mjs.map ./dist/index.mjs.map
 	ls -l ./dist
+# find ./dist -name "*.d.ts" -exec sh -c 'cp "$$1" "$${1%%.d.ts}.d.cts"' sh {} \;
+# find ./dist -name "*.d.ts" -delete;
 
 
 # -----------------------------------------------------------
