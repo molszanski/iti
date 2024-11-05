@@ -5,17 +5,24 @@
   "type": "module",
   "sideEffects": false,
   "source": "src/index.ts",
-  "exports": {
-    "default": "./dist/iti-react.modern.js"
-  },
-  "main": "./dist/iti-react.modern.js",
-  "module": "./dist/iti-react.module.js",
+  "module": "./dist/iti-react.mjs",
   "typings": "./dist/src/index.d.ts",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/iti-react.mjs"
+      },
+      "default": "./dist/iti-react.mjs"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf ./dist && microbundle -o dist/  --jsx React.createElement --format modern,esm",
+    "build": "rm -rf ./dist && microbundle -o dist/  --jsx React.createElement --format modern",
     "dev": "microbundle watch -o dist/ --jsx React.createElement",
     "test": "yarn tsd",
     "tsd": "tsd tsd_project",
