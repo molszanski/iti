@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "baseUrl": "./src",
     "outDir": "dist/",
     "declarationDir": "dist/",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -21,6 +22,6 @@
     "declaration": true,
     "jsx": "react"
   },
-  "include": ["src/**/*", "tests/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }
