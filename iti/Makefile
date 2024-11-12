@@ -17,6 +17,7 @@ build: ## Build the project
 	@ rm -rf ./dist
 	$(bin)/microbundle build -o dist/ --format cjs,modern
 	find ./dist -name "*.d.ts" -exec sh -c 'cp "$$1" "$${1%%.d.ts}.d.mts"' sh {} \;
+	find ./dist -name "*.d.ts" -exec sh -c 'cp "$$1" "$${1%%.d.ts}.d.cts"' sh {} \;
 	mv ./dist/iti.cjs ./dist/index.cjs
 	mv ./dist/iti.cjs.map ./dist/index.cjs.map
 	mv ./dist/iti.mjs ./dist/index.mjs
@@ -24,7 +25,12 @@ build: ## Build the project
 	sed -i.bak "s/iti.mjs.map/index.mjs.map/g" ./dist/index.mjs && rm -f ./dist/index.mjs.bak
 	sed -i.bak "s/iti.cjs.map/index.cjs.map/g" ./dist/index.cjs && rm -f ./dist/index.cjs.bak
 	ls -l ./dist
-# find ./dist -name "*.d.ts" -exec sh -c 'cp "$$1" "$${1%%.d.ts}.d.cts"' sh {} \;
+
+# https://www.npmjs.com/package/@arethetypeswrong/cli
+check: ## Check the project
+	make build
+	npm pack
+	attw ./iti-0.7.0-alpha.4.tgz
 # find ./dist -name "*.d.ts" -delete;
 
 
