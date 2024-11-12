@@ -1,6 +1,6 @@
 {
   "name": "iti",
-  "version": "0.7.0-alpha.4",
+  "version": "0.7.0",
   "description": "~1kB Dependency Injection Library for Typescript and React with a unique async flow support",
   "sideEffects": false,
   "type": "module",
