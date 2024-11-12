@@ -1,22 +1,26 @@
 {
   "name": "iti-react",
-  "version": "0.7.0-alpha.3",
+  "version": "0.7.0-alpha.4",
   "description": "Handy React bindings for iti, a ~1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow",
   "type": "module",
   "sideEffects": false,
-  "source": "src/index.ts",
-  "module": "./dist/iti-react.mjs",
+  "module": "./dist/iti-react.js",
   "typings": "./dist/index.d.ts",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/index.d.ts",
-        "default": "./dist/iti-react.mjs"
+        "default": "./dist/iti-react.js"
       },
-      "default": "./dist/iti-react.mjs"
+      "default": "./dist/iti-react.js"
     },
     "./package.json": "./package.json"
+  },
+  "source": "src/index.ts",
+  "publishConfig": {
+    "source": "./src/index.ts",
+    "module": "./dist/iti-react.js"
   },
   "files": [
     "dist"
@@ -29,7 +33,7 @@
     "prepare-not": "install-peers"
   },
   "dependencies": {
-    "iti": "0.7.0-alpha.3",
+    "iti": "0.7.0-alpha.4",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {

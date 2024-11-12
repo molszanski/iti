@@ -2,5 +2,5 @@
 export type { GetContainerFormat, UnPromisify } from "./_utils"
 
 // React
-export { generateEnsureContainerSet } from "./react/library.generate-ensure-hooks"
-export { getContainerSetHooks } from "./react/library.hook-generator"
+export { generateEnsureContainerSet } from "./react/library.generate-ensure-hooks.js"
+export { getContainerSetHooks } from "./react/library.hook-generator.js"
