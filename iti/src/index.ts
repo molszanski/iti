@@ -1,5 +1,9 @@
 // Main lib
-export { createContainer, createContainer as makeRoot, Container } from "./iti"
+export {
+  createContainer,
+  createContainer as makeRoot,
+  Container,
+} from "./iti.js"
 
 // Helper types
 export type {
@@ -7,5 +11,5 @@ export type {
   UnPromisify,
   UnpackFunction,
   Prettify,
-} from "./_utils"
-export type { Emitter } from "./nanoevents"
+} from "./_utils.js"
+export type { Emitter } from "./nanoevents.js"

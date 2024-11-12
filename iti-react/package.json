@@ -1,34 +1,45 @@
 {
   "name": "iti-react",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Handy React bindings for iti, a ~1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow",
   "type": "module",
   "sideEffects": false,
-  "source": "src/index.ts",
+  "module": "./dist/iti-react.js",
+  "typings": "./dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
-    "default": "./dist/iti-react.modern.js"
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/iti-react.js"
+      },
+      "default": "./dist/iti-react.js"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "./dist/iti-react.modern.js",
-  "module": "./dist/iti-react.module.js",
-  "typings": "./dist/src/index.d.ts",
+  "source": "src/index.ts",
+  "publishConfig": {
+    "source": "./src/index.ts",
+    "module": "./dist/iti-react.js"
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf ./dist && microbundle -o dist/  --jsx React.createElement --format modern,esm",
+    "build": "rm -rf ./dist && microbundle -o dist/  --jsx React.createElement --format modern",
     "dev": "microbundle watch -o dist/ --jsx React.createElement",
     "test": "yarn tsd",
     "tsd": "tsd tsd_project",
     "prepare-not": "install-peers"
   },
   "dependencies": {
-    "iti": "0.6.0",
+    "iti": "0.7.0",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.15",
     "install-peers-cli": "^2.2.0",
-    "microbundle": "^0.15.0",
+    "microbundle": "^0.15.1",
     "nodemon": "^2.0.19",
     "tsd": "^0.22.0",
     "typescript": "^4.7.4"

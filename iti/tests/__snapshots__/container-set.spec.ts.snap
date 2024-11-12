@@ -1,54 +1,54 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should get container set via a new API 1`] = `
-Object {
-  "aCont": Object {
-    "a1": Object {},
-    "a2": Object {
-      "a1": Object {},
+{
+  "aCont": {
+    "a1": {},
+    "a2": {
+      "a1": {},
     },
-    "a3": Object {
-      "a1": Object {},
-      "a2": Object {
-        "a1": Object {},
+    "a3": {
+      "a1": {},
+      "a2": {
+        "a1": {},
       },
     },
   },
-  "bCont": Object {
-    "b1": Object {
-      "a2": Object {
-        "a1": Object {},
+  "bCont": {
+    "b1": {
+      "a2": {
+        "a1": {},
       },
     },
-    "b2": Object {
-      "a1": Object {},
+    "b2": {
+      "a1": {},
     },
   },
 }
 `;
 
 exports[`should get two containers that are async 1`] = `
-Object {
-  "aCont": Object {
-    "a1": Object {},
-    "a2": Object {
-      "a1": Object {},
+{
+  "aCont": {
+    "a1": {},
+    "a2": {
+      "a1": {},
     },
-    "a3": Object {
-      "a1": Object {},
-      "a2": Object {
-        "a1": Object {},
+    "a3": {
+      "a1": {},
+      "a2": {
+        "a1": {},
       },
     },
   },
-  "bCont": Object {
-    "b1": Object {
-      "a2": Object {
-        "a1": Object {},
+  "bCont": {
+    "b1": {
+      "a2": {
+        "a1": {},
       },
     },
-    "b2": Object {
-      "a1": Object {},
+    "b2": {
+      "a1": {},
     },
   },
 }

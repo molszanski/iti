@@ -1,5 +1,5 @@
 {
-  "name": "iti-node-example",
+  "name": "iti-node-example-mjs",
   "type": "module",
   "version": "0.1.0",
   "private": true,

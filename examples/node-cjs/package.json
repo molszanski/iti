@@ -1,6 +1,5 @@
 {
-  "name": "iti-node-example",
-  "type": "module",
+  "name": "iti-node-example-cjs",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
