@@ -2,30 +2,30 @@ import { describe, it, expect, beforeEach, vi } from "vitest"
 import { createContainer } from "../src/iti"
 
 describe("Node.get()", () => {
-  let root = createContainer()
-  beforeEach(() => (root = createContainer()))
+  let c0 = createContainer()
+  beforeEach(() => (c0 = createContainer()))
 
   it("should return a value as a value", async () => {
-    const node = root.add({ a: 123 })
-    expect(node.get("a")).toBe(123)
+    const c1 = c0.add({ a: 123 })
+    expect(c1.get("a")).toBe(123)
   })
 
   it("should throw if a token is missing", async () => {
-    const node = root.add({ a: 123 })
+    const c1 = c0.add({ a: 123 })
     expect(() => {
       // @ts-expect-error
-      node.get("c")
+      c1.get("c")
     }).toThrowError()
   })
   it("should return function result and not a function", async () => {
-    const node = root.add({
+    const c1 = c0.add({
       functionTOken: () => "optimus",
     })
-    expect(node.get("functionTOken")).toBe("optimus")
+    expect(c1.get("functionTOken")).toBe("optimus")
   })
 
   it("should return correct tokens for merged and overridden nodes", () => {
-    const c = root.add({ optimus: () => "prime", a: 123 }).upsert({ a: "123" })
+    const c = c0.add({ optimus: () => "prime", a: 123 }).upsert({ a: "123" })
     expect(c.getTokens()).toMatchObject({
       optimus: "optimus",
       a: "a",
@@ -34,28 +34,28 @@ describe("Node.get()", () => {
 
   it("should return cached value of a function", async () => {
     let fn = vi.fn()
-    const node = root.add({
+    const c1 = c0.add({
       optimus: () => {
         fn()
         return "prime"
       },
     })
-    node.get("optimus")
-    node.get("optimus")
-    node.get("optimus")
-    expect(node.get("optimus")).toBe("prime")
+    c1.get("optimus")
+    c1.get("optimus")
+    c1.get("optimus")
+    expect(c1.get("optimus")).toBe("prime")
     expect(fn).toHaveBeenCalledTimes(1)
   })
 
   it("should return promises of async functions", async () => {
-    const c1 = root.add({
+    const c1 = c0.add({
       optimus: async () => "prime",
     })
     expect(await c1.get("optimus")).toBe("prime")
   })
 
   it("should handle async errors with a simple try/catch", async () => {
-    const node = root
+    const node = c0
       .add({
         optimus: async () => "prime",
         megatron: async () => {
@@ -83,7 +83,7 @@ describe("Node.get()", () => {
   })
 
   it("should handle async errors with for getContainerSet", async () => {
-    const node = root
+    const node = c0
       .add({
         optimus: async () => "prime",
         megatron: async () => {
@@ -103,11 +103,11 @@ describe("Node.get()", () => {
     }
   })
 
-  it.only("should call container provider once, but container token twice", () => {
+  it("should call container provider once, but container token twice", () => {
     const fn1 = vi.fn()
     const fn2 = vi.fn()
 
-    const node = root.add({
+    const node = c0.add({
       autobots: () => {
         fn1()
         return {
