@@ -9,6 +9,7 @@ describe("Perf and exotic tests:", () => {
   })
 
   describe("Node get:", () => {
+    // !!!!!
     it("should not run into an infinite loop with recursive search", (cb) => {
       ;(async () => {
         let r = root
@@ -30,6 +31,7 @@ describe("Perf and exotic tests:", () => {
       })()
     }, 100)
 
+    // !!!!!
     it("should never evaluate unrequested tokens, but pass correct refence to child node ", (cb) => {
       ;(async () => {
         let r = root
