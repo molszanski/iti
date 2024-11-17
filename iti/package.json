@@ -39,7 +39,8 @@
     "test": "yarn jest && yarn tsd",
     "jestWatch": "jest --watch --verbose",
     "tsd": "tsd tsd_project",
-    "v": "vitest"
+    "v": "vitest",
+    "vitest:types": "vitest --typecheck"
   },
   "dependencies": {
     "utility-types": "^3.10.0"

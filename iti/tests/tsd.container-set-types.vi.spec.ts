@@ -1,8 +1,9 @@
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import { getMainMockAppContainer } from "./mocks/_mock-app-container"
 import { expectType, expectError, printType, expectNotType } from "tsd"
-import { A_Container } from "./mocks/container.a"
-import { B_Container } from "./mocks/container.b"
-import { C_Container } from "./mocks/container.c"
+import type { A_Container } from "./mocks/container.a"
+import type { B_Container } from "./mocks/container.b"
+import type { C_Container } from "./mocks/container.c"
 
 it("should check token types", () => {
   const cont = getMainMockAppContainer()
