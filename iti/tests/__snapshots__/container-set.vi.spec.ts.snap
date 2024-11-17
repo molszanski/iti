@@ -1,59 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Container set tests > should get container set via a new API 1`] = `
-{
-  "aCont": {
-    "a1": {},
-    "a2": {
-      "a1": {},
-    },
-    "a3": {
-      "a1": {},
-      "a2": {
-        "a1": {},
-      },
-    },
-  },
-  "bCont": {
-    "b1": {
-      "a2": {
-        "a1": {},
-      },
-    },
-    "b2": {
-      "a1": {},
-    },
-  },
-}
-`;
-
-exports[`Container set tests > should get two containers that are async 1`] = `
-{
-  "aCont": {
-    "a1": {},
-    "a2": {
-      "a1": {},
-    },
-    "a3": {
-      "a1": {},
-      "a2": {
-        "a1": {},
-      },
-    },
-  },
-  "bCont": {
-    "b1": {
-      "a2": {
-        "a1": {},
-      },
-    },
-    "b2": {
-      "a1": {},
-    },
-  },
-}
-`;
-
 exports[`Container set: > should get container set via a new API 1`] = `
 {
   "aCont": {
@@ -82,60 +28,6 @@ exports[`Container set: > should get container set via a new API 1`] = `
 `;
 
 exports[`Container set: > should get two containers that are async 1`] = `
-{
-  "aCont": {
-    "a1": {},
-    "a2": {
-      "a1": {},
-    },
-    "a3": {
-      "a1": {},
-      "a2": {
-        "a1": {},
-      },
-    },
-  },
-  "bCont": {
-    "b1": {
-      "a2": {
-        "a1": {},
-      },
-    },
-    "b2": {
-      "a1": {},
-    },
-  },
-}
-`;
-
-exports[`should get container set via a new API 1`] = `
-{
-  "aCont": {
-    "a1": {},
-    "a2": {
-      "a1": {},
-    },
-    "a3": {
-      "a1": {},
-      "a2": {
-        "a1": {},
-      },
-    },
-  },
-  "bCont": {
-    "b1": {
-      "a2": {
-        "a1": {},
-      },
-    },
-    "b2": {
-      "a1": {},
-    },
-  },
-}
-`;
-
-exports[`should get two containers that are async 1`] = `
 {
   "aCont": {
     "a1": {},
