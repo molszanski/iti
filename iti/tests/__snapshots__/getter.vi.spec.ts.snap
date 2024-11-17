@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Node getter > should get nested conatainers 1`] = `
+{
+  "b1": B1 {
+    "a2": A2 {
+      "a1": A1 {},
+    },
+  },
+  "b2": B2 {
+    "a1": A1 {},
+  },
+}
+`;
