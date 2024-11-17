@@ -97,7 +97,7 @@ describe("Container set:", () => {
     containerSet.cCont.upgradeCContainer()
     await wait(10)
     containerSet.cCont.upgradeCContainer()
-
+    await wait(10)
     // Here we have two calls. And this should probably be double checked
     expect(fn).toHaveBeenCalledTimes(2)
   })
