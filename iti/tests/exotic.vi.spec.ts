@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { createContainer } from "../src/iti"
-import { wait } from "./_utils"
 
 describe("Perf and exotic tests:", () => {
   let root = createContainer()
@@ -29,7 +28,7 @@ describe("Perf and exotic tests:", () => {
       expect(await r.items.d).toBe("D2")
     }, 100)
 
-    it("should never evaluate unrequested tokens, but pass correct refence to child node ", async () => {
+    it("should never evaluate unrequested tokens, but pass correct reference to child node ", async () => {
       let r = root
         .add((c) => ({
           b: async () => {
@@ -51,7 +50,7 @@ describe("Perf and exotic tests:", () => {
     }, 100)
 
     // getTokens must be async welp
-    it("should never evaluate unrequested tokens, but pass correct refence to child node \
+    it("should never evaluate unrequested tokens, but pass correct reference to child node \
               without a manual seal", async () => {
       let r = root
         .add((c) => ({
