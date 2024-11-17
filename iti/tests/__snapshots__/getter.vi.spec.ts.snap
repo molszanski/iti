@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Node getter > should get nested conatainers 1`] = `
+exports[`Node getter > should get nested containers 1`] = `
 {
   "b1": B1 {
     "a2": A2 {

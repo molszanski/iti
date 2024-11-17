@@ -219,7 +219,7 @@ describe("Node subscribeToContainer", () => {
     await node.get("a")
     // await node.get((c) => c.a)
     /**
-     * 2 becaus we have subscribed to two container, and this will provide us
+     * 2 because we have subscribed to two container, and this will provide us
      * with two of those, hence two updates because two creations
      */
     expect(f1).toHaveBeenCalledTimes(2)
@@ -237,7 +237,7 @@ describe("Node getter", () => {
     root = createContainer()
   })
 
-  it("should get nested conatainers", async () => {
+  it("should get nested containers", async () => {
     const node1 = root.add({
       aCont: async () => provideAContainer(),
     })
@@ -353,8 +353,8 @@ describe("Node add", () => {
 })
 
 describe("Node getContainerSet", () => {
-  let root: ReturnType<typeof createContainer>
-  let node: ReturnType<typeof mockNode>
+  let root = createContainer()
+  let node = mockNode()
   function mockNode() {
     return createContainer().add({
       a: "A",
