@@ -1,4 +1,4 @@
-import { expect, jest, describe, beforeEach, it } from "@jest/globals"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import { createContainer } from "../src"
 import { wait } from "./_utils"
 
@@ -24,8 +24,8 @@ describe("Disposing: ", () => {
 
   it("should be able to call disposeAll", async () => {
     const disposers = {
-      a: jest.fn(),
-      db: jest.fn(),
+      a: vi.fn(),
+      db: vi.fn(),
     }
     let r = root
       .add({ x: "test", y: null })
@@ -60,8 +60,8 @@ describe("Disposing: ", () => {
 
   it("should NOT call dispose on items we have not resolved", async () => {
     const disposers = {
-      a: jest.fn(),
-      db: jest.fn(),
+      a: vi.fn(),
+      db: vi.fn(),
     }
 
     let r = root
@@ -102,7 +102,7 @@ describe("Disposing: ", () => {
 
 describe("Individual disposing: ", () => {
   let root = createContainer()
-  let disposerOfA = jest.fn()
+  let disposerOfA = vi.fn()
   let node = root.add({ a: "A" }).addDisposer({ a: disposerOfA })
 
   beforeEach(() => {
@@ -163,7 +163,7 @@ describe("Disposing complex async: ", () => {
   }
 
   it("should call async dispose with correct instances and correct times", async () => {
-    const disposerDb = jest.fn()
+    const disposerDb = vi.fn()
     const node = createContainer()
       .add({
         db: () => new DB(),
