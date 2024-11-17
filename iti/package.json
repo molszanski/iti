@@ -33,11 +33,9 @@
   ],
   "scripts": {
     "build": "make build",
-    "jest": "jest",
     "stryker": "stryker",
     "stryker:run": "stryker run",
-    "test": "yarn jest && yarn tsd",
-    "jestWatch": "jest --watch --verbose",
+    "test": "vitest && yarn tsd",
     "tsd": "tsd tsd_project",
     "v": "vitest",
     "vitest:types": "vitest --typecheck"
