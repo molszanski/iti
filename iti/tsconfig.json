@@ -5,7 +5,7 @@
     "outDir": "dist/",
     "declarationDir": "dist/",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "types": ["@types/jest"],
+    // "types": ["@types/jest"],
     "noImplicitAny": false,
     "experimentalDecorators": true,
     "allowJs": true,

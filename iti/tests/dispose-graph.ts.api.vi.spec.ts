@@ -1,4 +1,3 @@
-// import { expect, jest, describe, beforeEach, it } from "@jest/globals"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 
 import { createContainer } from "../src"

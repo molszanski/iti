@@ -2,15 +2,10 @@
   "$schema": "https://raw.githubusercontent.com/stryker-mutator/stryker/master/packages/api/schema/stryker-core.json",
   "_comment": "This config was generated using 'stryker init'. Please take a look at: https://stryker-mutator.io/docs/stryker-js/configuration/ for more information",
   "packageManager": "yarn",
-  "_commandRunner": { "command": "yarn jest" },
+  "_commandRunner": { "command": "yarn vitest" },
   "reporters": ["html", "clear-text", "progress", "dashboard", "json"],
-  "testRunner": "jest",
+  "testRunner": "vitest",
   "disableTypeChecks": "{test,tests,src,lib}/**/*.{js,ts,jsx,tsx,html,vue}",
-  "jest": {
-    "projectType": "custom",
-    "configFile": "./jest.config.cjs",
-    "enableFindRelatedTests": false
-  },
   "coverageAnalysis": "off",
   "checkers": ["typescript"],
   "tsconfigFile": "tsconfig.json"
