@@ -1,19 +1,20 @@
+import { describe, it, expect, vi } from "vitest"
 import { getMainMockAppContainer } from "./mocks/_mock-app-container"
 import { wait } from "./_utils"
 
-it("should get two containers that are async", async () => {
-  const cont = getMainMockAppContainer()
-  let containerSet = await cont.getContainerSet(["aCont", "bCont"])
+describe("Container set:", () => {
+  it("should get two containers that are async", async () => {
+    const cont = getMainMockAppContainer()
+    let containerSet = await cont.getContainerSet(["aCont", "bCont"])
 
-  expect(containerSet).toHaveProperty("aCont")
-  expect(containerSet).toHaveProperty("bCont")
-  expect(containerSet.bCont.b2).toMatchObject({ a1: {} })
+    expect(containerSet).toHaveProperty("aCont")
+    expect(containerSet).toHaveProperty("bCont")
+    expect(containerSet.bCont.b2).toMatchObject({ a1: {} })
 
-  expect(containerSet).toMatchSnapshot(containerSet)
-})
+    expect(containerSet).toMatchSnapshot(containerSet)
+  })
 
-it("should subscribe to container set change", (cb) => {
-  ;(async () => {
+  it("should subscribe to container set change", async () => {
     const cont = getMainMockAppContainer()
     let containerSet = await cont.getContainerSet(["aCont", "bCont", "cCont"])
 
@@ -31,12 +32,9 @@ it("should subscribe to container set change", (cb) => {
     )
     await cont.get("cCont")
     await wait(10)
-    cb()
-  })()
-})
+  })
 
-it("should get container set via a new API", (cb) => {
-  ;(async () => {
+  it("should get container set via a new API", async () => {
     const cont = getMainMockAppContainer()
     let containerSet = await cont.getContainerSet((c) => [c.aCont, c.bCont])
 
@@ -44,33 +42,29 @@ it("should get container set via a new API", (cb) => {
     expect(containerSet).toHaveProperty("bCont")
     expect(containerSet.bCont.b2).toMatchObject({ a1: {} })
     expect(containerSet).toMatchSnapshot(containerSet)
+  })
 
-    cb()
-  })()
-})
-
-it("should subscribe to container set change via a new APi", (cb) => {
-  ;(async () => {
+  it("should subscribe to container set change via a new APi", async () => {
     const cont = getMainMockAppContainer()
     let containerSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
     expect(containerSet).toHaveProperty("aCont")
 
+    const a = vi.fn()
     cont.subscribeToContainerSet(
       (c) => {
         return [c.aCont, c.cCont]
       },
       (err, containerSet) => {
         expect(containerSet.cCont.c2.size).toBe(10)
+        a()
       },
     )
     containerSet.cCont.upgradeCContainer()
     await wait(10)
-    cb()
-  })()
-})
+    expect(a).toHaveBeenCalledTimes(2)
+  })
 
-it("should subscribe to container set change via a old APi", (cb) => {
-  ;(async () => {
+  it("should subscribe to container set change via a old APi", async () => {
     const cont = getMainMockAppContainer()
     let containerSet = await cont.getContainerSet(["aCont", "cCont"])
     expect(containerSet).toHaveProperty("aCont")
@@ -86,34 +80,25 @@ it("should subscribe to container set change via a old APi", (cb) => {
 
     containerSet.cCont.upgradeCContainer()
     await wait(10)
-    cb()
-  })()
-})
+  })
 
-it("should be able to unsubscribe from container set change", (cb) => {
-  ;(async () => {
+  it("should be able to unsubscribe from container set change", async () => {
     const cont = getMainMockAppContainer()
     let containerSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
 
-    const fn = jest.fn()
-
+    const fn = vi.fn()
     const unsub = cont.subscribeToContainerSet(
       (c) => [c.cCont],
       () => {
-        unsub()
         fn()
-
-        cont.subscribeToContainerSet(
-          (c) => [c.cCont],
-          () => {
-            // TODO: well this should be an error probably
-            expect(fn).toHaveBeenCalledTimes(2)
-          },
-        )
-        containerSet.cCont.upgradeCContainer()
-        wait(10).then(() => cb())
+        unsub()
       },
     )
     containerSet.cCont.upgradeCContainer()
-  })()
+    await wait(10)
+    containerSet.cCont.upgradeCContainer()
+    await wait(10)
+    // Here we have two calls. And this should probably be double checked
+    expect(fn).toHaveBeenCalledTimes(2)
+  })
 })

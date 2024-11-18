@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`should get container set via a new API 1`] = `
+exports[`Container set: > should get container set via a new API 1`] = `
 {
   "aCont": {
     "a1": {},
@@ -27,7 +27,7 @@ exports[`should get container set via a new API 1`] = `
 }
 `;
 
-exports[`should get two containers that are async 1`] = `
+exports[`Container set: > should get two containers that are async 1`] = `
 {
   "aCont": {
     "a1": {},

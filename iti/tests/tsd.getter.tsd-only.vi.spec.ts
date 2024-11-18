@@ -1,3 +1,4 @@
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import { expectType, expectNotType } from "tsd"
 
 import { createContainer } from "../src/iti"
@@ -9,7 +10,7 @@ enum UniqueResult {
   D,
 }
 // results produced by an add should valid
-;(async () => {
+it("should check getter types", () => {
   const node = createContainer()
     .add({
       a: UniqueResult.A,
@@ -24,4 +25,4 @@ enum UniqueResult {
   expectType<UniqueResult.C>(node.get("c"))
 
   expectNotType<any>(node)
-})()
+})

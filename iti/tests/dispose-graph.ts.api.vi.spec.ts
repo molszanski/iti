@@ -1,4 +1,5 @@
-import { expect, jest, describe, beforeEach, it } from "@jest/globals"
+import { describe, it, expect, vi, beforeEach } from "vitest"
+
 import { createContainer } from "../src"
 import { wait } from "./_utils"
 import { A, X, B, C, D, L, K, E, M, F } from "./mock-graph"
@@ -57,11 +58,16 @@ describe("Disposing graph: [warning, this should never be implemented]", () => {
   it("should call graph", async () => {
     const disposeLog: string[] = []
     const dis = (token: string) => disposeLog.push(token)
+
+    const dDisposer = vi.fn()
     const node = root.addDisposer((ctx, node) => ({
       a: () => dis("a"),
       b: () => dis("b"),
       c: () => dis("c"),
-      d: () => dis("d"),
+      d: () => {
+        dDisposer()
+        dis("d")
+      },
       x: (x) => {
         return dis("x")
       },
@@ -71,5 +77,10 @@ describe("Disposing graph: [warning, this should never be implemented]", () => {
     node.dispose("d")
 
     expect(d).toBeInstanceOf(D)
+    await wait(10)
+    expect(dDisposer).toHaveBeenCalledTimes(1)
+
+    // for the future disposer graph
+    // expect(disposeLog).toEqual(["d"])
   })
 })
