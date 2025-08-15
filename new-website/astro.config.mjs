@@ -5,14 +5,19 @@ import catppuccin from "@catppuccin/starlight"
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://itijs.org",
   integrations: [
     starlight({
-      title: "My Docs",
+      title: "ITI",
+      description: "1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow",
+      logo: {
+        src: "./src/assets/logo.svg",
+      },
       social: [
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/withastro/starlight",
+          href: "https://github.com/molszanski/iti",
         },
       ],
       plugins: [
@@ -23,15 +28,47 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: "Guides",
+          label: "Getting Started",
           items: [
-            // Each item here is one entry in the navigation menu.
-            { label: "Example Guide", slug: "guides/example" },
+            { label: "Introduction", slug: "intro" },
+            { label: "Quick Start", slug: "quick-start" },
+            { label: "When NOT to use ITI", slug: "when-not-to-use-iti" },
+            { label: "Usage", slug: "usage" },
           ],
         },
         {
-          label: "Reference",
-          autogenerate: { directory: "reference" },
+          label: "React",
+          items: [
+            { label: "Basic Usage", slug: "with-react/basic" },
+            { label: "Configuration", slug: "with-react/configuration" },
+            { label: "Full React Example", slug: "with-react/react-full" },
+          ],
+        },
+        {
+          label: "Basic DI Examples",
+          items: [
+            { label: "Manual DI", slug: "basic-di/manual-di" },
+            { label: "ITI", slug: "basic-di/iti" },
+            { label: "ITI vs Pure", slug: "basic-di/iti-vs-pure" },
+          ],
+        },
+        {
+          label: "Async DI Examples",
+          items: [
+            { label: "Manual DI", slug: "async-di/manual-di" },
+            { label: "ITI", slug: "async-di/iti" },
+          ],
+        },
+        {
+          label: "Advanced",
+          items: [
+            { label: "Patterns and Tips", slug: "patterns-and-tips" },
+            { label: "Playground", slug: "playground" },
+            { label: "Alternatives", slug: "alternatives" },
+            { label: "Benefits of ITI", slug: "benefits-of-iti" },
+            { label: "API Reference", slug: "api" },
+            { label: "FAQ", slug: "faq" },
+          ],
         },
       ],
     }),

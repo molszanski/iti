@@ -1,0 +1,79 @@
+---
+title: FAQ
+description: Frequently Asked Questions about ITI
+---
+
+# FAQ
+
+:::note
+
+Please know, that the docs is still work in progress. Many features or use cases are probably already in the lib but not documented well. We are working on it.
+
+:::
+
+
+
+## Questions
+
+**Can I have multiple application containers?**
+
+Yes, no problem at all. If you want, they can even share tokens and hence instances!
+
+**Why `getContainerSet` is always async?**
+
+This is temporary(?) limitation to keep typescript happy and typescript types reasonably sane.
+In most real world scenarios your frontend dependencies are already async.
+
+### Why should I use ITI?
+
+We strongly believe that helps to implement good DI patterns in your codebase and offers
+better tradeoffs compared to alternative DI frameworks or solutions.
+Check our [alternatives](/docs/alternatives) section
+
+### How does handle circular dependency?
+
+You can not create a circular dependency with iti and typescript.
+It will throw a typescript error if you try :)
+
+```ts
+import { createContainer } from "iti"
+
+/*
+// Part 1: You can create a circular dependency
+// in your business logic
+┌───┐   ┌───┐   ┌───┐   ┌───┐   ┌───┐
+│ A │──▶│ B │──▶│ C │──▶│ D │──▶│ E │
+└───┘   └───┘   └───┘   └───┘   └───┘
+                  ▲               │
+                  │               │
+                  └───────────────┘
+*/
+class A {
+  constructor() {}
+}
+class B {
+  constructor(a: A) {}
+}
+class C {
+  constructor(b: B, e: E) {}
+}
+class D {
+  constructor(c: C) {}
+}
+class E {
+  constructor(d: E) {}
+}
+
+// Part 2: You can't express a circular dependency because of typescript checks
+createContainer()
+  .add((ctx) => ({
+    a: () => new A(),
+  }))
+  .add((ctx) => ({
+    b: () => new B(ctx.a),
+  }))
+  .add((ctx) => ({
+    // This line will throw a Typescript error at compile time
+    c: () => new C(ctx.a, ctx.e),
+  }))
+```

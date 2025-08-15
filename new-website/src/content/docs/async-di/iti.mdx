@@ -1,0 +1,65 @@
+---
+title: ITI (Async)
+description: Using ITI for async dependency injection
+---
+
+# ITI
+
+```ts
+import { createContainer } from "iti"
+// prettier-ignore
+interface Logger { info: (msg: string) => void }
+// prettier-ignore
+class ConsoleLogger implements Logger { info(msg: string): void { console.log("[Console]:", msg) } }
+// prettier-ignore
+class PinoLogger    implements Logger { info(msg: string): void { console.log("[Pino]:"   , msg) } }
+
+interface UserData {
+  name: string
+}
+
+class AuthService {
+  async getUserData(): Promise<UserData> {
+    return { name: "Big Lebowski" }
+  }
+}
+
+class User {
+  constructor(private data: UserData) {}
+  name = () => this.data.name
+}
+
+class PaymentService {
+  constructor(private readonly logger: Logger, private readonly user: User) {}
+  sendMoney() {
+    this.logger.info(`Sending monery to the: ${this.user.name()} `)
+    return true
+  }
+}
+
+export async function runMyApp() {
+  const root = createContainer()
+    .add({
+      logger: () =>
+        process.env.NODE_ENV === "production"
+          ? new PinoLogger()
+          : new ConsoleLogger(),
+    })
+    .add({ auth: new AuthService() })
+    .add((ctx) => ({
+      user: async () => new User(await ctx.auth.getUserData()),
+    }))
+    .add((ctx) => ({
+      paymentService: async () =>
+        new PaymentService(ctx.logger, await ctx.user),
+    }))
+
+  const ps = await root.items.paymentService
+  ps.sendMoney()
+}
+
+console.log(" ---- My App START \n\n")
+runMyApp().then(() => {
+  console.log("\n\n ---- My App END")
+})
+```

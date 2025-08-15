@@ -1,36 +1,51 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
+title: ITI
+description: 1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow
 template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  tagline: 1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow
   image:
-    file: ../../assets/houston.webp
+    file: ../../assets/logo.svg
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Get Started
+      link: /intro/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
+    - text: Quick Start
+      link: /quick-start/
+      icon: rocket
+    - text: View on GitHub
+      link: https://github.com/molszanski/iti
       icon: external
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+## Why ITI?
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+	<Card title="Async Support" icon="rocket">
+		Unique support for async dependencies with merging async code and constructor injection via plain async functions.
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
+	<Card title="Strongly Typed" icon="approve-check">
+		Great IDE autocomplete and compile time check without manual type casting.
 	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
+	<Card title="Non-invasive" icon="puzzle">
+		Does not require imported decorators or framework extends in your business logic.
 	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+	<Card title="React Friendly" icon="external">
+		Useful React bindings to help separate application business logic and view layer.
 	</Card>
 </CardGrid>
+
+## Features
+
+- **supports async(!) dependencies:** merges async code and constructor injection via plain **async** functions
+- **strongly typed:** has great IDE autocomplete and compile time check. Without any manual type casting
+- **non-invasive:** does not require imported `@decorators` or framework `extends` in your application business logic
+- **lazy:** initializes your app modules and containers on demand
+- **split chunks:** enables **dynamic imports** via a one liner thanks to a fully async core
+- **React friendly:** has useful **React** bindings to help you separate application business logic and a React view layer
+- **starter friendly:** works with starters like Create React App or Next.js unlike existing libraries
+- **no Babel config:** doesn't require `reflect-metadata` or decorators so there is no need to hack in decorator and `"decoratorMetadata"` support in to your build configs
+- **tiny:** less than 1kB

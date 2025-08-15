@@ -1,0 +1,79 @@
+---
+title: ITI vs Pure DI
+description: Comparison between ITI and pure manual dependency injection
+---
+
+# Pure DI vs ITI
+
+## Business logic
+
+With ITI and Pure DI your business logic stays exactly the same.
+There is no need to add any framework specific decorators or `extends`.
+
+```ts
+export interface Logger {
+  info: (msg: string) => void
+  warn: (msg: string) => void
+  error: (msg: string) => void
+}
+
+export class ConsoleLogger implements Logger {
+  info(msg: string): void {
+    console.log("Console Logger:    ", msg)
+  }
+  warn(msg: string): void {}
+  error(msg: string): void {}
+}
+
+export class PinoLogger implements Logger {
+  info(msg: string): void {
+    console.log("Pino Logger:    ", msg)
+  }
+  warn(msg: string): void {}
+  error(msg: string): void {}
+}
+
+export class PaymentService {
+  private readonly logger: Logger
+  constructor(_logger: Logger) {
+    this.logger = _logger
+  }
+
+  sendMoney() {
+    this.logger.info("inversify logger info")
+    return true
+  }
+}
+```
+
+## Wiring
+
+**Pure DI:**
+
+```ts title="./src/app.ts"
+const logger =
+  process.env.NODE_ENV === "production" ? new PinoLogger() : new ConsoleLogger()
+
+const paymentService = new PaymentService(logger)
+paymentService.sendMoney()
+```
+
+**ITI:**
+
+```tsx title="./src/app.ts"
+const root = createContainer()
+  .add({
+    logger: () =>
+      process.env.NODE_ENV === "production"
+        ? new PinoLogger()
+        : new ConsoleLogger(),
+  })
+  .add((ctx) => ({
+    paymentService: () => new PaymentService(ctx.logger),
+  }))
+
+const ps = root.items.paymentService
+ps.sendMoney()
+```
+
+## Async Request for single item in ITI

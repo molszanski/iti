@@ -1,0 +1,108 @@
+---
+title: Alternatives
+description: Comparison of ITI with other dependency injection frameworks
+---
+
+:::note
+
+Please know, that the docs is still work in progress. Many features or use cases are probably already in the lib but not documented well. We are working on it.
+
+:::
+
+# Alternatives
+
+_work in progress_
+
+## No async support
+
+Existing libraries like inversify and others don’t support asynchronous code.
+
+They either provide a promise to your constructor or require one to imperatively execute all potentially async code before the binding phase.
+
+This is far from ideal.
+
+## Heavy use of decorators
+
+Secondly, they rely on decorators and `reflect-metadata`
+
+Decorators create unnecessary coupling of an application business logic with a framework. The whole idea of DI is to decouple the application business logic. Coupling classes with a DI framework is still coupling and turns DI into a service locator.
+
+Also, decorator support is an experimental feature in Typescript and current implementation is not compatible with the TC39 proposal. This will probably cause problems for any non-trivial decorators and babel hacks.
+
+In addition to that it is very hard to use `reflect-metadata` with starters like CRA, Next.js etc. To use `reflect-metadata` you need to tweak your compilers (babel, typescript, esbuild, swc etc.) configuration. So if you can’t use `reflect-metadata` you can’t use `inversify` or `tsyringe`.
+
+## Comparison with `inversifyjs`, `tsyringe` and others
+
+Inversion of Control (IoC) is a great way to decouple code and the most popular pattern of IoC is dependency injection (DI) [but it is not limited to one](https://martinfowler.com/articles/injection.html).
+
+In JavaScript there is not way to create a dependency injection without mixing application business logic with a specific IoC library code or hacking a compiler (reflect-metadata).
+
+**`inversifyjs` and `tsyringe` use decorators and `reflect-metadata`**
+
+```ts
+import { injectable } from "tsyringe"
+
+@injectable()
+class Foo {
+  constructor(private database: Database) {}
+}
+
+// some other file
+import "reflect-metadata"
+import { container } from "tsyringe"
+import { Foo } from "./foo"
+
+const instance = container.resolve(Foo)
+```
+
+**`typed-inject` uses monkey-patching**
+
+```ts
+import { createInjector } from "typed-inject"
+function barFactory(foo: number) {
+  return foo + 1
+}
+barFactory.inject = ["foo"] as const
+class Baz {
+  constructor(bar: number) {
+    console.log(`bar is: ${bar}`)
+  }
+  static inject = ["bar"] as const
+}
+```
+
+With Iti your application business logic is not mixed with the framework code
+
+```ts
+import type { Ingredients } from "./store.ingredients"
+import type { Oven } from "./store.oven"
+
+export class Kitchen {
+  constructor(private oven: Oven, private ingredients: Ingredients) {}
+}
+
+// provider / factory
+import { IngredientsService } from "../services/ingredients-manager"
+import { Kitchen } from "../stores/store.kitchen"
+import { Oven } from "../stores/store.oven"
+
+export async function provideKitchenContainer() {
+  let oven = new Oven()
+  let ingredients = await IngredientsService.buySomeIngredients()
+  let kitchen = new Kitchen(oven, ingredients)
+
+  return {
+    oven: oven,
+    ingredients: ingredients,
+    kitchen: kitchen,
+  }
+}
+```
+
+Notable inspirations:
+
+- https://github.com/inversify/InversifyJS
+- https://github.com/microsoft/tsyringe
+- https://github.com/nicojs/typed-inject
+- https://github.com/asvetliakov/Huject
+- https://github.com/typestack/typedi
