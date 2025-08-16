@@ -5,6 +5,7 @@ slug: "quick-start"
 sidebar:
   order: 2
 ---
+import { Code } from '@astrojs/starlight/components';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 
@@ -48,45 +49,15 @@ If you are building a React App there are useful React bindings (`iti-react`) ar
 
 ## TL;DR
 
+import withIti from "../code-examples/6_async_start-PART-2/main/with.tsx?raw"
+import without from "../code-examples/6_async_start-PART-2/main/without.ts?raw"
+import quickStartCode from "../code-examples/6_async_start-PART-2/main/business-logic.ts?raw"
+import wiringCode from "../code-examples/6_async_start-PART-2/main/app.ts?raw"
+
 **with ITI**
-
-```tsx
-import { app } from "./app"
-
-// Proxy Getter: Lazily creates PaymentService instance
-const paymentService = await app.items.paymentService
-paymentService.sendMoney()
-```
-
+<Code code={withIti} lang="tsx" title="with.tsx" />
 **Without ITI**
-
-```ts
-import {
-  PaymentService,
-  AuthService,
-  CookieStorageService,
-} from "./business-logic"
-import { PinoLogger, ConsoleLogger } from "./loggers"
-
-const logger =
-  process.env.NODE_ENV === "production" ? new PinoLogger() : new ConsoleLogger()
-
-const app = async () => {
-  const cookieStorage = new CookieStorageService()
-  const auth = new AuthService(cookieStorage)
-  const userData = await auth.getUserData()
-  const paymentService = new PaymentService(logger, userData)
-
-  return {
-    paymentService,
-  }
-}
-
-app().then(({ paymentService }) => {
-  paymentService.sendMoney()
-})
-```
-
+<Code code={without} lang="ts" title="without.ts" />
 ## Usage
 
 ```tsx
@@ -102,83 +73,14 @@ function Profile() {
 ```
 
 **Business Logic (Part 1)**
-
-```ts
-// Part 1: Normal Application Business Logic
-interface Logger {
-  info: (msg: string) => void
-}
-
-interface UserData {
-  name: string
-}
-
-export class CookieStorageService {
-  async getSessionToken(): Promise<{ token: string }> {
-    return { token: "magicToken123" }
-  }
-}
-
-export class AuthService {
-  constructor(private cookieStorageService: CookieStorageService) {}
-  async getUserData(): Promise<UserData> {
-    const { token } = await this.cookieStorageService.getSessionToken()
-    if (token === "magicToken123") {
-      return { name: "Big Lebowski" }
-    }
-    throw new Error("Unauthorized")
-  }
-}
-
-export class PaymentService {
-  constructor(
-    private readonly logger: Logger,
-    private readonly user: UserData
-  ) {}
-  sendMoney() {
-    this.logger.info(`Sending money to the: ${this.user.name} `)
-    return true
-  }
-}
-
-// Application code is free of framework dependencies like decorators
-```
+<Code code={quickStartCode} lang="ts" title="business-logic.ts" />
 
 **Container Setup (Part 2)**
-
-```ts
-// Part 2: ITI boilerplate. Manual DI alternative
-import { createContainer } from "iti"
-import {
-  PaymentService,
-  AuthService,
-  CookieStorageService,
-} from "./business-logic"
-import { PinoLogger, ConsoleLogger } from "./loggers"
-
-export const app = createContainer()
-  .add({
-    // Add token `logger` and assign some logger instance
-    logger: () =>
-      process.env.NODE_ENV === "production"
-        ? new PinoLogger()
-        : new ConsoleLogger(),
-    // Add token `cookieStorage` ...
-    cookieStorage: () => new CookieStorageService(),
-  })
-  .add((ctx) => ({
-    auth: () => new AuthService(ctx.cookieStorage),
-  }))
-  .add((ctx) => ({
-    userData: async () => await ctx.auth.getUserData(),
-  }))
-  .add((ctx) => ({
-    paymentService: async () =>
-      new PaymentService(ctx.logger, await ctx.userData),
-  }))
-```
-
+<Code code={wiringCode} lang="ts" title="app.ts" />
 **Usage (Part 3)**
+
+
+
 
 ```tsx
 // Part 3: Usage
