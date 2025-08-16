@@ -1,6 +1,9 @@
 ---
 title: Introduction
 description: Learn about ITI - a 1kB Typesafe dependency injection framework for TypeScript and JavaScript
+slug: "intro"
+sidebar:
+  order: 1
 ---
 
 Iti is 1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for **async flow**

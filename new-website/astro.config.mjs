@@ -41,10 +41,14 @@ export default defineConfig({
         {
           label: "Getting Started",
           items: [
-            { label: "Introduction", slug: "intro" },
-            { label: "Quick Start", slug: "quick-start" },
-            { label: "When NOT to use ITI", slug: "when-not-to-use-iti" },
-            { label: "Usage", slug: "usage" },
+            "intro",
+            "quick-start",
+            "when-not-to-use-iti",
+            "usage",
+            // { label: "Introduction", slug: "intro" },
+            // { label: "Quick Start", slug: "quick-start" },
+            // { label: "When NOT to use ITI", slug: "when-not-to-use-iti" },
+            // { label: "Usage", slug: "usage" },
           ],
         },
         {
