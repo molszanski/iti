@@ -27,6 +27,16 @@ export default defineConfig({
           light: { flavor: "latte", accent: "sky" },
         }),
       ],
+      head: [
+        {
+          tag: "script",
+          attrs: {
+            defer: true,
+            src: "https://cloud.umami.is/script.js",
+            "data-website-id": "debd2f2d-a6f2-41b6-b00a-40bec1fdc146",
+          },
+        },
+      ],
       sidebar: [
         {
           label: "Getting Started",
