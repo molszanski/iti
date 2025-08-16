@@ -9,7 +9,8 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "ITI",
-      description: "1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow",
+      description:
+        "1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow",
       logo: {
         src: "./src/assets/logo.svg",
       },
