@@ -1,11 +1,15 @@
 ---
-title: Manual DI
-description: Basic dependency injection example without any framework
+title: ITI (Basic)
+description: Basic dependency injection example using ITI
+slug: basic-di/iti
+sidebar:
+  position: 2
 ---
 
-# Pure DI
+# ITI DI
 
 ```ts
+import { createContainer } from "iti"
 export interface Logger {
   info: (msg: string) => void
   warn: (msg: string) => void
@@ -40,9 +44,17 @@ export class PaymentService {
   }
 }
 
-const logger =
-  process.env.NODE_ENV === "production" ? new PinoLogger() : new ConsoleLogger()
+const root = createContainer()
+  .add({
+    logger: () =>
+      process.env.NODE_ENV === "production"
+        ? new PinoLogger()
+        : new ConsoleLogger(),
+  })
+  .add((ctx) => ({
+    paymentService: () => new PaymentService(ctx.logger),
+  }))
 
-const paymentService = new PaymentService(logger)
-paymentService.sendMoney()
+const ps = root.congainers.paymentService
+ps.sendMoney()
 ```

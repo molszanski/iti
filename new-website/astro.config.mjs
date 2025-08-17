@@ -40,62 +40,50 @@ export default defineConfig({
       sidebar: [
         {
           label: "Getting Started",
-          items: [
-            "intro",
-            "quick-start",
-            "when-not-to-use-iti",
-            "usage",
-            // { label: "Introduction", slug: "intro" },
-            // { label: "Quick Start", slug: "quick-start" },
-            // { label: "When NOT to use ITI", slug: "when-not-to-use-iti" },
-            // { label: "Usage", slug: "usage" },
-          ],
+          items: ["intro", "quick-start", "usage"],
         },
         {
           label: "Reference",
-          items: [
-            "api",
-            { label: "FAQ", slug: "faq" },
-            // { label: "Introduction", slug: "intro" },
-            // { label: "Quick Start", slug: "quick-start" },
-            // { label: "When NOT to use ITI", slug: "when-not-to-use-iti" },
-            // { label: "Usage", slug: "usage" },
-          ],
-        },
-
-        {
-          label: "React",
-          items: [
-            "with-react/react-full-intro",
-            "with-react/configuration",
-            "with-react/ensure-sync-items-availability",
-            // { label: "Basic Usage", slug: "with-react/basic" },
-            // { label: "Configuration", slug: "with-react/configuration" },
-            // { label: "Full React Example", slug: "with-react/react-full" },
-          ],
+          items: ["api", "faq"],
         },
         {
-          label: "Basic DI Examples",
+          label: "Guides and Examples",
           items: [
-            { label: "Manual DI", slug: "basic-di/manual-di" },
-            { label: "ITI", slug: "basic-di/iti" },
-            { label: "ITI vs Pure", slug: "basic-di/iti-vs-pure" },
-          ],
-        },
-        {
-          label: "Async DI Examples",
-          items: [
-            { label: "Manual DI", slug: "async-di/manual-di" },
-            { label: "ITI", slug: "async-di/iti" },
+            {
+              label: "React",
+              items: [
+                "with-react/react-full-intro",
+                "with-react/configuration",
+                "with-react/ensure-sync-items-availability",
+              ],
+            },
+            {
+              label: "Basic DI Examples",
+              items: [
+                "basic-di/manual-di",
+                "basic-di/iti",
+                "basic-di/iti-vs-pure",
+              ],
+            },
+            {
+              label: "Async DI Examples",
+              items: [
+                "async-di/manual-di",
+                "async-di/iti",
+                // { label: "Manual DI", slug: "async-di/manual-di" },
+                // { label: "ITI", slug: "async-di/iti" },
+              ],
+            },
           ],
         },
         {
           label: "Advanced",
           items: [
-            { label: "Patterns and Tips", slug: "patterns-and-tips" },
-            { label: "Playground", slug: "playground" },
-            { label: "Alternatives", slug: "alternatives" },
-            { label: "Benefits of ITI", slug: "benefits-of-iti" },
+            "patterns-and-tips",
+            "playground",
+            "when-not-to-use-iti",
+            "alternatives",
+            "benefits-of-iti",
           ],
         },
       ],

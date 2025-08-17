@@ -1,14 +1,11 @@
 ---
-title: ITI vs Pure DI
-description: Comparison between ITI and pure manual dependency injection
+title: Manual DI
+description: Basic dependency injection example without any framework
+slug: basic-di/manual-di
+sidebar:
+  position: 1
+
 ---
-
-# Pure DI vs ITI
-
-## Business logic
-
-With ITI and Pure DI your business logic stays exactly the same.
-There is no need to add any framework specific decorators or `extends`.
 
 ```ts
 export interface Logger {
@@ -44,34 +41,10 @@ export class PaymentService {
     return true
   }
 }
-```
 
-## Wiring
-
-**Pure DI:**
-
-```ts title="./src/app.ts"
 const logger =
   process.env.NODE_ENV === "production" ? new PinoLogger() : new ConsoleLogger()
 
 const paymentService = new PaymentService(logger)
 paymentService.sendMoney()
-```
-
-**ITI:**
-
-```tsx title="./src/app.ts"
-const root = createContainer()
-  .add({
-    logger: () =>
-      process.env.NODE_ENV === "production"
-        ? new PinoLogger()
-        : new ConsoleLogger(),
-  })
-  .add((ctx) => ({
-    paymentService: () => new PaymentService(ctx.logger),
-  }))
-
-const ps = root.items.paymentService
-ps.sendMoney()
 ```
