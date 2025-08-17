@@ -1,0 +1,104 @@
+---
+title: Quick Start
+description: Get started with ITI - a 1kB dependency injection framework
+slug: "quick-start"
+sidebar:
+  order: 2
+---
+import { Code } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+
+ITI is a 1kb dependency injections framework for asynchronous applications.
+You are probably using some form of manual DI and ITI is a logical upgrade.
+
+If you are building a react there are useful react bindings are available.
+
+:::note
+Please know, that the docs is still work in progress. Many features or use cases are probably already in the lib but not documented well. We are working on it.
+:::
+
+## Adding ITI to your Project
+
+<Tabs>
+  <TabItem label="npm">
+  ```bash
+  npm install -S iti iti-react
+  ```
+  </TabItem>
+  <TabItem label="pnpm">
+  ```bash
+  pnpm add iti iti-react
+  ```
+  </TabItem>
+  <TabItem label="bun">
+  ```bash
+  bun add iti iti-react
+  ```
+  </TabItem>
+  <TabItem label="yarn">
+  ```bash
+  yarn add iti iti-react
+  ```
+  </TabItem>
+</Tabs>
+
+:::tip
+If you are building a React App there are useful React bindings (`iti-react`) are available.
+:::
+
+## TL;DR
+
+import withIti from "../code-examples/6_async_start-PART-2/main/with.tsx?raw"
+import without from "../code-examples/6_async_start-PART-2/main/without.ts?raw"
+import quickStartCode from "../code-examples/6_async_start-PART-2/main/business-logic.ts?raw"
+import wiringCode from "../code-examples/6_async_start-PART-2/main/app.ts?raw"
+
+**with ITI**
+<Code code={withIti} lang="tsx" title="with.tsx" />
+**Without ITI**
+<Code code={without} lang="ts" title="without.ts" />
+## Usage
+
+```tsx
+// (Optional) With React
+import { useContainer } from "./_containers/main-app"
+
+function Profile() {
+  const [user, userErr] = useContainer().userData
+  if (!user || userErr) return <div>loading... or error</div>
+
+  return <div>Hello {user.name}!</div>
+}
+```
+
+**Business Logic (Part 1)**
+<Code code={quickStartCode} lang="ts" title="business-logic.ts" />
+
+**Container Setup (Part 2)**
+<Code code={wiringCode} lang="ts" title="app.ts" />
+**Usage (Part 3)**
+
+
+
+
+```tsx
+// Part 3: Usage
+import { app } from "./app"
+
+// Will lazily fetch data and create PaymentService instance
+const paymentService = await app.items.paymentService
+paymentService.sendMoney()
+```
+
+```tsx
+// (Optional) With React
+import { useContainer } from "./_containers/main-app"
+
+function Profile() {
+  const [user, userErr] = useContainer().userData
+  if (!user || userErr) return <div>loading... or error</div>
+
+  return <div>Hello {user.name}!</div>
+}
+```

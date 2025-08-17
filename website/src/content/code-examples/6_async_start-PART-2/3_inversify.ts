@@ -1,0 +1,155 @@
+import {
+  injectable,
+  Container,
+  inject,
+  interfaces,
+  AsyncContainerModule,
+} from "inversify"
+import "reflect-metadata"
+// prettier-ignore
+interface Logger { info: (msg: string) => void }
+// prettier-ignore
+@injectable()
+class ConsoleLogger implements Logger { info(msg: string): void { console.log("[Console]:", msg) } }
+// prettier-ignore
+@injectable()
+class PinoLogger    implements Logger { info(msg: string): void { console.log("[Pino]:"   , msg) } }
+
+interface UserData {
+  name: string
+}
+
+@injectable()
+class AuthService {
+  async getUserData(): Promise<UserData> {
+    return { name: "Big Lebowski" }
+  }
+}
+
+const Token = Object.freeze({
+  config: "config",
+  logger: "logger",
+  consoleLogger: "consoleLogger",
+  pinoLogger: "pinoLogger",
+  authService: "authService",
+  user: "user",
+  userData: "userData",
+  userDataProvider: "userDataProvider",
+  paymentService: "paymentService",
+} as const)
+
+@injectable()
+class User {
+  constructor(@inject(Token.userData) private data: UserData) {}
+  name = () => this.data.name
+}
+
+@injectable()
+class PaymentService {
+  constructor(
+    @inject(Token.logger) private readonly logger: Logger,
+    @inject(Token.user) private readonly user: User
+  ) {}
+  sendMoney() {
+    this.logger.info(`Sending monery to the:     ${this.user.name()} `)
+    return true
+  }
+}
+
+/// INJECTING
+type Config = { isProduction: boolean }
+const yoloConfig: Config = {
+  isProduction: process.env.NODE_ENV !== "production",
+}
+
+export async function runMyApp() {
+  const container = new Container()
+
+  // Step 1: Add a Logger...
+  container.bind<Config>(Token.config).toConstantValue(yoloConfig)
+  container
+    .bind<ConsoleLogger>(Token.logger)
+    .to(ConsoleLogger)
+    .when((request: interfaces.Request) => {
+      const simpleConfig = request.parentContext.container.get<Config>(
+        Token.config
+      )
+      return simpleConfig.isProduction
+    })
+
+  container
+    .bind<PinoLogger>(Token.logger)
+    .to(PinoLogger)
+    .when((request: interfaces.Request) => {
+      const simpleConfig = request.parentContext.container.get<Config>(
+        Token.config
+      )
+      return !simpleConfig.isProduction
+    })
+
+  // Step 2: Add Auth Service and try do async...
+  container.bind<AuthService>(Token.authService).to(AuthService)
+
+  // ------------ Approach #1 - asynchronous Factory Provider
+  // docs: https://github.com/inversify/InversifyJS/blob/master/wiki/provider_injection.md
+  // type UserDataProvider = () => Promise<UserData>
+  // container
+  //   .bind<UserDataProvider>(Token.userData)
+  //   .toProvider((context) => async () => {
+  //     const auth = context.container.get<AuthService>(Token.authService)
+  //     return await auth.getUserData()
+  //   })
+
+  // @injectable()
+  // class Facepalm {
+  //   constructor(
+  //     @inject(Token.userDataProvider) private dataProvider: UserDataProvider
+  //   ) {
+  //     console.log("constructing user")
+  //   }
+  //   async name() {
+  //     const data = await this.dataProvider()
+  //     return data.name
+  //   }
+  // }
+
+  // --------------- Approach #1 END
+
+  // --------------- Approach #2 AsyncContainerModule - doesn't make sense
+  // let userDataModule = new AsyncContainerModule(
+  //   async (bind: interfaces.Bind, unbind: interfaces.Unbind) => {
+  //     const auth = container.get<AuthService>(Token.authService)
+  //     const userData = await auth.getUserData()
+  //     bind<UserData>(Token.userData).toConstantValue(userData)
+  //   }
+  // )
+  // await container.loadAsync(userDataModule);
+  // container.bind<User>(Token.user).to(User)
+  // const u = container.get(Token.user)
+
+  // --------------- Approach #2 END
+
+  // Step 3: Abandon all hopes and bind userData yourself breaking all DI ideas
+
+  const auth = container.get<AuthService>(Token.authService)
+  const userData = await auth.getUserData()
+  container.bind<UserData>(Token.userData).toConstantValue(userData)
+
+  // Step 4: Final simple bindings
+  container.bind<User>(Token.user).to(User).inSingletonScope()
+  container
+    .bind<PaymentService>(Token.paymentService)
+    .to(PaymentService)
+    .inSingletonScope()
+
+  // Step 5: Finally use your one liner app
+  const ps = container.get<PaymentService>(Token.paymentService)
+  ps.sendMoney()
+
+  // Step 6: pour yourself a drink...
+}
+
+console.log(" ---- My App START \n\n")
+runMyApp().then(() => {
+  console.log("\n\n ---- My App END")
+})
