@@ -1,10 +1,12 @@
 ---
-title: Full React Example
+title: Basic Usage with React
 description: Complete example of using ITI with React
+slug: with-react/react-full-intro
+sidebar:
+  position: 1
 ---
 
-
-# Basic Usage with React
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
 _work in progress_
 
@@ -13,7 +15,7 @@ Fetching sync and async dependencies from ITI in React is conceptually similar t
 ## Data fetching
 
 <Tabs>
-<TabItem value="swr" label="SWR">
+<TabItem label="SWR">
 
 ```tsx title="./src/Profile.tsx"
 import useSWR from "swr"
@@ -28,7 +30,7 @@ function Profile() {
 ```
 
 </TabItem>
-<TabItem value="rq" label="React-Query">
+<TabItem  label="React-Query">
 
 ```tsx title="./src/Profile.tsx"
 import { QueryClient, QueryClientProvider, useQuery } from "react-query"
@@ -48,7 +50,8 @@ export function Profile() {
 
 </TabItem>
 
-<TabItem value="ap" label="Apollo Client">
+<TabItem
+label="Apollo Client">
 
 ```tsx title="./src/Profile.tsx"
 import { gql, useQuery } from "@apollo/client"

@@ -1,6 +1,8 @@
 ---
 title: When not to use ITI?
 description: Learn when ITI might not be the right choice for your project
+slug: when-not-to-use-iti
+position: 4
 ---
 
 :::note
@@ -8,10 +10,6 @@ description: Learn when ITI might not be the right choice for your project
 Please know, that the docs is still work in progress. Many features or use cases are probably already in the lib but not documented well. We are working on it.
 
 :::
-
-# Why ITI
-
-<TOCInline toc={toc} />
 
 ## Questions
 

@@ -1,6 +1,8 @@
 ---
 title: Usage
 description: How to use ITI in your projects
+slug: usage
+position: 4
 ---
 
 :::note

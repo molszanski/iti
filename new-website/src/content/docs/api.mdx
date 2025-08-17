@@ -1,9 +1,13 @@
 ---
 title: API Reference
 description: ITI API reference documentation
+slug: api
 ---
+import { Code } from '@astrojs/starlight/components';
+import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-# API
+import addDisposerExample from "../code-examples/9.api/addDisposer.ts?raw"
+import disposeAllExample from "../code-examples/9.api/disposeAll.ts?raw"
 
 _work in progress_
 
@@ -108,30 +112,7 @@ await container.disposeAll() // Promise<void>
 
 Practical example
 
-```ts
-import { Client } from "pg"
-import { createContainer } from "iti"
-
-const container = createContainer()
-  .add(() => ({
-    dbConnection: async () => {
-      const pg = new Client(process.env["DB_CONNECTION_URL"])
-      await pg.connect()
-      return pg
-    },
-  }))
-  .addDisposer({
-    dbConnection: (dbConnection) => dbConnection.end(),
-  })
-
-const db = await container.get("dbConnection")
-await db.query("...")
-
-// Later..
-await container.disposeAll()
-
-console.log("All dependencies disposed, you can exit now. :)")
-```
+<Code code={disposeAllExample} lang="ts" title="disposeAll.ts" />
 
 ### `dispose(token:): Promise<void>`
 
@@ -183,48 +164,7 @@ container.addDisposer((ctx) => ({
 }))
 ```
 
-```ts
-import { createContainer } from "iti"
-import { Client } from "pg"
-
-class A {}
-
-createContainer()
-  .add({
-    db: async () => {
-      const pg = new Client(process.env["DB_CONNECTION_URL"])
-      await pg.connect()
-      return pg
-    },
-  })
-  .add((ctx) => ({
-    a: () => new A(),
-    b: async () => {
-      const db = await ctx.db
-      db.query("SELECT 1")
-    },
-  }))
-  //             ↓ `ctx` to access any other dependency
-  .addDisposer((ctx) => ({
-    //    ↓ `db` is a resolved value of a `DB`
-    db: (db) => {
-      console.log(ctx.a)
-      return db.disconnect()
-    },
-  }))
-
-class B {}
-const container = createContainer()
-  .add({
-    a: () => new A(),
-    b: () => new B(),
-  })
-  .addDisposer({
-    a: (a) => console.log("disposing a", a),
-  })
-
-container.dispose("a")
-```
+<Code code={addDisposerExample} lang="ts" title="addDisposer.ts" />
 
 ### `.on('containerDisposed', ({ key: string }) => void)`
 

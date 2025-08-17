@@ -52,11 +52,26 @@ export default defineConfig({
           ],
         },
         {
+          label: "Reference",
+          items: [
+            "api",
+            { label: "FAQ", slug: "faq" },
+            // { label: "Introduction", slug: "intro" },
+            // { label: "Quick Start", slug: "quick-start" },
+            // { label: "When NOT to use ITI", slug: "when-not-to-use-iti" },
+            // { label: "Usage", slug: "usage" },
+          ],
+        },
+
+        {
           label: "React",
           items: [
-            { label: "Basic Usage", slug: "with-react/basic" },
-            { label: "Configuration", slug: "with-react/configuration" },
-            { label: "Full React Example", slug: "with-react/react-full" },
+            "with-react/react-full-intro",
+            "with-react/configuration",
+            "with-react/ensure-sync-items-availability",
+            // { label: "Basic Usage", slug: "with-react/basic" },
+            // { label: "Configuration", slug: "with-react/configuration" },
+            // { label: "Full React Example", slug: "with-react/react-full" },
           ],
         },
         {
@@ -81,8 +96,6 @@ export default defineConfig({
             { label: "Playground", slug: "playground" },
             { label: "Alternatives", slug: "alternatives" },
             { label: "Benefits of ITI", slug: "benefits-of-iti" },
-            { label: "API Reference", slug: "api" },
-            { label: "FAQ", slug: "faq" },
           ],
         },
       ],
