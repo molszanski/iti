@@ -13,14 +13,18 @@ _work in progress_
 
 ## Docs
 
-### Tokens
 
-### Containers
+- container - is a collection of items
+- item - is a value you want to store in a container, like a class instance
+- token - is a unique string identifier for an item
 
-Containers are an important unit.
-If you replace them, users will be notified. In React it happens automatically
+
 
 ### Events
+
+In a container, if you update or replace an item, users will be notified.
+
+In React it happens automatically
 
 ```ts
 const kitchenApp = new RootContainer((ctx) => ({
@@ -55,20 +59,20 @@ await kitchenApp.items.kitchen
 
 ## API documentation JS / TS
 
-### `makeRoot` Setting app root
+### `createContainer` Setting app root
 
 ```ts
-import { makeRoot } from "../../library.root-container"
+import { createContainer } from "iti"
 export function getMainMockAppContainer() {
-  return makeRoot().add({ kitchen: () => new Kitchen(/* deps */) })
+  return createContainer().add({ kitchen: () => new Kitchen(/* deps */) })
 }
 ```
 
 ### `items` getter
 
 ```ts
-let appRoot = getMainPizzaAppContainer()
-let kitchen = await appRoot.items.kitchen
+let container = getMainPizzaAppContainer()
+let kitchen = await container.items.kitchen
 kitchen.oven.pizzaCapacity // 4
 ```
 
