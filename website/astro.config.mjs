@@ -3,30 +3,45 @@ import { defineConfig } from "astro/config"
 import starlight from "@astrojs/starlight"
 import catppuccin from "@catppuccin/starlight"
 
+const isProdDeploy = process.env.DEPLOY_ENV === "production"
+console.log(
+  "~~~ YO YO YO ~~~ Building for",
+  isProdDeploy ? "production" : "preview"
+)
+
+const headConfig = [
+  {
+    tag: "link",
+    attrs: {
+      rel: "icon",
+      href: "/iti/favicon.ico", // Add ICO favicon fallback for Safari.
+      sizes: "32x32",
+    },
+  },
+]
+if (isProdDeploy) {
+  headConfig.push({
+    tag: "script",
+    // @ts-ignore
+    attrs: {
+      // @ts-ignore
+      defer: true,
+      src: "https://cloud.umami.is/script.js",
+      "data-website-id": "debd2f2d-a6f2-41b6-b00a-40bec1fdc146",
+    },
+  })
+}
 // https://astro.build/config
 export default defineConfig({
   site: "https://itijs.org",
+  redirects: {
+    "/docs/[...slug]": "/[...slug]",
+  },
   integrations: [
     starlight({
       favicon: "/iti/logo.svg",
-      head: [
-        {
-          tag: "link",
-          attrs: {
-            rel: "icon",
-            href: "/iti/favicon.ico", // Add ICO favicon fallback for Safari.
-            sizes: "32x32",
-          },
-        },
-        // {
-        //   tag: "script",
-        //   attrs: {
-        //     defer: true,
-        //     src: "https://cloud.umami.is/script.js",
-        //     "data-website-id": "debd2f2d-a6f2-41b6-b00a-40bec1fdc146",
-        //   },
-        // },
-      ],
+      // @ts-ignore
+      head: headConfig,
       title: "ITI",
       description:
         "1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow",
@@ -76,12 +91,7 @@ export default defineConfig({
             },
             {
               label: "Async DI Examples",
-              items: [
-                "async-di/manual-di",
-                "async-di/iti",
-                // { label: "Manual DI", slug: "async-di/manual-di" },
-                // { label: "ITI", slug: "async-di/iti" },
-              ],
+              items: ["async-di/manual-di", "async-di/iti"],
             },
           ],
         },

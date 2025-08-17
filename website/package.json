@@ -8,8 +8,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "build:prod": "DEPLOY_ENV=production astro build",
     "cloudflare:deploy:preview": "bunx wrangler pages deploy --branch preview --project-name itijs ./dist",
-    "cloudflare:deploy:production": "bunx wrangler pages deploy --branch master --project-name itijs ./dist"
+    "cloudflare:deploy:production": "nr build:prod && bunx wrangler pages deploy --branch master --project-name itijs ./dist"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.35.2",
