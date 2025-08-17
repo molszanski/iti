@@ -8,6 +8,17 @@ export default defineConfig({
   site: "https://itijs.org",
   integrations: [
     starlight({
+      favicon: "/images/logo.svg",
+      head: [
+        {
+          tag: "link",
+          attrs: {
+            rel: "icon",
+            href: "/images/favicon.ico", // Add ICO favicon fallback for Safari.
+            sizes: "32x32",
+          },
+        },
+      ],
       title: "ITI",
       description:
         "1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow",
