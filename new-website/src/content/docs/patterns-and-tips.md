@@ -1,6 +1,7 @@
 ---
 title: Patterns and Tips
 description: Useful patterns and tips for using ITI effectively
+slug: patterns-and-tips
 ---
 
 :::note
@@ -8,10 +9,6 @@ description: Useful patterns and tips for using ITI effectively
 Please know, that the docs is still work in progress. Many features or use cases are probably already in the lib but not documented well. We are working on it.
 
 :::
-
-# Patterns and Tips
-
-## Patterns and tips
 
 ### Make lazy simple
 

@@ -1,17 +1,12 @@
 ---
 title: Alternatives
 description: Comparison of ITI with other dependency injection frameworks
+slug: alternatives
 ---
 
 :::note
-
 Please know, that the docs is still work in progress. Many features or use cases are probably already in the lib but not documented well. We are working on it.
-
 :::
-
-# Alternatives
-
-_work in progress_
 
 ## No async support
 
