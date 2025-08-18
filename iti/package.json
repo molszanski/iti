@@ -38,6 +38,7 @@
     "test": "vitest && yarn tsd",
     "tsd": "tsd tsd_project",
     "v": "vitest",
+    "lol": "vitest run ./tests/type-tests/init.vi.spec.ts",
     "vitest:types": "vitest --typecheck"
   },
   "dependencies": {
@@ -56,7 +57,7 @@
     "stryker-cli": "^1.0.2",
     "ts-jest": "^29.2.5",
     "tsd": "^0.22.0",
-    "vitest": "^2.1.4"
+    "vitest": "^3.2.4"
   },
   "engines": {
     "node": ">=12"
