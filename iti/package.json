@@ -38,7 +38,7 @@
     "test": "vitest && yarn tsd",
     "tsd": "tsd tsd_project",
     "v": "vitest",
-    "lol": "vitest run ./tests/type-tests/init.vi.spec.ts",
+    "lol": "vitest run ./tests/type-tests/basic-test.vi.spec.ts",
     "vitest:types": "vitest --typecheck"
   },
   "dependencies": {
