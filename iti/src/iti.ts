@@ -367,24 +367,13 @@ export class Container<
     }
   }
 
-  // this can be optimized
-  public async getContainerSet<T extends readonly (keyof Context)[]>(
-    tokens: T,
+  public async getContainerSet<T extends (keyof Context)[]>(
+    tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
   ): Promise<{
     [K in T[number]]: FullyUnpackObject<Context>[K]
-  }>
-  public async getContainerSet<T extends readonly (keyof Context)[]>(
-    tokensCallback: (t: { [K in keyof Context]: K }) => T,
-  ): Promise<{
-    [K in T[number]]: FullyUnpackObject<Context>[K]
-  }>
-  public async getContainerSet<T extends keyof Context>(
-    tokensOrCb: KeysOrCb<Context>,
-  ): Promise<{
-    [K in T]: FullyUnpackObject<Context>[K]
   }> {
-    let tokens: T[] = this._extractTokens(tokensOrCb)
-    let promiseTokens: T[] = []
+    let tokens: T = this._extractTokens(tokensOrCb) as any
+    let promiseTokens: any = []
     let allPromises: any = []
     for (let token of tokens) {
       if (this.items[token] instanceof Promise) {
@@ -394,7 +383,7 @@ export class Container<
     }
 
     let containerDecoratedMap: {
-      [K in T]: FullyUnpackObject<Context>[K]
+      [K in T[number]]: FullyUnpackObject<Context>[K]
     } = {} as any
 
     // Step 1: Assign all values
