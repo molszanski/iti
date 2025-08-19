@@ -24,5 +24,5 @@ it("should check getter types", () => {
   expectType<UniqueResult.B>(node.get("b"))
   expectType<UniqueResult.C>(node.get("c"))
 
-  expectNotType<any>(node)
+  // expectNotType<any>(node)
 })

@@ -1,6 +1,14 @@
 import { attest } from "@ark/attest"
 import { describe, it, expect } from "vitest"
 import { type } from "arktype"
+import { createContainer } from "../../src/iti"
+
+enum UniqueResult {
+  A,
+  B,
+  C,
+  D,
+}
 
 // @ark/attest assertions can be made from any unit test framework with a global setup/teardown
 describe("attest features", () => {
@@ -15,6 +23,43 @@ describe("attest features", () => {
     // attest(even.json).snap({
     //   intersection: [{ domain: "number" }, { divisor: 2 }],
     // })
+  })
+
+  // results produced by an add should valid
+  it("should check getter types", () => {
+    const node = createContainer()
+      .add({
+        a: UniqueResult.A,
+        b: () => UniqueResult.B,
+      })
+      .add(() => ({
+        c: () => UniqueResult.C,
+      }))
+
+    attest<UniqueResult>(node.get("a"))
+    attest<UniqueResult.B>(node.get("b"))
+    attest<UniqueResult.C>(node.items.c)
+
+    attest(node).type.toString.snap(`Container<
+  {
+    a: UniqueResult
+    b: () => UniqueResult.B
+    c: () => UniqueResult.C
+  },
+  {}
+>`)
+
+    //     attest(node).type.toString.snap(`Container<
+    //   {
+    //     a: UniqueResult
+    //     b: () => UniqueResult.B
+    //     c: () => UniqueResult.C
+    //   },
+    //   {}
+    // >
+    // `)
+
+    // expectNotType<any>(node)
   })
 })
 // describe("init", () => {
