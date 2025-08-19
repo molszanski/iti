@@ -26,6 +26,22 @@ it("should check token types", () => {
 it("should check getContainerSet types", async () => {
   const cont = getMainMockAppContainer()
   let itemSet = await cont.getContainerSet(["aCont", "bCont"])
+
   attest<A_Container>(itemSet.aCont)
   attest<B_Container>(itemSet.bCont)
+  attest<{
+    aCont: A_Container
+    bCont: B_Container
+  }>(itemSet)
+})
+
+it("should check getContainerSet function types", async () => {
+  const cont = getMainMockAppContainer()
+  let itemSet = await cont.getContainerSet((c) => [c.aCont, c.bCont])
+  attest<A_Container>(itemSet.aCont)
+  attest<B_Container>(itemSet.bCont)
+  attest<{
+    aCont: A_Container
+    bCont: B_Container
+  }>(itemSet)
 })

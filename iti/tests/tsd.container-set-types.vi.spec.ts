@@ -5,6 +5,7 @@ import type { A_Container } from "./mocks/container.a"
 import type { B_Container } from "./mocks/container.b"
 import type { C_Container } from "./mocks/container.c"
 
+// done
 it("should check token types", () => {
   const cont = getMainMockAppContainer()
   expectType<{ aCont: "aCont"; bCont: "bCont"; cCont: "cCont" }>(
@@ -12,6 +13,7 @@ it("should check token types", () => {
   )
 })
 
+// done
 it("should check getContainerSet types", async () => {
   const cont = getMainMockAppContainer()
   let containerSet = await cont.getContainerSet(["aCont", "bCont"])
@@ -20,6 +22,7 @@ it("should check getContainerSet types", async () => {
   expectType<A_Container>(containerSet.aCont)
 })
 
+// done
 it("should check getContainerSet function types", async () => {
   const cont = getMainMockAppContainer()
   let containerSet = await cont.getContainerSet((c) => [c.aCont, c.bCont])
