@@ -22,93 +22,62 @@ export type UnwrapFunction<T> = T extends () => infer U ? U : T
 export type UnwrapPromise<T> = T extends Promise<infer U> ? U : T
 export type ResolvedValue<T> = UnwrapPromise<UnwrapFunction<T>>
 
-// Main function signatures
-export declare function createKVStorage(): KVStorage
-
-export declare function set<T>(
-  storage: KVStorage<T>,
-  key: string,
-  value: T | (() => T)
-): KVStorage<T>
-
-export declare function get<T>(
-  storage: KVStorage<T>,
-  key: string
-): ResolvedValue<T>
-
-export declare function has<T>(
-  storage: KVStorage<T>,
-  key: string
-): boolean
-
-export declare function deleteItem<T>(
-  storage: KVStorage<T>,
-  key: string
-): KVStorage<T>
-
-export declare function addDisposer<T>(
-  storage: KVStorage<T>,
-  key: string,
-  disposer: (value: T) => void | Promise<void>
-): KVStorage<T>
-
-export declare function dispose<T>(
-  storage: KVStorage<T>,
-  key: string
-): Promise<void>
-
-export declare function disposeAll<T>(
-  storage: KVStorage<T>
-): Promise<void>
-
-// Batch operations
-export declare function setMany<T>(
-  storage: KVStorage<T>,
-  items: Record<string, T | (() => T)>
-): KVStorage<T>
-
-export declare function getMany<T>(
-  storage: KVStorage<T>,
-  keys: string[]
-): Promise<Record<string, ResolvedValue<T>>>
-
-// Subscription helpers
-export declare function subscribe<T>(
-  storage: KVStorage<T>,
-  key: string,
-  callback: (value: T | null, error?: Error) => void
-): () => void
-
-export declare function subscribeMany<T>(
-  storage: KVStorage<T>,
-  keys: string[],
-  callback: (values: Record<string, T | null>, error?: Error) => void
-): () => void
-
-// Utility functions
-export declare function keys<T>(storage: KVStorage<T>): string[]
-export declare function values<T>(storage: KVStorage<T>): Promise<T[]>
-export declare function entries<T>(storage: KVStorage<T>): Promise<Array<[string, T]>>
-export declare function size<T>(storage: KVStorage<T>): number
-export declare function clear<T>(storage: KVStorage<T>): Promise<void>
-
-// Type-safe builder pattern
-export interface KVStorageBuilder<T = {}> {
-  set<K extends string, V>(
+// Main container interface with chained methods
+export interface Container<T = {}> {
+  // Core methods that return new containers
+  add<U extends Record<string, any>>(
+    items: U | ((context: ContextGetter<T>) => U)
+  ): Container<T & U>
+  
+  upsert<U extends Record<string, any>>(
+    items: U | ((context: ContextGetter<T>) => U)
+  ): Container<T & U>
+  
+  addDisposer<U extends Record<string, (value: any) => void | Promise<void>>>(
+    disposers: U | ((context: ContextGetter<T>) => U)
+  ): Container<T>
+  
+  delete<K extends keyof T>(key: K): Container<Omit<T, K>>
+  
+  // Getter methods
+  get<K extends keyof T>(key: K): ResolvedValue<T[K]>
+  
+  getMany<K extends keyof T>(keys: K[]): Promise<{ [P in K]: ResolvedValue<T[P]> }>
+  
+  has<K extends keyof T>(key: K): boolean
+  
+  // Utility methods
+  keys(): (keyof T)[]
+  
+  size(): number
+  
+  // Disposal methods
+  dispose<K extends keyof T>(key: K): Promise<void>
+  
+  disposeAll(): Promise<void>
+  
+  // Subscription methods
+  subscribe<K extends keyof T>(
     key: K,
-    value: V | (() => V)
-  ): KVStorageBuilder<T & Record<K, V>>
+    callback: (value: ResolvedValue<T[K]> | null, error?: Error) => void
+  ): () => void
   
-  setMany<U extends Record<string, any>>(
-    items: U
-  ): KVStorageBuilder<T & U>
+  subscribeMany<K extends keyof T>(
+    keys: K[],
+    callback: (values: { [P in K]: ResolvedValue<T[P]> | null }, error?: Error) => void
+  ): () => void
   
-  addDisposer<K extends keyof T>(
-    key: K,
-    disposer: (value: ResolvedValue<T[K]>) => void | Promise<void>
-  ): KVStorageBuilder<T>
-  
-  build(): KVStorage<T>
+  // Event emitter access
+  on<E extends keyof StorageEvents<T>>(event: E, callback: StorageEvents<T>[E]): () => void
 }
 
-export declare function createBuilder<T = {}>(): KVStorageBuilder<T>
+// Context getter type (similar to iti)
+export type ContextGetter<T> = {
+  [K in keyof T]: ResolvedValue<T[K]>
+}
+
+// Factory function
+export declare function createContainer(): Container<{}>
+
+// Alternative name for backward compatibility
+export declare const createKVStorage: typeof createContainer

@@ -1,86 +1,122 @@
-import { createKVStorage, set, get, addDisposer, disposeAll, createBuilder } from './kv-storage.js'
+import { createContainer } from './kv-storage.js'
 
-// Example 1: Basic usage
-console.log('=== Basic Usage ===')
-const storage = createKVStorage()
+// Example 1: Basic chained usage (like iti)
+console.log('=== Basic Chained Usage ===')
+const container = createContainer()
+  .add({
+    name: 'John',
+    age: () => 30,
+    greeting: (items) => `Hello, ${items.name}!`
+  })
+  .add((items) => ({
+    fullName: () => `${items.name} Doe`,
+    profile: () => ({
+      name: items.name,
+      age: items.age,
+      greeting: items.greeting
+    })
+  }))
 
-// Set values (can be functions that return values)
-const storage1 = set(storage, 'name', 'John')
-const storage2 = set(storage1, 'age', () => 30)
-const storage3 = set(storage2, 'greeting', () => `Hello, ${get(storage2, 'name')}!`)
-
-console.log(get(storage3, 'name')) // 'John'
-console.log(get(storage3, 'age')) // 30
-console.log(get(storage3, 'greeting')) // 'Hello, John!'
+console.log(await container.get('name')) // 'John'
+console.log(await container.get('age')) // 30
+console.log(await container.get('greeting')) // 'Hello, John!'
+console.log(await container.get('fullName')) // 'John Doe'
+console.log(await container.get('profile')) // { name: 'John', age: 30, greeting: 'Hello, John!' }
 
 // Example 2: With disposers for cleanup
 console.log('\n=== With Disposers ===')
-const dbStorage = createKVStorage()
+const dbContainer = createContainer()
+  .add({
+    connection: () => {
+      console.log('Creating database connection...')
+      return { id: 'db-123', connected: true }
+    }
+  })
+  .addDisposer({
+    connection: (connection) => {
+      console.log(`Closing connection ${connection.id}...`)
+      connection.connected = false
+    }
+  })
 
-const dbStorage1 = set(dbStorage, 'connection', () => {
-  console.log('Creating database connection...')
-  return { id: 'db-123', connected: true }
-})
-
-const dbStorage2 = addDisposer(dbStorage1, 'connection', (connection) => {
-  console.log(`Closing connection ${connection.id}...`)
-  connection.connected = false
-})
-
-const connection = get(dbStorage2, 'connection')
+const connection = await dbContainer.get('connection')
 console.log('Connection:', connection)
 
 // Later, dispose the connection
-await dispose(dbStorage2, 'connection')
+await dbContainer.dispose('connection')
 
-// Example 3: Builder pattern for fluent API
-console.log('\n=== Builder Pattern ===')
-const userStorage = createBuilder()
-  .set('id', 123)
-  .set('name', 'Alice')
-  .set('email', () => 'alice@example.com')
-  .set('profile', () => ({
-    avatar: 'avatar.jpg',
-    bio: 'Software developer'
-  }))
-  .addDisposer('profile', (profile) => {
-    console.log(`Cleaning up profile for ${profile.bio}`)
+// Example 3: Upsert for overwriting values
+console.log('\n=== Upsert Example ===')
+const userContainer = createContainer()
+  .add({
+    name: 'Alice',
+    email: 'alice@example.com'
   })
-  .build()
+  .upsert({
+    name: 'Alice Smith', // Overwrites existing name
+    role: 'admin' // Adds new field
+  })
 
-console.log(get(userStorage, 'id')) // 123
-console.log(get(userStorage, 'name')) // 'Alice'
-console.log(get(userStorage, 'email')) // 'alice@example.com'
-console.log(get(userStorage, 'profile')) // { avatar: 'avatar.jpg', bio: 'Software developer' }
+console.log(await userContainer.get('name')) // 'Alice Smith'
+console.log(await userContainer.get('email')) // 'alice@example.com'
+console.log(await userContainer.get('role')) // 'admin'
 
-// Example 4: Async values
+// Example 4: Async values and dependencies
 console.log('\n=== Async Values ===')
-const asyncStorage = createKVStorage()
+const asyncContainer = createContainer()
+  .add({
+    userData: async () => {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 100))
+      return { id: 1, name: 'Bob', role: 'admin' }
+    }
+  })
+  .add((items) => ({
+    permissions: async () => {
+      const userData = await items.userData
+      return userData.role === 'admin' ? ['read', 'write', 'delete'] : ['read']
+    },
+    userProfile: async () => {
+      const userData = await items.userData
+      const permissions = await items.permissions
+      return {
+        ...userData,
+        permissions,
+        lastLogin: new Date()
+      }
+    }
+  }))
 
-const asyncStorage1 = set(asyncStorage, 'userData', async () => {
-  // Simulate API call
-  await new Promise(resolve => setTimeout(resolve, 100))
-  return { id: 1, name: 'Bob', role: 'admin' }
-})
-
-const asyncStorage2 = set(asyncStorage1, 'permissions', async () => {
-  const userData = await get(asyncStorage1, 'userData')
-  return userData.role === 'admin' ? ['read', 'write', 'delete'] : ['read']
-})
-
-// Get async values
-const userData = await get(asyncStorage2, 'userData')
-const permissions = await get(asyncStorage2, 'permissions')
+const userData = await asyncContainer.get('userData')
+const permissions = await asyncContainer.get('permissions')
+const profile = await asyncContainer.get('userProfile')
 
 console.log('User data:', userData)
 console.log('Permissions:', permissions)
+console.log('Profile:', profile)
 
-// Example 5: Event subscriptions
+// Example 5: Batch operations
+console.log('\n=== Batch Operations ===')
+const batchContainer = createContainer()
+  .add({
+    a: 1,
+    b: () => 2,
+    c: () => 3,
+    d: async () => 4
+  })
+
+const values = await batchContainer.getMany(['a', 'b', 'c', 'd'])
+console.log('Batch values:', values) // { a: 1, b: 2, c: 3, d: 4 }
+
+// Example 6: Event subscriptions
 console.log('\n=== Event Subscriptions ===')
-const eventStorage = createKVStorage()
+const eventContainer = createContainer()
+  .add({
+    counter: 0
+  })
 
 // Subscribe to changes
-const unsubscribe = subscribe(eventStorage, 'counter', (value, error) => {
+const unsubscribe = eventContainer.subscribe('counter', (value, error) => {
   if (error) {
     console.log('Error:', error.message)
   } else {
@@ -89,31 +125,93 @@ const unsubscribe = subscribe(eventStorage, 'counter', (value, error) => {
 })
 
 // Set values (triggers events)
-const eventStorage1 = set(eventStorage, 'counter', 0)
-const eventStorage2 = set(eventStorage1, 'counter', 1)
-const eventStorage3 = set(eventStorage2, 'counter', 2)
+const container1 = eventContainer.upsert({ counter: 1 })
+const container2 = container1.upsert({ counter: 2 })
 
 // Unsubscribe
 unsubscribe()
 
-// Example 6: Batch operations
-console.log('\n=== Batch Operations ===')
-const batchStorage = createKVStorage()
+// Example 7: Delete operations
+console.log('\n=== Delete Operations ===')
+const deleteContainer = createContainer()
+  .add({
+    name: 'Charlie',
+    email: 'charlie@example.com',
+    role: 'user'
+  })
 
-const batchStorage1 = setMany(batchStorage, {
-  a: 1,
-  b: () => 2,
-  c: () => 3,
-  d: async () => 4
-})
+console.log('Before delete:', await deleteContainer.getMany(['name', 'email', 'role']))
 
-const values = await getMany(batchStorage1, ['a', 'b', 'c', 'd'])
-console.log('Batch values:', values) // { a: 1, b: 2, c: 3, d: 4 }
+const containerAfterDelete = deleteContainer.delete('email')
+console.log('After delete:', await containerAfterDelete.getMany(['name', 'role']))
+console.log('Has email?', containerAfterDelete.has('email')) // false
 
-// Example 7: Cleanup
+// Example 8: Complex dependency chain
+console.log('\n=== Complex Dependencies ===')
+const appContainer = createContainer()
+  .add({
+    config: () => ({
+      apiUrl: 'https://api.example.com',
+      timeout: 5000
+    }),
+    logger: () => ({
+      log: (msg) => console.log(`[LOG] ${msg}`),
+      error: (msg) => console.error(`[ERROR] ${msg}`)
+    })
+  })
+  .add((items) => ({
+    apiClient: async () => {
+      const config = await items.config
+      const logger = await items.logger
+      
+      logger.log(`Initializing API client for ${config.apiUrl}`)
+      
+      return {
+        baseUrl: config.apiUrl,
+        timeout: config.timeout,
+        request: async (endpoint) => {
+          logger.log(`Making request to ${endpoint}`)
+          return { data: `Response from ${endpoint}` }
+        }
+      }
+    }
+  }))
+  .add((items) => ({
+    userService: async () => {
+      const apiClient = await items.apiClient
+      const logger = await items.logger
+      
+      return {
+        getUsers: async () => {
+          logger.log('Fetching users...')
+          return await apiClient.request('/users')
+        },
+        getUser: async (id) => {
+          logger.log(`Fetching user ${id}...`)
+          return await apiClient.request(`/users/${id}`)
+        }
+      }
+    }
+  }))
+  .addDisposer({
+    apiClient: async (client) => {
+      console.log('Closing API client...')
+      // Cleanup logic here
+    }
+  })
+
+const userService = await appContainer.get('userService')
+const users = await userService.getUsers()
+console.log('Users:', users)
+
+// Example 9: Utility methods
+console.log('\n=== Utility Methods ===')
+console.log('Container keys:', container.keys())
+console.log('Container size:', container.size())
+console.log('Has name?', container.has('name')) // true
+console.log('Has unknown?', container.has('unknown')) // false
+
+// Example 10: Cleanup
 console.log('\n=== Cleanup ===')
-await disposeAll(userStorage)
-await disposeAll(asyncStorage2)
-await disposeAll(batchStorage1)
-
-console.log('All storage cleaned up!')
+await appContainer.disposeAll()
+console.log('All containers cleaned up!')
