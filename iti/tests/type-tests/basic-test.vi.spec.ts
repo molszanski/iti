@@ -1,7 +1,5 @@
 import { attest } from "@ark/attest"
 import { describe, it, expect, beforeEach, vi } from "vitest"
-import { createContainer } from "../../src/iti"
-import dedent from "dedent"
 
 import { getMainMockAppContainer } from "../mocks/_mock-app-container"
 import type { A_Container } from "../mocks/container.a"
