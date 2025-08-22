@@ -336,12 +336,12 @@ export class Container<
     }
   }
 
-  public subscribeToContainerSet<T extends keyof Context>(
-    tokensOrCb: KeysOrCb<Context>,
+  public subscribeToContainerSet<T extends (keyof Context)[]>(
+    tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
     cb: (
       err: any,
       container: {
-        [K in T]: FullyUnpackObject<Context>[K]
+        [K in T[number]]: FullyUnpackObject<Context>[K]
       },
     ) => void,
   ): () => void {

@@ -1,5 +1,5 @@
 import { attest } from "@ark/attest"
-import { describe, it, expect, beforeEach } from "vitest"
+import { describe, it, expect, beforeEach, vi } from "vitest"
 import { createContainer } from "../../src/iti"
 import dedent from "dedent"
 
@@ -13,6 +13,8 @@ type MockTokens = {
   bCont: "bCont"
   cCont: "cCont"
 }
+
+const wait = (w: number) => new Promise((r) => setTimeout(r, w))
 
 describe("Type tests:", () => {
   // let cont = getMainMockAppContainer()
@@ -65,5 +67,50 @@ describe("Type tests:", () => {
       return [c.aCont]
     })
     attest.instantiations([2692, "instantiations"])
+  })
+
+  it("should have subscribeToContainerSet types valid", async () => {
+    const cont = getMainMockAppContainer()
+    const a = vi.fn()
+    let itemSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
+    expect(itemSet).toHaveProperty("aCont")
+
+    // WARNING!!
+    // This is a bit "magical test"
+    // attest(() => itemSet.bCont).type.errors(
+    // will cause this test to fail in an unexpected way
+    // anyway fix (or comment it out) and see how it works without it
+
+    cont.subscribeToContainerSet(
+      (c) => {
+        attest<MockTokens>(c)
+        attest<"aCont">(c.aCont)
+        a()
+        return [c.aCont, c.cCont]
+      },
+      (err, itemSet) => {
+        attest<A_Container>(itemSet.aCont)
+        attest<C_Container>(itemSet.cCont)
+        attest<{
+          aCont: A_Container
+          cCont: C_Container
+        }>(itemSet)
+        a()
+
+        // @ts-expect-error
+        attest(() => itemSet.bCont).type.errors(
+          "Property 'bCont' does not exist on type '{ aCont: A_Container; cCont: C_Container; }'",
+        )
+      },
+    )
+    itemSet.cCont.upgradeCContainer()
+    await wait(10)
+    expect(a).toHaveBeenCalledTimes(3)
+    attest.instantiations([3213, "instantiations"])
+  })
+
+  it("should be able to delete token types", () => {
+    const cont = getMainMockAppContainer().delete("aCont")
+    attest<{ bCont: "bCont"; cCont: "cCont" }>(cont.getTokens())
   })
 })
