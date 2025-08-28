@@ -11,6 +11,8 @@ export class C {
 export const app = createContainer()
   .add(() => ({
     a: () => new A(),
+    x: () => "x",
+    y: () => "y",
   }))
   .add((ctx) => ({
     b: async () => new B(ctx.a),

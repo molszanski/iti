@@ -67,6 +67,7 @@ class InternalContainer<
    * When we create a new class instance or function, we cache the output
    */
   private _cache: { [K in keyof Context]?: any } = {}
+  private _cacheSync: { [K in keyof Context]?: any } = {}
 
   /**
    * Holds key:value factories in a form token:factory
@@ -94,6 +95,39 @@ class InternalContainer<
     this.ee = createNanoEvents<Events<Context>>()
     this.subscribeToContainer = this.subscribeToItem.bind(this)
   }
+
+  protected _storeInSyncCache(token: keyof Context, v: any) {
+    this._cacheSync[token] = v
+  }
+  protected _storeInCache(token: keyof Context, v: any) {
+    this._cache[token] = v
+
+    if (v instanceof Promise) {
+      v.then((resolvedValue) => {
+        this._storeInSyncCache(token, resolvedValue)
+      }).catch((err) => {
+        // we should't do anything with an error here
+        // because this is our internal cache
+        // in userspace he will get __another__ throw error
+      })
+    }
+
+    /**
+     * Not remember why this is here.
+     * I think to indicate when we create an instance
+     * or cache a function result
+     */
+    this.ee.emit("containerUpserted", {
+      key: token,
+      newContainer: v,
+      newItem: v,
+    })
+    this.ee.emit("itemUpserted", {
+      key: token,
+      newItem: v,
+    })
+  }
+
   public get<SearchToken extends keyof Context>(
     token: SearchToken,
   ): UnpackFunction<Context[SearchToken]> {
@@ -107,36 +141,35 @@ class InternalContainer<
         return cachedValue
       }
 
-      const storeInCache = (token: SearchToken, v: any) => {
-        this._cache[token] = v
-
-        /**
-         * Not remember why this is here.
-         * I think to indicate when we create an instance
-         * or cache a function result
-         */
-        this.ee.emit("containerUpserted", {
-          key: token,
-          newContainer: v,
-          newItem: v,
-        })
-        this.ee.emit("itemUpserted", {
-          key: token,
-          newItem: v,
-        })
-      }
-
       // Case 2: If this token is a function we must launch and cache it
       const tokenValue = this._context[token]
       if (typeof tokenValue === "function") {
         const providedValue = tokenValue()
-        storeInCache(token, providedValue)
+        this._storeInCache(token, providedValue)
         return providedValue
       }
 
       // Case 3: This is a simple literal so we just send it
-      storeInCache(token, tokenValue) // We store it send events too
+      this._storeInCache(token, tokenValue) // We store it send events too
       return tokenValue as any
+    }
+
+    throw new ItiResolveError(`Can't find token '${String(token)}' value`)
+  }
+
+  public getSync<SearchToken extends keyof Context>(
+    token: SearchToken,
+  ): UnpackFunction<Context[SearchToken]> {
+    /**
+     * FLOW A: We have this is in a current context
+     */
+    if (token in this._context) {
+      if (token in this._cacheSync) {
+        const cachedValue = this._cacheSync[token]
+        return cachedValue
+      } else {
+        return this.get(token)
+      }
     }
 
     throw new ItiResolveError(`Can't find token '${String(token)}' value`)
@@ -409,6 +442,36 @@ export class Container<
       upsertUnsubscribe()
       deleteUnsubscribe()
     }
+  }
+
+  public getItemSetSync<T extends keyof Context>(
+    tokensOrCb: KeysOrCb<Context>,
+  ):
+    | Promise<{
+        [K in T]: FullyUnpackObject<Context>[K]
+      }>
+    | {
+        [K in T]: FullyUnpackObject<Context>[K]
+      } {
+    let tokens: T[] = this._extractTokens(tokensOrCb)
+
+    let itemDecoratedMap = {} as any
+
+    // Step 1: Assign all values
+    let hasAnyPromise = false
+    tokens.forEach((token) => {
+      const value = this.getSync(token)
+      itemDecoratedMap[token as any] = value
+      if (value instanceof Promise) {
+        hasAnyPromise = true
+      }
+    })
+
+    if (hasAnyPromise) {
+      return this.getItemSet(tokensOrCb)
+    }
+
+    return itemDecoratedMap
   }
 
   /**

@@ -21,3 +21,11 @@ export function getMainMockAppContainer() {
     })
   return k
 }
+
+export function getMinimalMockAppContainer() {
+  return createContainer()
+    .add({ x: "x", y: "y", z: async () => "z" })
+    .add((c) => ({
+      f: () => "f",
+    }))
+}

@@ -35,6 +35,12 @@ describe("Deleting and destructuring: ", () => {
     expect(r.get("b")).toBe("new B")
   })
 
+  it.only("should be able to upsert value normally", () => {
+    let r = root.add({ a: "A", b: "B" }).upsert({ a: "new A" })
+
+    expect(r.get("a")).toBe("new A")
+  })
+
   it("should be able to delete a token", () => {
     let r = root.add({ a: "A", b: "B", c: "C" })
 

@@ -72,9 +72,14 @@ export function getContainerSetHooks<
         : tokensOrCallback
 
     useEffect(() => {
-      root.getContainerSet(tokens).then((contSet) => {
-        setAll(contSet)
-      })
+      root
+        .getContainerSet(tokens)
+        .then((contSet) => {
+          setAll(contSet)
+        })
+        .catch((err) => {
+          setErr(err)
+        })
     }, tokens)
 
     useEffect(() => {
@@ -90,6 +95,23 @@ export function getContainerSetHooks<
       )
       return unsubscribe
     }, tokens)
+
+    /**
+     * This is an import SYNC fallback mode to enable hassle free SSR
+     *
+     * We must provide proper values at once from iti cache to make ssr work
+     *
+     * Sadly it has a second instant rerender in react, but I would need
+     * to hack into react internals to prevent it
+     */
+    try {
+      const itemSet = root.getContainerSetSync(tokens)
+      if (!(itemSet instanceof Promise)) {
+        return [itemSet as any, err]
+      }
+    } catch (err) {
+      setErr(err)
+    }
 
     return [all as any, err]
   }

@@ -1,5 +1,8 @@
-import { describe, it, expect, vi } from "vitest"
-import { getMainMockAppContainer } from "./mocks/_mock-app-container"
+import { describe, it, expect, vi, beforeEach } from "vitest"
+import {
+  getMainMockAppContainer,
+  getMinimalMockAppContainer,
+} from "./mocks/_mock-app-container"
 import { wait } from "./_utils"
 
 describe("Container set:", () => {
@@ -100,5 +103,55 @@ describe("Container set:", () => {
     await wait(10)
     // Here we have two calls. And this should probably be double checked
     expect(fn).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe("sync API:", () => {
+  let cont = getMinimalMockAppContainer()
+  beforeEach(async () => {
+    cont = getMinimalMockAppContainer()
+  })
+  // WORK
+  it("should get values that are already resolved via set in a sync API ", async () => {
+    expect(cont.getItemSetSync((c) => [c.y, c.z])).toBeInstanceOf(Promise)
+    await cont.getItemSetSync(["z"])
+    expect(cont.getItemSetSync((c) => [c.y, c.z])).toMatchObject({
+      y: "y",
+      z: "z",
+    })
+    expect(cont.getItemSetSync(["y", "z"])).toMatchObject({
+      y: "y",
+      z: "z",
+    })
+  })
+
+  it("should get values on second call via sync api", async () => {
+    expect(cont.getSync("z")).toBeInstanceOf(Promise)
+    await cont.getSync("z")
+    expect(cont.getSync("z")).toBe("z")
+  })
+
+  it("should get values resolved via items api", async () => {
+    await cont.items.z
+    expect(cont.getItemSetSync((c) => [c.y, c.z])).toMatchObject({
+      y: "y",
+      z: "z",
+    })
+  })
+
+  it("should get values resolved via get API", async () => {
+    await cont.get("z")
+    expect(cont.getItemSetSync((c) => [c.y, c.z])).toMatchObject({
+      y: "y",
+      z: "z",
+    })
+  })
+
+  it("should get two containers are already resolved via set API", async () => {
+    await cont.getItemSetSync(["z"])
+    expect(cont.getItemSetSync((c) => [c.y, c.z])).toMatchObject({
+      y: "y",
+      z: "z",
+    })
   })
 })
