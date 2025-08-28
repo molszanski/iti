@@ -14,7 +14,7 @@ type ContainerSet<Tokens extends keyof Context, Context extends {}> = {
   [S in Tokens]: UnpackTokenFromContext<S, Context>
 }
 
-export function getContainerSetHooks<
+export function getItemSetHooks<
   Context extends object,
   DisposeContext extends object,
 >(reactContext: React.Context<Container<Context, DisposeContext>>) {
@@ -42,9 +42,9 @@ export function getContainerSetHooks<
     for (let contKey in tokens) {
       addGetter(FFF, contKey, () =>
         useBetterGenericContainer(
-          () => appRoot.containers[contKey as any],
+          () => appRoot.items[contKey as any],
           // @ts-expect-error
-          (cb: () => any) => appRoot.subscribeToContainer(contKey, cb),
+          (cb: () => any) => appRoot.subscribeToItem(contKey, cb),
           contKey,
         ),
       )

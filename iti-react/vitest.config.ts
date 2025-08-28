@@ -3,8 +3,11 @@ import { defineConfig } from "vite"
 
 export default defineConfig({
   test: {
-    globals: false,
+    // globals: true,
     globalSetup: ["vitest.setup.ts"],
     include: ["**/*.{test,spec}.?(c|m)[jt]s?(x)"],
+
+    environment: "jsdom",
+    setupFiles: ["vitest-cleanup-after-each.ts"],
   },
 })

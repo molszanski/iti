@@ -9,8 +9,12 @@ const x = generateEnsureContainerSet(() =>
 export const EnsureNewKitchenConainer = x.EnsureWrapper
 export const useNewKitchenContext = x.contextHook
 
-export function MockAppWrapper({ children }: { children: ReactNode }) {
+export function MockAppWrapper({ children }: { children?: ReactNode }) {
   const store = useMemo(() => getMainMockAppContainer(), [])
 
   return <MyRootCont.Provider value={store}>{children}</MyRootCont.Provider>
+}
+
+export const Lol = ({ children }: { children?: ReactNode }) => {
+  return <div data-testid="lol">{children}</div>
 }
