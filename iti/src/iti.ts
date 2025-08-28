@@ -15,7 +15,7 @@ import {
 import { ItiResolveError, ItiTokenError } from "./errors.js"
 import type { Intersection } from "utility-types"
 
-abstract class AbstractNode<Context extends {}> {
+abstract class AbstractContainer<Context extends {}> {
   public abstract get<T extends keyof Context>(
     token: T,
   ): UnpackFunction<Context[T]>
@@ -28,10 +28,12 @@ type Events<Context> = {
   containerUpdated: (payload: {
     key: keyof Context
     newContainer: Context[keyof Context]
+    newItem: Context[keyof Context]
   }) => void
   containerUpserted: (payload: {
     key: keyof Context
     newContainer: Context[keyof Context] | null
+    newItem: Context[keyof Context] | null
   }) => void
   containerDeleted: (payload: { key: keyof Context }) => void
   containerDisposed: (payload: { key: keyof Context }) => void
@@ -39,11 +41,11 @@ type Events<Context> = {
   // Used only in tests for now
   itemUpdated: (payload: {
     key: keyof Context
-    newContainer: Context[keyof Context]
+    newItem: Context[keyof Context] | null
   }) => void
   itemUpserted: (payload: {
     key: keyof Context
-    newContainer: Context[keyof Context] | null
+    newItem: Context[keyof Context] | null
   }) => void
   itemDeleted: (payload: { key: keyof Context }) => void
   itemDisposed: (payload: { key: keyof Context }) => void
@@ -57,10 +59,10 @@ type Events<Context> = {
   // containerRequested: (payload: { key: keyof Context }) => void
 }
 
-class Node<
+class InternalContainer<
   Context extends {},
   DisposeContext extends {},
-> extends AbstractNode<Context> {
+> extends AbstractContainer<Context> {
   /**
    * When we create a new class instance or function, we cache the output
    */
@@ -116,10 +118,11 @@ class Node<
         this.ee.emit("containerUpserted", {
           key: token,
           newContainer: v,
+          newItem: v,
         })
         this.ee.emit("itemUpserted", {
           key: token,
-          newContainer: v,
+          newItem: v,
         })
       }
 
@@ -210,10 +213,11 @@ class Node<
         this.ee.emit("containerUpdated", {
           key: token as any,
           newContainer: value as any,
+          newItem: value as any,
         })
         this.ee.emit("itemUpdated", {
           key: token as any,
-          newContainer: value as any,
+          newItem: value as any,
         })
       }
       // Save state and clear cache
@@ -222,10 +226,11 @@ class Node<
       this.ee.emit("containerUpserted", {
         key: token as any,
         newContainer: value,
+        newItem: value,
       } as any)
       this.ee.emit("itemUpserted", {
         key: token as any,
-        newContainer: value,
+        newItem: value,
       } as any)
     }
   }
@@ -276,7 +281,7 @@ class Node<
 export class Container<
   Context extends {},
   DisposeContext extends {},
-> extends Node<Context, DisposeContext> {
+> extends InternalContainer<Context, DisposeContext> {
   constructor() {
     super()
     this.getContainerSet = this.getItemSet.bind(this)
@@ -425,22 +430,22 @@ export class Container<
       }
     }
 
-    let containerDecoratedMap: {
+    let itemDecoratedMap: {
       [K in T[number]]: FullyUnpackObject<Context>[K]
     } = {} as any
 
     // Step 1: Assign all values
     tokens.forEach((token) => {
-      containerDecoratedMap[token as any] = this.items[token]
+      itemDecoratedMap[token as any] = this.items[token]
     })
 
     // Step 2: Overwrite Promise like values with promise results
     const rez = await Promise.all(allPromises)
     promiseTokens.forEach((token, index) => {
-      containerDecoratedMap[token] = rez[index]
+      itemDecoratedMap[token] = rez[index]
     })
 
-    return containerDecoratedMap
+    return itemDecoratedMap
   }
 
   public get items(): ContextGetter<Context> {

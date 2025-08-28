@@ -59,6 +59,11 @@ describe("Deleting and destructuring: ", () => {
       root.on("containerUpserted", (k) => {
         expect(k.key).toBe("b")
         expect(k.newContainer).toBe("new B")
+        // cb()
+      })
+      root.on("itemUpserted", (k) => {
+        expect(k.key).toBe("b")
+        expect(k.newItem).toBe("new B")
         cb()
       })
       await wait(5)
