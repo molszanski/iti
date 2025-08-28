@@ -1,6 +1,0 @@
-{
-  "types": "dummy.d.ts",
-  "tsd": {
-    "directory": "../tests"
-  }
-}
