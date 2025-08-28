@@ -110,5 +110,6 @@ describe("Type tests:", () => {
   it("should be able to delete token types", () => {
     const cont = getMainMockAppContainer().delete("aCont")
     attest<{ bCont: "bCont"; cCont: "cCont" }>(cont.getTokens())
+    attest.instantiations([3213, "instantiations"])
   })
 })

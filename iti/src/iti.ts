@@ -36,6 +36,18 @@ type Events<Context> = {
   containerDeleted: (payload: { key: keyof Context }) => void
   containerDisposed: (payload: { key: keyof Context }) => void
 
+  // Used only in tests for now
+  itemUpdated: (payload: {
+    key: keyof Context
+    newContainer: Context[keyof Context]
+  }) => void
+  itemUpserted: (payload: {
+    key: keyof Context
+    newContainer: Context[keyof Context] | null
+  }) => void
+  itemDeleted: (payload: { key: keyof Context }) => void
+  itemDisposed: (payload: { key: keyof Context }) => void
+
   // Older events
   // containerCreated: (payload: {
   //   key: keyof Context
@@ -78,6 +90,7 @@ class Node<
   constructor() {
     super()
     this.ee = createNanoEvents<Events<Context>>()
+    this.subscribeToContainer = this.subscribeToItem.bind(this)
   }
   public get<SearchToken extends keyof Context>(
     token: SearchToken,
@@ -101,6 +114,10 @@ class Node<
          * or cache a function result
          */
         this.ee.emit("containerUpserted", {
+          key: token,
+          newContainer: v,
+        })
+        this.ee.emit("itemUpserted", {
           key: token,
           newContainer: v,
         })
@@ -134,6 +151,9 @@ class Node<
     this.ee.emit("containerDeleted", {
       key: token as any,
     })
+    this.ee.emit("itemDeleted", {
+      key: token as any,
+    })
 
     return this as any
   }
@@ -157,6 +177,7 @@ class Node<
       const cleanup = () => {
         delete this._cache[token]
         this.ee.emit("containerDisposed", { key: token })
+        this.ee.emit("itemDisposed", { key: token })
       }
       if (disposeResult instanceof Promise) {
         disposeResult.then(cleanup)
@@ -190,6 +211,10 @@ class Node<
           key: token as any,
           newContainer: value as any,
         })
+        this.ee.emit("itemUpdated", {
+          key: token as any,
+          newContainer: value as any,
+        })
       }
       // Save state and clear cache
       this._context[token] = value
@@ -198,14 +223,18 @@ class Node<
         key: token as any,
         newContainer: value,
       } as any)
+      this.ee.emit("itemUpserted", {
+        key: token as any,
+        newContainer: value,
+      } as any)
     }
   }
 
-  public subscribeToContainer<T extends keyof Context>(
+  public subscribeToItem<T extends keyof Context>(
     token: T,
     cb: (err: any, container: UnpackFunction<Context[T]>) => void,
   ): () => void {
-    const upsertUnsubscribe = this.ee.on("containerUpserted", async (ev) => {
+    const upsertUnsubscribe = this.ee.on("itemUpserted", async (ev) => {
       if (token === ev.key) {
         try {
           const data = await this.get(token)
@@ -215,9 +244,9 @@ class Node<
         }
       }
     })
-    const deleteUnsubscribe = this.ee.on("containerDeleted", async (ev) => {
+    const deleteUnsubscribe = this.ee.on("itemDeleted", async (ev) => {
       if (token === ev.key) {
-        cb({ containerRemoved: token }, undefined as any)
+        cb({ containerRemoved: token, itemRemoved: token }, undefined as any)
       }
     })
     return () => {
@@ -225,6 +254,14 @@ class Node<
       deleteUnsubscribe()
     }
   }
+
+  /**
+   * @deprecated Use `subscribeToItem` instead. This method will be removed in a future version.
+   */
+  public subscribeToContainer: <T extends keyof Context>(
+    token: T,
+    cb: (err: any, container: UnpackFunction<Context[T]>) => void,
+  ) => () => void
 
   public getTokens(): {
     [T in keyof Context]: T
@@ -242,6 +279,8 @@ export class Container<
 > extends Node<Context, DisposeContext> {
   constructor() {
     super()
+    this.getContainerSet = this.getItemSet.bind(this)
+    this.subscribeToContainerSet = this.subscribeToItemSet.bind(this)
   }
 
   // SAVE: NewContext extends {! [T in keyof NewContext]: NewContext[T] }
@@ -336,7 +375,7 @@ export class Container<
     }
   }
 
-  public subscribeToContainerSet<T extends (keyof Context)[]>(
+  public subscribeToItemSet<T extends (keyof Context)[]>(
     tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
     cb: (
       err: any,
@@ -346,19 +385,19 @@ export class Container<
     ) => void,
   ): () => void {
     let tokens = this._extractTokens(tokensOrCb)
-    const upsertUnsubscribe = this.ee.on("containerUpserted", async (ev) => {
+    const upsertUnsubscribe = this.ee.on("itemUpserted", async (ev) => {
       if (tokens.includes(ev.key)) {
         try {
-          const cSet = await this.getContainerSet(tokens)
+          const cSet = await this.getItemSet(tokens)
           cb(null, cSet)
         } catch (err) {
           cb(err, undefined as any)
         }
       }
     })
-    const deleteUnsubscribe = this.ee.on("containerDeleted", async (ev) => {
+    const deleteUnsubscribe = this.ee.on("itemDeleted", async (ev) => {
       if (tokens.includes(ev.key)) {
-        cb({ containerRemoved: ev.key }, undefined as any)
+        cb({ containerRemoved: ev.key, itemRemoved: ev.key }, undefined as any)
       }
     })
     return () => {
@@ -367,7 +406,11 @@ export class Container<
     }
   }
 
-  public async getContainerSet<T extends (keyof Context)[]>(
+  /**
+   * Gets multiple items from the container by their tokens.
+   * Handles both synchronous and asynchronous values properly.
+   */
+  public async getItemSet<T extends (keyof Context)[]>(
     tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
   ): Promise<{
     [K in T[number]]: FullyUnpackObject<Context>[K]
@@ -400,6 +443,16 @@ export class Container<
     return containerDecoratedMap
   }
 
+  public get items(): ContextGetter<Context> {
+    let itemMap = <ContextGetter<Context>>{}
+    for (let key in this.getTokens()) {
+      addGetter(itemMap, key, () => {
+        return this.get(key as any)
+      })
+    }
+    return itemMap
+  }
+
   /**
    * This is used to get a container from the context.
    * It should always return a promise?
@@ -410,15 +463,25 @@ export class Container<
     return this.items
   }
 
-  public get items(): ContextGetter<Context> {
-    let itemMap = <ContextGetter<Context>>{}
-    for (let key in this.getTokens()) {
-      addGetter(itemMap, key, () => {
-        return this.get(key as any)
-      })
-    }
-    return itemMap
-  }
+  /**
+   * @deprecated Use `getItemSet` instead. This method will be removed in a future version.
+   */
+  public getContainerSet: <T extends (keyof Context)[]>(
+    tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
+  ) => Promise<{ [K in T[number]]: FullyUnpackObject<Context>[K] }>
+
+  /**
+   * @deprecated Use `subscribeToItemSet` instead. This method will be removed in a future version.
+   */
+  public subscribeToContainerSet: <T extends (keyof Context)[]>(
+    tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
+    cb: (
+      err: any,
+      container: {
+        [K in T[number]]: FullyUnpackObject<Context>[K]
+      },
+    ) => void,
+  ) => () => void
 }
 
 export function createContainer() {
