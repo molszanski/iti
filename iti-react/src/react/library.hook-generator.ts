@@ -18,7 +18,7 @@ export function getContainerSetHooks<
   Context extends object,
   DisposeContext extends object,
 >(reactContext: React.Context<Container<Context, DisposeContext>>) {
-  function useContainer() {
+  function useItem() {
     const root = useContext(reactContext)
     return useRootStores(root)
   }
@@ -53,7 +53,7 @@ export function getContainerSetHooks<
     return FFF
   }
 
-  function useContainerSet<
+  function useItemSet<
     Tokens extends keyof Context,
     TokenMap extends { [T in keyof Context]: T },
   >(
@@ -73,7 +73,7 @@ export function getContainerSetHooks<
 
     useEffect(() => {
       root
-        .getContainerSet(tokens)
+        .getItemSet(tokens)
         .then((contSet) => {
           setAll(contSet)
         })
@@ -83,16 +83,13 @@ export function getContainerSetHooks<
     }, tokens)
 
     useEffect(() => {
-      const unsubscribe = root.subscribeToContainerSet(
-        tokens,
-        (err, contSet) => {
-          if (err) {
-            setErr(err)
-            return
-          }
-          setAll(contSet)
-        },
-      )
+      const unsubscribe = root.subscribeToItemSet(tokens, (err, contSet) => {
+        if (err) {
+          setErr(err)
+          return
+        }
+        setAll(contSet)
+      })
       return unsubscribe
     }, tokens)
 
@@ -105,7 +102,7 @@ export function getContainerSetHooks<
      * to hack into react internals to prevent it
      */
     try {
-      const itemSet = root.getContainerSetSync(tokens)
+      const itemSet = root.getItemSetSync(tokens)
       if (!(itemSet instanceof Promise)) {
         return [itemSet as any, err]
       }
@@ -116,7 +113,16 @@ export function getContainerSetHooks<
     return [all as any, err]
   }
   return {
-    useContainer: useContainer,
-    useContainerSet: useContainerSet,
+    useItem: useItem,
+    useItemSet: useItemSet,
+
+    /**
+     *  @deprecated Use useItem and useItemSet instead
+     */
+    useContainer: useItem,
+    /**
+     *  @deprecated Use useItem and useItemSet instead
+     */
+    useContainerSet: useItemSet,
   }
 }
