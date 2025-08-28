@@ -1,4 +1,4 @@
-import React, { useEffect, act, useMemo } from "react"
+import React, { useEffect, act, useMemo, createElement } from "react"
 import { createRoot } from "react-dom/client"
 import { useState } from "react"
 import { attest } from "@ark/attest"
@@ -151,76 +151,60 @@ function useToggle(initialState = false) {
 //   //   expect(result.current[0]).toBe(false)
 //   // })
 // })
-let container
+let main_c
+const h = createElement
+// beforeEach(() => {
 
-beforeEach(() => {
-  container = document.createElement("div")
-  document.body.appendChild(container)
-})
-
-afterEach(() => {
-  document.body.removeChild(container)
-  container = null
-})
+// })
 
 describe("React hooks type tests", () => {
-  it("initializes and increments state", async () => {
-    let hookResult
-
-    // Wrapper to capture hook output
-    function TestComponent({ initial }) {
-      hookResult = useToggle(initial) // Assign to outer scope for assertions
-      return null // No need to render anything
-    }
-
-    await act(async () => {
-      createRoot(container).render(React.createElement(TestComponent))
-    })
-
-    expect(hookResult[0]).toBe(false) // Initial state
-
-    act(() => {
-      hookResult[1]() // Trigger update
-    })
-
-    expect(hookResult[0]).toBe(true) // Updated state
+  let root: ReturnType<typeof createRoot>
+  beforeEach(() => {
+    main_c = document.createElement("div")
+    document.body.appendChild(main_c)
+    root = createRoot(main_c)
+  })
+  afterEach(() => {
+    document.body.removeChild(main_c)
+    main_c = null
   })
 
   it("test lol", async () => {
-    let hookResult
-    let store
-
-    // Wrapper to capture hook output
-    function TestComponent2() {
-      // hookResult = useToggle(initial) // Assign to outer scope for assertions
-
-      store = useMemo(() => getMainMockAppContainer(), [])
+    function Test() {
+      const xx = useMockAppItem()
+      const [aItem, aItemErr] = useMockAppItem().aCont
+      console.log("xx", xx)
+      expect(aItemErr).toBeUndefined()
+      expect(xx.aCont).toBeDefined()
+      attest<A_Container | undefined>(aItem)
       return null
-
-      // return <MyRootCont.Provider value={store}>{children}</MyRootCont.Provider>
-      // return null // No need to render anything
     }
-
-    await act(async () => {
-      createRoot(container).render(React.createElement(TestComponent2))
-    })
-    await act(async () => {
-      const [aContainer] = useMockAppItem().aCont
-      console.log("~~~aContainer", aContainer)
-    })
-    console.log("container", store)
+    await act(async () => root.render(h(MockAppWrapper, {}, h(Test))))
   })
 
-  //   it("render dupa", () => {
-  //     // render(<MockAppWrapper></MockAppWrapper>)
-  //     render("fun-fun" as any, { wrapper: Lol })
-  //     const x = screen.getByTestId("lol")
-  //     console.log("x", x)
-  //     expect(x).toHaveTextContent("fun-fun")
-  //   })
-  // beforeEach(() => {
-  //   render(MockAppWrapper)
-  // })
+  it("useMockAppItemSet should return valid result", async () => {
+    function Test() {
+      const [itemSet, isError] = useMockAppItemSet(["aCont", "bCont"])
+      if (!itemSet) return null
+
+      const { aCont, bCont } = itemSet
+      attest<A_Container>(aCont)
+      attest<B_Container>(bCont)
+
+      expect(aCont.a1).toBeDefined()
+      expect(aCont.a1.b).toBe(12)
+
+      expect(isError).toBeUndefined()
+
+      return null
+    }
+    await act(async () => root.render(h(MockAppWrapper, {}, h(Test))))
+
+    // // Ensure containerSet is not of type `any` by checking it has specific structure
+    // attest(containerSet).type.toString.snap()
+    attest.instantiations([4087, "instantiations"])
+  })
+
   // it("useMockAppItem should not return `any` type", () => {
   //   const { result } = renderHook(() => useMockAppItem())
   //   render("fun-fun" as any, { wrapper: MockAppWrapper })
@@ -229,6 +213,21 @@ describe("React hooks type tests", () => {
   //   attest(items).type.toString.snap()
   //   attest.instantiations([1000, "instantiations"])
   // })
+
+  // skip
+  // it("render dupa", () => {
+  //   // render(<MockAppWrapper></MockAppWrapper>)
+  //   render("fun-fun" as any, { wrapper: Lol })
+  //   const x = screen.getByTestId("lol")
+  //   console.log("x", x)
+  //   expect(x).toHaveTextContent("fun-fun")
+  // })
+
+  // skip
+  // beforeEach(() => {
+  //   render(MockAppWrapper)
+  // })
+
   // it("useMockAppItem should test if useMockAppItem gets correct types", () => {
   //   const [aContainer] = useMockAppItem().aCont
   //   attest<undefined | A_Container>(aContainer)
