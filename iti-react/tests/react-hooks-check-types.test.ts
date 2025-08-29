@@ -126,4 +126,39 @@ describe("React hooks type tests", () => {
     await act(async () => root.render(h(MockAppWrapper, {}, h(Test))))
     attest.instantiations([4087, "instantiations"])
   })
+
+  it("useItemSet should work in SYNC mode and provide itemSet value on first render if it was called before", async () => {
+    let firstTestFirstRender = true
+    let secondTestSecondRender = true
+    function Test() {
+      const [itemSet, isError] = useMockAppItemSet((c) => [c.aCont, c.bCont])
+      if (firstTestFirstRender) {
+        firstTestFirstRender = false
+        expect(itemSet).toBeUndefined()
+      } else {
+        expect(itemSet).toBeDefined()
+      }
+      if (!itemSet) return null
+      return null
+    }
+    await act(async () => root.render(h(MockAppWrapper, {}, h(Test))))
+
+    function Test2() {
+      const [itemSet, isError] = useMockAppItemSet((c) => [c.aCont, c.bCont])
+      expect(itemSet).toBeDefined()
+
+      const { aCont, bCont } = itemSet
+
+      attest<A_Container>(aCont)
+      attest<B_Container>(bCont)
+
+      expect(aCont.a1).toBeDefined()
+      expect(aCont.a1.b).toBe(12)
+
+      expect(isError).toBeUndefined()
+      return null
+    }
+    await act(async () => root.render(h(MockAppWrapper, {}, h(Test2))))
+    // attest.instantiations([4087, "instantiations"])
+  })
 })
