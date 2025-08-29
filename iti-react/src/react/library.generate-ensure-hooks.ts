@@ -10,7 +10,7 @@ export function generateEnsureItemSet<ItemSetContext>(
   }
 
   const EnsureContainer = (props: {
-    fallback?: JSX.Element
+    fallback?: React.ReactNode
     children: React.ReactNode
   }) => {
     let [itemSet, err] = itemSetGetterHook()
