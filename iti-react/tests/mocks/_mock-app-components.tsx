@@ -14,7 +14,3 @@ export function MockAppWrapper({ children }: { children?: ReactNode }) {
 
   return <MyRootCont.Provider value={store}>{children}</MyRootCont.Provider>
 }
-
-export const Lol = ({ children }: { children?: ReactNode }) => {
-  return <div data-testid="lol">{children}</div>
-}

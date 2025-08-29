@@ -28,25 +28,18 @@
   "scripts": {
     "build": "rm -rf ./dist && microbundle -o dist/  --jsx React.createElement --format modern",
     "dev": "microbundle watch -o dist/ --jsx React.createElement",
-    "test": "IS_REACT_ACT_ENVIRONMENT=true vitest run",
-    "prepare-not": "install-peers"
+    "test": "IS_REACT_ACT_ENVIRONMENT=true vitest run"
   },
   "dependencies": {
     "iti": "0.8.0-alpha.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.15",
-    "install-peers-cli": "^2.2.0",
-    "microbundle": "^0.15.1",
-    "nodemon": "^2.0.19",
-    "tsd": "^0.22.0"
+    "microbundle": "^0.15.1"
   },
   "peerDependencies": {
-    "react": ">=16",
-    "react-dom": ">=17.0.2"
+    "react": ">=17",
+    "react-dom": ">=17"
   },
   "repository": "https://github.com/molszanski/iti",
   "homepage": "https://itijs.org",

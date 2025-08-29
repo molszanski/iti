@@ -5,7 +5,10 @@ export class B {
   constructor(a: A) {}
 }
 export class C {
-  constructor(a: A, b: B) {}
+  constructor(a: A) {}
+}
+export class D {
+  constructor(c: C) {}
 }
 
 export const app = createContainer()
@@ -18,5 +21,11 @@ export const app = createContainer()
     b: async () => new B(ctx.a),
   }))
   .add((ctx) => ({
-    c: () => new C(ctx.a, ctx.b),
+    c: async () => new C(ctx.a),
+  }))
+  .add((ctx) => ({
+    d: async () => {
+      console.log("ctx.c", await ctx.c)
+      return new D(await ctx.c)
+    },
   }))

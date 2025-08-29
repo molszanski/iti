@@ -22,9 +22,13 @@
   "packageManager": "yarn@1.22.17",
   "dependencies": {
     "@ark/attest": "^0.48.2",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
     "arktype": "^2.1.20",
     "jest-environment-jsdom": "^29.7.0",
     "prettier": "^2.7.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "typescript": "^5.9.2"
   }
 }

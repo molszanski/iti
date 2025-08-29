@@ -1,32 +1,13 @@
-import React, { useEffect, act, useMemo, createElement } from "react"
+// @ts-expect-error
+import React, { act, createElement } from "react"
 import { createRoot } from "react-dom/client"
-import { useState } from "react"
 import { attest } from "@ark/attest"
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
-import {
-  useMockAppItem,
-  useMockAppItemSet,
-  MyRootCont,
-} from "./mocks/_mock-app-hooks"
+import { useMockAppItem, useMockAppItemSet } from "./mocks/_mock-app-hooks"
 import type { A_Container } from "./mocks/container.a"
 import type { B_Container } from "./mocks/container.b"
 import type { C_Container } from "./mocks/container.c"
-import { MockAppWrapper, Lol } from "./mocks/_mock-app-components"
-import { getMainMockAppContainer } from "./mocks/_mock-app-container.ts"
-
-function useToggle(initialState = false) {
-  const [state, setState] = useState(initialState)
-  return [
-    state,
-    (newState?: boolean) => {
-      if (typeof newState === "boolean") {
-        setState(newState)
-      } else {
-        setState(!state)
-      }
-    },
-  ] as const
-}
+import { MockAppWrapper } from "./mocks/_mock-app-components"
 
 let main_c
 const h = createElement

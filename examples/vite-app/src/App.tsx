@@ -1,12 +1,25 @@
 import { useState } from "react"
-import reactLogo from "./assets/react.svg"
-import "./App.css"
-import { MyAppContext, useContainer, useContainerSet } from "./hooks"
+import { MyAppContext, useItem, useItemSet } from "./hooks"
 import { app } from "./_bl"
 
 const Lol = () => {
-  const [itemSet, err] = useContainerSet((c) => [c.x, c.y])
-  console.log("Render", itemSet)
+  const [itemSet, err] = useItemSet((c) => [c.x, c.y, c.a, c.b, c.c])
+  if (itemSet == null) {
+    console.log("not ready LOL1 ", err)
+    return null
+  }
+  console.log("Render", itemSet.x, itemSet.a, itemSet.b, itemSet.c)
+
+  return <p>123</p>
+}
+
+const Lol2 = () => {
+  const [itemSet, err] = useItemSet((c) => [c.c])
+  if (itemSet == null) {
+    console.log("not ready LOL2 ", err)
+    return null
+  }
+  console.log("Rendering Lol2 ", itemSet.c)
 
   return <p>123</p>
 }
@@ -16,9 +29,8 @@ function App() {
 
   return (
     <MyAppContext.Provider value={app}>
-      <div className="App">
-        <Lol />
-      </div>
+      <Lol />
+      <Lol2 />
     </MyAppContext.Provider>
   )
 }
