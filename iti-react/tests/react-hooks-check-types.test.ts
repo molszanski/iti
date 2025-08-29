@@ -126,30 +126,4 @@ describe("React hooks type tests", () => {
     await act(async () => root.render(h(MockAppWrapper, {}, h(Test))))
     attest.instantiations([4087, "instantiations"])
   })
-
-  // it("useMockAppItemSet should return exact types", () => {
-  //   const [containerSet, containerSetErr] = useMockAppItemSet([
-  //     "aCont",
-  //     "bCont",
-  //   ])
-  //   const [containerSet2, containerSetErr2] = useMockAppItemSet((c) => [
-  //     c.aCont,
-  //     c.bCont,
-  //   ])
-  //   if (containerSet != null) {
-  //     attest<A_Container>(containerSet.aCont)
-  //     // @ts-expect-error
-  // attest(() => containerSet.cCont).type.errors(
-  //   "Property 'cCont' does not exist on type",
-  // )
-  //   }
-  //   if (containerSet2 != null) {
-  //     attest<B_Container>(containerSet2.bCont)
-  //     // @ts-expect-error
-  //     attest(() => containerSet2.cCont).type.errors(
-  //       "Property 'cCont' does not exist on type",
-  //     )
-  //   }
-  //   attest.instantiations([1800, "instantiations"])
-  // })
 })
