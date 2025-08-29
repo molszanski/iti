@@ -153,30 +153,38 @@ function useToggle(initialState = false) {
 // })
 let main_c
 const h = createElement
-// beforeEach(() => {
-
-// })
 
 describe("React hooks type tests", () => {
   let root: ReturnType<typeof createRoot>
-  beforeEach(() => {
-    main_c = document.createElement("div")
-    document.body.appendChild(main_c)
-    root = createRoot(main_c)
+  beforeEach(async () => {
+    await act(async () => {
+      main_c = document.createElement("div")
+      document.body.appendChild(main_c)
+      root = createRoot(main_c)
+    })
   })
-  afterEach(() => {
-    document.body.removeChild(main_c)
+  afterEach(async () => {
+    await act(async () => document.body.removeChild(main_c))
     main_c = null
+  })
+
+  it("base", async () => {
+    function Test() {
+      const xx = useMockAppItem()
+      expect(xx.aCont).toBeDefined()
+      return null
+    }
+    await act(async () => root.render(h(MockAppWrapper, {}, h(Test))))
   })
 
   it("test lol", async () => {
     function Test() {
-      const xx = useMockAppItem()
       const [aItem, aItemErr] = useMockAppItem().aCont
-      console.log("xx", xx)
+      if (aItem == null) return null
+
       expect(aItemErr).toBeUndefined()
-      expect(xx.aCont).toBeDefined()
-      attest<A_Container | undefined>(aItem)
+      attest<A_Container>(aItem)
+      expect(aItem.a1.b).toBe(12)
       return null
     }
     await act(async () => root.render(h(MockAppWrapper, {}, h(Test))))
@@ -199,49 +207,49 @@ describe("React hooks type tests", () => {
       return null
     }
     await act(async () => root.render(h(MockAppWrapper, {}, h(Test))))
-
-    // // Ensure containerSet is not of type `any` by checking it has specific structure
-    // attest(containerSet).type.toString.snap()
     attest.instantiations([4087, "instantiations"])
   })
 
-  // it("useMockAppItem should not return `any` type", () => {
-  //   const { result } = renderHook(() => useMockAppItem())
-  //   render("fun-fun" as any, { wrapper: MockAppWrapper })
-  //   const items = result.current
-  //   // Ensure containers is not of type `any` by checking it has specific structure
-  //   attest(items).type.toString.snap()
-  //   attest.instantiations([1000, "instantiations"])
-  // })
+  it("useMockAppItemSet via CB should return valid result", async () => {
+    function Test() {
+      const [itemSet, isError] = useMockAppItemSet((c) => [c.aCont, c.bCont])
+      if (!itemSet) return null
 
-  // skip
-  // it("render dupa", () => {
-  //   // render(<MockAppWrapper></MockAppWrapper>)
-  //   render("fun-fun" as any, { wrapper: Lol })
-  //   const x = screen.getByTestId("lol")
-  //   console.log("x", x)
-  //   expect(x).toHaveTextContent("fun-fun")
-  // })
+      const { aCont, bCont } = itemSet
+      attest<A_Container>(aCont)
+      attest<B_Container>(bCont)
 
-  // skip
-  // beforeEach(() => {
-  //   render(MockAppWrapper)
-  // })
+      expect(aCont.a1).toBeDefined()
+      expect(aCont.a1.b).toBe(12)
 
-  // it("useMockAppItem should test if useMockAppItem gets correct types", () => {
-  //   const [aContainer] = useMockAppItem().aCont
-  //   attest<undefined | A_Container>(aContainer)
-  //   if (aContainer != null) {
-  //     attest<A_Container>(aContainer)
-  //   }
-  //   attest.instantiations([1200, "instantiations"])
-  // })
-  // it("useMockAppItemSet should not return any", () => {
-  //   const containerSet = useMockAppItemSet(["aCont", "bCont"])
-  //   // Ensure containerSet is not of type `any` by checking it has specific structure
-  //   attest(containerSet).type.toString.snap()
-  //   attest.instantiations([1400, "instantiations"])
-  // })
+      expect(isError).toBeUndefined()
+
+      return null
+    }
+    await act(async () => root.render(h(MockAppWrapper, {}, h(Test))))
+    attest.instantiations([4087, "instantiations"])
+  })
+
+  it("useMockAppItemSet should not return unrequested values via CB should return valid result", async () => {
+    function Test() {
+      const [itemSet, isError] = useMockAppItemSet((c) => [c.aCont])
+      if (!itemSet) return null
+
+      attest<A_Container>(itemSet.aCont)
+      // @ts-expect-error
+      attest(() => itemSet.bCont).type.errors(
+        "Property 'bCont' does not exist on type",
+      )
+
+      // @ts-expect-error
+      expect(itemSet.bCont).toBeUndefined()
+
+      return null
+    }
+    await act(async () => root.render(h(MockAppWrapper, {}, h(Test))))
+    attest.instantiations([4087, "instantiations"])
+  })
+
   // it("useMockAppItemSet should return exact types", () => {
   //   const [containerSet, containerSetErr] = useMockAppItemSet([
   //     "aCont",
@@ -254,9 +262,9 @@ describe("React hooks type tests", () => {
   //   if (containerSet != null) {
   //     attest<A_Container>(containerSet.aCont)
   //     // @ts-expect-error
-  //     attest(() => containerSet.cCont).type.errors(
-  //       "Property 'cCont' does not exist on type",
-  //     )
+  // attest(() => containerSet.cCont).type.errors(
+  //   "Property 'cCont' does not exist on type",
+  // )
   //   }
   //   if (containerSet2 != null) {
   //     attest<B_Container>(containerSet2.bCont)
