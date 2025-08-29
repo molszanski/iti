@@ -8,6 +8,5 @@ export default defineConfig({
     include: ["**/*.{test,spec}.?(c|m)[jt]s?(x)"],
 
     environment: "jsdom",
-    setupFiles: ["vitest-cleanup-after-each.ts"],
   },
 })

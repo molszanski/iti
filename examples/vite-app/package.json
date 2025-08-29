@@ -10,13 +10,9 @@
   },
   "dependencies": {
     "iti": "0.8.0-alpha.0",
-    "iti-react": "0.8.0-alpha.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "iti-react": "0.8.0-alpha.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.15",
-    "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.0.0",
     "vite": "^3.0.0"
   }
