@@ -53,6 +53,7 @@
     "@types/jest": "^29.5.14",
     "@types/react": "^18.0.15",
     "dedent": "^1.6.0",
+    "microbundle": "^0.15.1",
     "stryker-cli": "^1.0.2",
     "vitest": "^3.2.4"
   },
