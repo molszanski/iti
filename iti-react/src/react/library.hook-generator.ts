@@ -103,7 +103,12 @@ export function getItemSetHooks<
      */
     try {
       const itemSet = root.getItemSetSync(tokens)
-      if (!(itemSet instanceof Promise)) {
+      if (itemSet instanceof Promise) {
+        /* silent error, will be handled by other hook anyway */
+        itemSet.catch((e) => {
+          return e
+        })
+      } else {
         return [itemSet as any, err]
       }
     } catch (err) {

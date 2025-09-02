@@ -6,6 +6,7 @@
   "workspaces": [
     "iti",
     "iti-react",
+    "examples/astro-playground",
     "examples/cra",
     "examples/node-cli",
     "examples/vite-app"
