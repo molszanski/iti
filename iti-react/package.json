@@ -28,7 +28,8 @@
   "scripts": {
     "build": "rm -rf ./dist && microbundle -o dist/  --jsx React.createElement --format modern",
     "dev": "microbundle watch -o dist/ --jsx React.createElement",
-    "test": "IS_REACT_ACT_ENVIRONMENT=true vitest run"
+    "test": "IS_REACT_ACT_ENVIRONMENT=true vitest run",
+    "t": "IS_REACT_ACT_ENVIRONMENT=true vitest run ./tests/react-hooks-errors.test.ts"
   },
   "dependencies": {
     "iti": "0.8.0-alpha.0",

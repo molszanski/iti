@@ -1,4 +1,3 @@
-// @ts-expect-error
 import React, { act, createElement } from "react"
 import { createRoot } from "react-dom/client"
 import { attest } from "@ark/attest"
@@ -8,7 +7,7 @@ import type { A_Container } from "./mocks/container.a"
 import type { B_Container } from "./mocks/container.b"
 import type { C_Container } from "./mocks/container.c"
 import { MockAppWrapper } from "./mocks/_mock-app-components"
-
+global.IS_REACT_ACT_ENVIRONMENT = true
 let main_c
 const h = createElement
 
