@@ -1,0 +1,24 @@
+{
+  "name": "astro-ssr-registration",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Astro SSR example with React 19 registration form",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.3.0",
+    "@astrojs/node": "^8.0.0",
+    "astro": "^5.13.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.0.0"
+  }
+}

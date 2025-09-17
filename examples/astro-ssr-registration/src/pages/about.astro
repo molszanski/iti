@@ -1,0 +1,235 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="About - Astro SSR + React 19">
+  <div class="about-container">
+    <h1 class="about-title">About This Example</h1>
+    
+    <div class="about-content">
+      <section class="about-section">
+        <h2 class="section-title">🚀 What is this?</h2>
+        <p class="section-text">
+          This is a comprehensive example of Astro with Server-Side Rendering (SSR) 
+          using React 19's latest features. It demonstrates how to build modern web 
+          applications with the best of both worlds: Astro's performance and React's 
+          powerful component system.
+        </p>
+      </section>
+
+      <section class="about-section">
+        <h2 class="section-title">⚛️ React 19 Features</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3 class="feature-title">useTransition</h3>
+            <p class="feature-description">
+              Manages loading states during async operations, providing smooth user 
+              experience during form submissions.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <h3 class="feature-title">useActionState</h3>
+            <p class="feature-description">
+              Handles form state management with built-in pending states and error 
+              handling for better UX.
+            </p>
+          </div>
+          
+          <div class="feature-card">
+            <h3 class="feature-title">useOptimistic</h3>
+            <p class="feature-description">
+              Provides optimistic updates for immediate UI feedback while async 
+              operations complete in the background.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <h2 class="section-title">🌟 Astro SSR Benefits</h2>
+        <ul class="benefits-list">
+          <li class="benefit-item">
+            <strong>Server-Side Rendering:</strong> Initial page loads are fast with 
+            pre-rendered HTML
+          </li>
+          <li class="benefit-item">
+            <strong>Hydration Control:</strong> Only hydrate components that need 
+            interactivity with <code>client:load</code>
+          </li>
+          <li class="benefit-item">
+            <strong>Performance:</strong> Minimal JavaScript bundle size with 
+            selective hydration
+          </li>
+          <li class="benefit-item">
+            <strong>SEO Friendly:</strong> Search engines can crawl and index 
+            server-rendered content
+          </li>
+        </ul>
+      </section>
+
+      <section class="about-section">
+        <h2 class="section-title">🛠️ Technical Stack</h2>
+        <div class="tech-stack">
+          <div class="tech-item">
+            <span class="tech-name">Astro</span>
+            <span class="tech-version">v5.13.5</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">React</span>
+            <span class="tech-version">v19.0.0</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">TypeScript</span>
+            <span class="tech-version">v5.0.0</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">Node.js Adapter</span>
+            <span class="tech-version">v8.0.0</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .about-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .about-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .about-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .about-section {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+  }
+
+  .section-text {
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .feature-card {
+    background: var(--background-color);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+
+  .feature-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .benefits-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .benefit-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .benefit-item:last-child {
+    border-bottom: none;
+  }
+
+  .benefit-item strong {
+    color: var(--text-primary);
+  }
+
+  .benefit-item code {
+    background: var(--background-color);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.9em;
+    color: var(--primary-color);
+  }
+
+  .tech-stack {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .tech-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--background-color);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+
+  .tech-name {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .tech-version {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 768px) {
+    .about-title {
+      font-size: 2rem;
+    }
+
+    .about-section {
+      padding: 1.5rem;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tech-stack {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

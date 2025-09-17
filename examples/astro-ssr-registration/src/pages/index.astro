@@ -1,0 +1,75 @@
+---
+import Layout from '../layouts/Layout.astro';
+import RegistrationForm from '../components/RegistrationForm.tsx';
+
+// Mock data for SSR - in a real app, this would come from a database
+const initialUsers = [
+  {
+    id: '1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+  },
+  {
+    id: '2',
+    name: 'Jane Smith',
+    email: 'jane@example.com',
+    createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+  },
+  {
+    id: '3',
+    name: 'Bob Johnson',
+    email: 'bob@example.com',
+    createdAt: new Date(Date.now() - 259200000).toISOString() // 3 days ago
+  }
+];
+---
+
+<Layout title="Registration - Astro SSR + React 19">
+  <div class="hero">
+    <h1 class="hero-title">Welcome to Our Platform</h1>
+    <p class="hero-description">
+      Experience the power of server-side rendering with Astro and React 19's latest features.
+      This example demonstrates modern React hooks like useTransition, useActionState, and useOptimistic.
+    </p>
+  </div>
+
+  <RegistrationForm client:load initialUsers={initialUsers} />
+</Layout>
+
+<style>
+  .hero {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-description {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2rem;
+    }
+
+    .hero-description {
+      font-size: 1rem;
+    }
+  }
+</style>
