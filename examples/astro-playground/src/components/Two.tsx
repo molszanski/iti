@@ -1,50 +1,60 @@
-import React, { useMemo, useEffect, useState } from "react"
-import { createContainer } from "iti"
+import React, { useMemo, use, Suspense, useContext } from "react"
 import { getItemSetHooks } from "iti-react"
+import { createApp, lolData } from "./two/bl"
 
-const container = createContainer()
-  .add({
-    name: async () => "One",
-  })
-  .add((ctx) => ({
-    two: async () => (await ctx.name) + "Two",
-  }))
-  .add((ctx) => ({
-    three: async () => {
-      throw new Error("three")
-    },
-  }))
-
-const Ctx = React.createContext(container)
+const Ctx = React.createContext<ReturnType<typeof createApp>>({} as any)
 const hooks = getItemSetHooks(Ctx)
 const useItemSet = hooks.useItemSet
 const useItem = hooks.useItem
 
-async function main() {
-  try {
-    console.log("~~~~1")
-    await container.items.three
-    console.log("~~~~2")
-  } catch (e) {
-    console.log("Other error~~~>", e)
-  }
+const Looool1 = () => {
+  // console.log("stuff22")
+  // const stuff = use(lolData())
+  const container = useContext(Ctx)
+  const stuff = use(container.items.four)
+  console.log("container lol1", container)
+  console.log("stuff lol1", stuff)
+  return (
+    <div>
+      Loool 1
+      <Looool2 />
+    </div>
+  )
 }
 
-const ErrorOne = () => {
-  const [x, err] = useItemSet((c) => [c.name, c.two, c.three])
-  console.log("~~~>", x, err)
-
-  return <div>Error</div>
+const x = lolData()
+const Looool2 = () => {
+  const stuff = use(x)
+  console.log("stuff2", stuff)
+  return <span>Looool2 {stuff}</span>
 }
 
-export const One = () => {
-  useEffect(() => {
-    main()
-  }, [])
-  const x = useMemo(() => container, [])
+const App = () => {
+  // const [itemSet, err] = useItemSet((c) => [c.four, c.five])
+  // if (itemSet == null) {
+  //   console.log("not ready LOL1 ", err)
+  //   return null
+  // }
+  // console.log("Render", itemSet.four, itemSet.five)
+  console.log("App")
+
+  return (
+    <div>
+      <h1>Two</h1>
+      <div>
+        <Looool1 />
+      </div>
+    </div>
+  )
+}
+
+export const Two = () => {
+  const x = useMemo(() => createApp(), [])
   return (
     <Ctx.Provider value={x}>
-      <ErrorOne />
+      <Suspense>
+        <App />
+      </Suspense>
     </Ctx.Provider>
   )
 }
