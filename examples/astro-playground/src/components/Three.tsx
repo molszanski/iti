@@ -1,60 +1,66 @@
-import React, { useMemo, use, Suspense, useContext } from "react"
+import React, { useMemo, Suspense } from "react"
 import { getItemSetHooks } from "iti-react"
-import { createApp, lolData } from "./two/bl"
+import { createApp } from "./two/bl"
+
+export const prerender = false
 
 const Ctx = React.createContext<ReturnType<typeof createApp>>({} as any)
 const hooks = getItemSetHooks(Ctx)
 const useItemSet = hooks.useItemSet
 const useItem = hooks.useItem
 
-const Looool1 = () => {
-  // console.log("stuff22")
-  // const stuff = use(lolData())
-  const container = useContext(Ctx)
-  const stuff = use(container.items.four)
-  console.log("container lol1", container)
-  console.log("stuff lol1", stuff)
+const ProcessedDataDisplay = () => {
+  const [itemSet, err] = useItemSet((c) => [c.processedData])
+  console.log("getting processedData", itemSet)
+
+  if (itemSet == null) {
+    console.log("ProcessedDataDisplay not ready", err)
+    return <div>Loading processed data...</div>
+  }
+
+  const { processedData } = itemSet
+  console.log("processedData", processedData)
+
   return (
     <div>
-      Loool 1
-      <Looool2 />
+      <h3>Processed Data (Derived from Server Data)</h3>
+      <h5>Message: {processedData.message}</h5>
+
+      <details>
+        <summary>Full Data</summary>
+        <pre>{JSON.stringify(processedData, null, 2)}</pre>
+      </details>
     </div>
   )
-}
-
-const x = lolData()
-const Looool2 = () => {
-  const stuff = use(x)
-  console.log("stuff2", stuff)
-  return <span>Looool2 {stuff}</span>
 }
 
 const App = () => {
-  // const [itemSet, err] = useItemSet((c) => [c.four, c.five])
-  // if (itemSet == null) {
-  //   console.log("not ready LOL1 ", err)
-  //   return null
-  // }
-  // console.log("Render", itemSet.four, itemSet.five)
-  console.log("App")
+  console.log(" ~~~> App Render")
 
   return (
     <div>
-      <h1>Two</h1>
-      <div>
-        <Looool1 />
-      </div>
+      <h1>Three - SSR Hydration Example</h1>
+      <ProcessedDataDisplay />
     </div>
   )
 }
 
-export const Three = () => {
-  const x = useMemo(() => createApp(), [])
+export type ThreeProps = {
+  hydrationData?: any
+}
+
+const StateWrapper = ({ hydrationData }: ThreeProps) => {
+  console.log("~~~> StateWrapper Render")
+  const x = useMemo(() => createApp(JSON.parse(hydrationData)), [hydrationData])
+  console.log("~~~> StateWrapper Render2")
   return (
     <Ctx.Provider value={x}>
-      <Suspense>
-        <App />
-      </Suspense>
+      <App />
     </Ctx.Provider>
   )
+}
+// We need this middle step because Astro rerenders the top component for some reason
+export const Three = ({ hydrationData }: ThreeProps) => {
+  console.log("~~~> Three Render")
+  return <StateWrapper hydrationData={hydrationData} />
 }
