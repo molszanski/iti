@@ -8,7 +8,7 @@ import { wait } from "./_utils"
 describe("Container set:", () => {
   it("should get two containers that are async", async () => {
     const cont = getMainMockAppContainer()
-    let containerSet = await cont.getContainerSet(["aCont", "bCont"])
+    let containerSet = await cont.getItems(["aCont", "bCont"])
 
     expect(containerSet).toHaveProperty("aCont")
     expect(containerSet).toHaveProperty("bCont")
@@ -19,7 +19,7 @@ describe("Container set:", () => {
 
   it("should subscribe to container set change", async () => {
     const cont = getMainMockAppContainer()
-    let containerSet = await cont.getContainerSet(["aCont", "bCont", "cCont"])
+    let containerSet = await cont.getItems(["aCont", "bCont", "cCont"])
 
     expect(containerSet).toHaveProperty("aCont")
     expect(containerSet).toHaveProperty("bCont")
@@ -39,7 +39,7 @@ describe("Container set:", () => {
 
   it("should get container set via a new API", async () => {
     const cont = getMainMockAppContainer()
-    let containerSet = await cont.getContainerSet((c) => [c.aCont, c.bCont])
+    let containerSet = await cont.getItems((c) => [c.aCont, c.bCont])
 
     expect(containerSet).toHaveProperty("aCont")
     expect(containerSet).toHaveProperty("bCont")
@@ -49,7 +49,7 @@ describe("Container set:", () => {
 
   it("should subscribe to container set change via a new APi", async () => {
     const cont = getMainMockAppContainer()
-    let containerSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
+    let containerSet = await cont.getItems((c) => [c.aCont, c.cCont])
     expect(containerSet).toHaveProperty("aCont")
 
     const a = vi.fn()
@@ -69,7 +69,7 @@ describe("Container set:", () => {
 
   it("should subscribe to container set change via a old APi", async () => {
     const cont = getMainMockAppContainer()
-    let containerSet = await cont.getContainerSet(["aCont", "cCont"])
+    let containerSet = await cont.getItems(["aCont", "cCont"])
     expect(containerSet).toHaveProperty("aCont")
 
     cont.subscribeToContainerSet(
@@ -87,7 +87,7 @@ describe("Container set:", () => {
 
   it("should be able to unsubscribe from container set change", async () => {
     const cont = getMainMockAppContainer()
-    let containerSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
+    let containerSet = await cont.getItems((c) => [c.aCont, c.cCont])
 
     const fn = vi.fn()
     const unsub = cont.subscribeToContainerSet(

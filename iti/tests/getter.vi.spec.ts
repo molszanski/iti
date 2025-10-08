@@ -356,7 +356,7 @@ describe("Node add", () => {
   }, 100)
 })
 
-describe("Node getContainerSet", () => {
+describe("Node getItems", () => {
   let root = createContainer()
   let node = mockNode()
   function mockNode() {
@@ -373,50 +373,42 @@ describe("Node getContainerSet", () => {
   })
 
   it("should get container set based of primitive values", async () => {
-    await expect(node.getContainerSet(["a", "b"])).resolves.toMatchObject({
+    await expect(node.getItems(["a", "b"])).resolves.toMatchObject({
       a: "A",
       b: "B",
     })
-    await expect(
-      node.getContainerSet((c) => [c.a, c.b]),
-    ).resolves.toMatchObject({
+    await expect(node.getItems((c) => [c.a, c.b])).resolves.toMatchObject({
       a: "A",
       b: "B",
     })
   })
 
   it("should get container set of only resolved promises", async () => {
-    await expect(node.getContainerSet(["c", "d"])).resolves.toMatchObject({
+    await expect(node.getItems(["c", "d"])).resolves.toMatchObject({
       c: "C",
       d: "D",
     })
 
-    await expect(
-      node.getContainerSet((c) => [c.c, c.d]),
-    ).resolves.toMatchObject({
+    await expect(node.getItems((c) => [c.c, c.d])).resolves.toMatchObject({
       c: "C",
       d: "D",
     })
   })
 
   it("should get container set based literals and resolved promises", async () => {
-    await expect(node.getContainerSet(["a", "c"])).resolves.toMatchObject({
+    await expect(node.getItems(["a", "c"])).resolves.toMatchObject({
       a: "A",
       c: "C",
     })
 
-    await expect(
-      node.getContainerSet((c) => [c.a, c.c]),
-    ).resolves.toMatchObject({
+    await expect(node.getItems((c) => [c.a, c.c])).resolves.toMatchObject({
       a: "A",
       c: "C",
     })
   })
 
   it("should get container set via callback API", async () => {
-    await expect(
-      node.getContainerSet((c) => [c.a, c.c]),
-    ).resolves.toMatchObject({
+    await expect(node.getItems((c) => [c.a, c.c])).resolves.toMatchObject({
       a: "A",
       c: "C",
     })

@@ -38,19 +38,19 @@ export const PizzaData = () => {
 
 ## API documentation React
 
-### `getContainerSetHooks`
+### `getContainerHooks`
 
 Generates a set of app specific container hooks
 
 ```ts
 // my-app-hooks.ts
 import React, { useContext } from "react"
-import { getContainerSetHooks } from "iti-react"
+import { getContainerHooks } from "iti-react"
 import { getProviders, PizzaAppContainer } from "./_root.store"
 
 export const MyRootCont = React.createContext(<PizzaAppContainer>{})
 
-let mega = getContainerSetHooks(getProviders, MyRootCont)
+let mega = getContainerHooks(getProviders, MyRootCont)
 export const useContainerSet = mega.useContainerSet
 ```
 

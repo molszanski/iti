@@ -29,8 +29,8 @@ await node.items.kitchen // same as above
 node.delete("kitchen")
 
 // Get multiple instances at once
-await root.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
-await root.getContainerSet((c) => [c.userManual, c.oven]) // same as above
+await root.getItems(["oven", "userManual"]) // { userManual: '...', oven: Oven }
+await root.getItems((c) => [c.userManual, c.oven]) // same as above
 
 // Subscribe to container changes
 node.subscribeToContainer("oven", (oven) => {})

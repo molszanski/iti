@@ -82,7 +82,7 @@ describe("Node.get()", () => {
     }
   })
 
-  it("should handle async errors with for getContainerSet", async () => {
+  it("should handle async errors with for getItems", async () => {
     const node = c0
       .add({
         optimus: async () => "prime",
@@ -97,7 +97,7 @@ describe("Node.get()", () => {
       }))
 
     try {
-      await node.getContainerSet(["optimus", "decepticons"])
+      await node.getItems(["optimus", "decepticons"])
     } catch (e) {
       expect(e).toBe("all hail megatron")
     }

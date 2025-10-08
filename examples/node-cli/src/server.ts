@@ -30,7 +30,7 @@ const kitchenContainer = async ({ oven, userManual }) => {
 // Step 4: Add an async provider
 const node = root.add((ctx, node) => ({
   kitchen: async () =>
-    kitchenContainer(await node.getContainerSet(["userManual", "oven"])),
+    kitchenContainer(await node.getItems(["userManual", "oven"])),
 }))
 await node.get("kitchen")
 
@@ -48,8 +48,8 @@ await node.get("kitchen") // { kitchen: Kitchen } also cached
 await node.items.kitchen // same as above
 
 // Get multiple instances at once
-await root.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
-await root.getContainerSet((c) => [c.userManual, c.oven]) // same as above
+await root.getItems(["oven", "userManual"]) // { userManual: '...', oven: Oven }
+await root.getItems((c) => [c.userManual, c.oven]) // same as above
 
 // Subscribe to container changes
 node.subscribeToContainer("oven", (oven) => {})

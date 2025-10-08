@@ -33,9 +33,9 @@ describe("Type tests:", () => {
     attest.instantiations([2605, "instantiations"])
   })
 
-  it("should check getContainerSet types", async () => {
+  it("should check getItems types", async () => {
     const cont = getMainMockAppContainer()
-    const itemSet = await cont.getContainerSet(["aCont", "bCont"])
+    const itemSet = await cont.getItems(["aCont", "bCont"])
 
     attest<A_Container>(itemSet.aCont)
     attest<B_Container>(itemSet.bCont)
@@ -46,9 +46,9 @@ describe("Type tests:", () => {
     attest.instantiations([2768, "instantiations"])
   })
 
-  it("should check getContainerSet function types", async () => {
+  it("should check getItems function types", async () => {
     const cont = getMainMockAppContainer()
-    const itemSet = await cont.getContainerSet((c) => [c.aCont, c.bCont])
+    const itemSet = await cont.getItems((c) => [c.aCont, c.bCont])
     attest<A_Container>(itemSet.aCont)
     attest<B_Container>(itemSet.bCont)
     attest<{
@@ -59,8 +59,8 @@ describe("Type tests:", () => {
     attest.instantiations([2811, "instantiations"])
   })
 
-  it("should check getContainerSet cb has proper tokens", () => {
-    getMainMockAppContainer().getContainerSet((c) => {
+  it("should check getItems cb has proper tokens", () => {
+    getMainMockAppContainer().getItems((c) => {
       attest<MockTokens>(c)
       return [c.aCont]
     })
@@ -70,7 +70,7 @@ describe("Type tests:", () => {
   it("should have subscribeToContainerSet types valid", async () => {
     const cont = getMainMockAppContainer()
     const a = vi.fn()
-    let itemSet = await cont.getContainerSet((c) => [c.aCont, c.cCont])
+    let itemSet = await cont.getItems((c) => [c.aCont, c.cCont])
     expect(itemSet).toHaveProperty("aCont")
 
     // WARNING!!

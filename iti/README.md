@@ -102,8 +102,8 @@ await container.get("kitchen") // { kitchen: Kitchen } also cached
 await container.items.kitchen // same as above
 
 // Get multiple instances at once
-await container.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
-await container.getContainerSet((c) => [c.userManual, c.oven]) // same as above
+await container.getItems(["oven", "userManual"]) // { userManual: '...', oven: Oven }
+await container.getItems((c) => [c.userManual, c.oven]) // same as above
 
 // Plain deletion
 container.delete("kitchen")
@@ -112,7 +112,7 @@ container.delete("kitchen")
 container.subscribeToContainer("oven", (oven) => {})
 container.subscribeToContainerSet(
   ["oven", "kitchen"],
-  ({ oven, kitchen }) => {},
+  ({ oven, kitchen }) => {}
 )
 // prettier-ignore
 container.subscribeToContainerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
