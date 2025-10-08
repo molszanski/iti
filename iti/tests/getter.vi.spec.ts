@@ -6,27 +6,27 @@ import { provideAContainer } from "./mocks/container.a"
 import { provideBContainer } from "./mocks/container.b"
 
 describe("Node long chain async", () => {
-  let root = createContainer()
+  let cont0 = createContainer()
 
   beforeEach(() => {
-    root = createContainer()
+    cont0 = createContainer()
   })
 
   it("should test long chain", async () => {
-    let r = root
+    let r = cont0
       .add({ a: "A" })
       .add({ k: "K" })
-      .upsert((c, node) => ({
+      .upsert((c, cont) => ({
         a: 22,
         c: async () => {
           expect(c.a).toBe(22)
           return "C"
         },
       }))
-      .upsert((c, node) => ({
+      .upsert((c, cont) => ({
         b: "B",
         c: async () => {
-          expect(node.get("a")).toBe(22)
+          expect(cont.get("a")).toBe(22)
           return "C"
         },
       }))
@@ -44,7 +44,7 @@ describe("Node long chain async", () => {
   }, 100)
 
   it("should test if I can overwrite token", async () => {
-    let r = root.add({ a: "A", b: "B" })
+    let r = cont0.add({ a: "A", b: "B" })
     expect(r.get("a")).toBe("A") // Stores in cache
 
     let n = r.upsert({ a: 22 })
@@ -53,7 +53,7 @@ describe("Node long chain async", () => {
   })
 
   it("should test if I can overwrite token without sealing", async () => {
-    let r = root.add({ a: "A", b: "B" })
+    let r = cont0.add({ a: "A", b: "B" })
     expect(await r.get("a")).toBe("A") // Stores in cache
 
     let n = r.upsert({ a: 22 })
@@ -63,13 +63,17 @@ describe("Node long chain async", () => {
 
   it("should send containerUpdated event on overwrite", async () => {
     const cb = vi.fn()
-    root.on("containerUpdated", (k) => {
+    cont0.on("containerUpdated", (k) => {
       expect(k.key).toBe("a")
       expect(k.newContainer).toBe(22)
+    })
+    cont0.on("itemUpdated", (k) => {
+      expect(k.key).toBe("a")
+      expect(k.newItem).toBe(22)
       cb()
     })
 
-    let r = root.add({ a: "A", b: "B" })
+    let r = cont0.add({ a: "A", b: "B" })
     expect(await r.get("a")).toBe("A") // Stores in cache
 
     let n = r.upsert({ a: 22 })
@@ -79,10 +83,10 @@ describe("Node long chain async", () => {
     expect(cb).toHaveBeenCalledTimes(1)
   })
 
-  it("should test if I can overwrite token and request it inside node", async () => {
+  it("should test if I can overwrite token and request it inside cont", async () => {
     const sub = vi.fn()
-    root.on("containerUpdated", sub)
-    let r = root
+    cont0.on("containerUpdated", sub)
+    let r = cont0
       .add({ a: "A" })
       .upsert((c) => {
         expect(c.a).toBe("A")
@@ -101,7 +105,7 @@ describe("Node long chain async", () => {
   }, 100)
 })
 
-describe("Node subscribeToContainer", () => {
+describe("Node subscribeToItem", () => {
   let root: ReturnType<typeof createContainer>
 
   beforeEach(() => {
@@ -110,33 +114,33 @@ describe("Node subscribeToContainer", () => {
 
   it("should subscribe to async container creation", async () => {
     const cb = vi.fn()
-    const node = root.add(() => ({
+    const cont = root.add(() => ({
       a: async () => "A",
       b: async () => "B",
     }))
-    node.subscribeToContainer("a", async (err, container) => {
+    cont.subscribeToItem("a", async (err, container) => {
       expect(await container).toBe("A")
       cb()
     })
-    await node.get("a")
+    await cont.get("a")
     await wait(5)
     expect(cb).toHaveBeenCalledTimes(1)
   })
   it("should handle err on subscribes well ", async () => {
-    const node = root.add(() => ({
+    const cont = root.add(() => ({
       a: async () => "A",
       b: async () => {
         throw "B"
       },
     }))
 
-    node.subscribeToContainer("b", async (err, container) => {
+    cont.subscribeToItem("b", async (err, container) => {
       if (err) {
         expect(err).toBe("B")
       }
     })
     const cb = vi.fn()
-    node
+    cont
       .get("b")
       .then(() => {})
       .catch((e) => {
@@ -147,25 +151,25 @@ describe("Node subscribeToContainer", () => {
     expect(cb).toHaveBeenCalledTimes(1)
   })
 
-  it("should not fire an event on a sync node", async () => {
-    const node = root.add({
+  it("should not fire an event on a sync cont", async () => {
+    const cont = root.add({
       a: async () => "A",
       b: "B",
     })
     const f1 = vi.fn()
     const f2 = vi.fn()
-    node.subscribeToContainer("a", f1)
+    cont.subscribeToItem("a", f1)
 
-    await node.get("a")
-    node.get("b")
-    node.subscribeToContainer("b", f2)
+    await cont.get("a")
+    cont.get("b")
+    cont.subscribeToItem("b", f2)
 
     expect(f1).toBeCalled()
     expect(f2).not.toBeCalled()
   })
 
-  it("should handle err on subscribeToContainerSet", async () => {
-    const node = root
+  it("should handle err on subscribeToItems", async () => {
+    const cont = root
       .add(() => ({
         a: async () => "A",
         b: "B",
@@ -176,15 +180,15 @@ describe("Node subscribeToContainer", () => {
         },
       }))
     const f3 = vi.fn()
-    node.subscribeToContainerSet(["a", "c"], (err, containers) => {
+    cont.subscribeToItems(["a", "c"], (err, containers) => {
       if (err) {
         expect(err).toBe("C")
       }
     })
-    node.subscribeToContainerSet((c) => [c.a, c.c], f3)
+    cont.subscribeToItems((c) => [c.a, c.c], f3)
 
     try {
-      await node.get("c")
+      await cont.get("c")
     } catch (e) {
       expect(e).toBe("C")
       await wait(15)
@@ -192,7 +196,7 @@ describe("Node subscribeToContainer", () => {
   })
 
   it("should use containerSet to subscribe to events", async () => {
-    const node = root
+    const cont = root
       .add(() => ({
         a: async () => "A",
         b: "B",
@@ -201,23 +205,23 @@ describe("Node subscribeToContainer", () => {
         c: async () => "C",
         d: "D",
       }))
-    // await node.get("a")
+    // await cont.get("a")
     const f1 = vi.fn()
     const f2 = vi.fn()
     const f3 = vi.fn()
     const f4 = vi.fn()
 
-    node.subscribeToContainerSet(["a", "c"], f1)
-    node.subscribeToContainerSet(["c", "d"], f2)
+    cont.subscribeToItems(["a", "c"], f1)
+    cont.subscribeToItems(["c", "d"], f2)
     // TODO: Warning, if called before seal, this will fail
-    node.subscribeToContainerSet((c) => [c.a, c.c], f3)
-    node.subscribeToContainerSet((c) => [c.c, c.d], f4)
-    await node.get("c")
-    await node.get("c")
-    await node.get("c")
-    await node.get("b")
-    await node.get("a")
-    // await node.get((c) => c.a)
+    cont.subscribeToItems((c) => [c.a, c.c], f3)
+    cont.subscribeToItems((c) => [c.c, c.d], f4)
+    await cont.get("c")
+    await cont.get("c")
+    await cont.get("c")
+    await cont.get("b")
+    await cont.get("a")
+    // await cont.get((c) => c.a)
     /**
      * 2 because we have subscribed to two container, and this will provide us
      * with two of those, hence two updates because two creations
@@ -238,13 +242,13 @@ describe("Node getter", () => {
   })
 
   it("should get nested containers", async () => {
-    const node1 = root.add({
+    const cont1 = root.add({
       aCont: async () => provideAContainer(),
     })
-    const node2 = node1.add({
-      bCont: async () => provideBContainer(await node1.get("aCont")),
+    const cont2 = cont1.add({
+      bCont: async () => provideBContainer(await cont1.get("aCont")),
     })
-    const containers = node2.items
+    const containers = cont2.items
 
     expect(containers).toHaveProperty("bCont")
     expect(containers.aCont).toBeInstanceOf(Promise)
@@ -257,7 +261,7 @@ describe("Node getter", () => {
 
 describe("Node add", () => {
   let root: ReturnType<typeof createContainer>
-  let node: ReturnType<typeof mockNode>
+  let cont: ReturnType<typeof mockNode>
 
   function mockNode() {
     return createContainer().add({
@@ -269,17 +273,17 @@ describe("Node add", () => {
   }
   beforeEach(() => {
     root = createContainer()
-    node = mockNode()
+    cont = mockNode()
   })
 
-  it("should be able to chain multiple nodes", async () => {
+  it("should be able to chain multiple conts", async () => {
     let r = root.add({ a: "A" }).add({ b: "B" }).add({ c: "C" }).add({ d: "D" })
 
     expect(r.get("a")).toBe("A")
     expect(r.get("c")).toBe("C")
   })
 
-  it("should accept callback function that provides current node", async () => {
+  it("should accept callback function that provides current cont", async () => {
     let r = await root
       .add({ a: "A" })
       .add({ k: "A" })
@@ -287,14 +291,14 @@ describe("Node add", () => {
         expect(containers.a).toBe("A")
         return { b: "B", c: "C" }
       })
-      .add((containers, node) => {
-        expect(node.get("b")).toBe("B")
+      .add((containers, cont) => {
+        expect(cont.get("b")).toBe("B")
         return { f: "F", g: "G" }
       })
     expect(r.get("f")).toBe("F")
   })
 
-  it("should be able to add node in safe way", () => {
+  it("should be able to add cont in safe way", () => {
     let n = root.add({ a: "A", b: "B", c: "C" })
 
     expect(() => {
@@ -303,14 +307,14 @@ describe("Node add", () => {
     }).toThrow()
   })
 
-  it("should be able to add an async node", async () => {
+  it("should be able to add an async cont", async () => {
     // We need to test if typescript throws a type error here
     enum UniqueResult {
       A,
       B,
       F,
     }
-    let node = await root
+    let cont = await root
       .add({
         a: UniqueResult.A,
         b: () => UniqueResult.B,
@@ -319,14 +323,14 @@ describe("Node add", () => {
         f: async () => UniqueResult.F,
       }))
 
-    await expect(node.get("f")).resolves.toBe(UniqueResult.F)
+    await expect(cont.get("f")).resolves.toBe(UniqueResult.F)
     // @ts-expect-error
-    let a: UniqueResult.A = await node.get("f")
+    let a: UniqueResult.A = await cont.get("f")
     await wait(5)
   })
 
-  it("should handle a node with out of order execution", async () => {
-    let node = root
+  it("should handle a cont with out of order execution", async () => {
+    let cont = root
       .add((c) => {
         return {
           a: () => "A",
@@ -338,23 +342,23 @@ describe("Node add", () => {
           c: () => "C",
         }
       })
-      .add((c, node) => {
+      .add((c, cont) => {
         return {
           d: () => "D",
-          cd: () => node.get("c") + "D",
+          cd: () => cont.get("c") + "D",
         }
       })
 
-    let r = node.get("a") + node.get("c") + node.get("d")
+    let r = cont.get("a") + cont.get("c") + cont.get("d")
     expect(r).toBe("ACD")
-    let r2 = node.get("b") + node.get("cd")
+    let r2 = cont.get("b") + cont.get("cd")
     expect(r2).toBe("BCD")
   }, 100)
 })
 
-describe("Node getContainerSet", () => {
+describe("Node getItems", () => {
   let root = createContainer()
-  let node = mockNode()
+  let cont = mockNode()
   function mockNode() {
     return createContainer().add({
       a: "A",
@@ -365,54 +369,46 @@ describe("Node getContainerSet", () => {
   }
   beforeEach(() => {
     root = createContainer()
-    node = mockNode()
+    cont = mockNode()
   })
 
   it("should get container set based of primitive values", async () => {
-    await expect(node.getContainerSet(["a", "b"])).resolves.toMatchObject({
+    await expect(cont.getItems(["a", "b"])).resolves.toMatchObject({
       a: "A",
       b: "B",
     })
-    await expect(
-      node.getContainerSet((c) => [c.a, c.b]),
-    ).resolves.toMatchObject({
+    await expect(cont.getItems((c) => [c.a, c.b])).resolves.toMatchObject({
       a: "A",
       b: "B",
     })
   })
 
   it("should get container set of only resolved promises", async () => {
-    await expect(node.getContainerSet(["c", "d"])).resolves.toMatchObject({
+    await expect(cont.getItems(["c", "d"])).resolves.toMatchObject({
       c: "C",
       d: "D",
     })
 
-    await expect(
-      node.getContainerSet((c) => [c.c, c.d]),
-    ).resolves.toMatchObject({
+    await expect(cont.getItems((c) => [c.c, c.d])).resolves.toMatchObject({
       c: "C",
       d: "D",
     })
   })
 
   it("should get container set based literals and resolved promises", async () => {
-    await expect(node.getContainerSet(["a", "c"])).resolves.toMatchObject({
+    await expect(cont.getItems(["a", "c"])).resolves.toMatchObject({
       a: "A",
       c: "C",
     })
 
-    await expect(
-      node.getContainerSet((c) => [c.a, c.c]),
-    ).resolves.toMatchObject({
+    await expect(cont.getItems((c) => [c.a, c.c])).resolves.toMatchObject({
       a: "A",
       c: "C",
     })
   })
 
   it("should get container set via callback API", async () => {
-    await expect(
-      node.getContainerSet((c) => [c.a, c.c]),
-    ).resolves.toMatchObject({
+    await expect(cont.getItems((c) => [c.a, c.c])).resolves.toMatchObject({
       a: "A",
       c: "C",
     })

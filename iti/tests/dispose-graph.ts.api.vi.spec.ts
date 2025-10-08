@@ -60,7 +60,7 @@ describe("Disposing graph: [warning, this should never be implemented]", () => {
     const dis = (token: string) => disposeLog.push(token)
 
     const dDisposer = vi.fn()
-    const node = root.addDisposer((ctx, node) => ({
+    const cont = root.addDisposer((ctx, cont) => ({
       a: () => dis("a"),
       b: () => dis("b"),
       c: () => dis("c"),
@@ -73,8 +73,8 @@ describe("Disposing graph: [warning, this should never be implemented]", () => {
       },
     }))
 
-    const d = node.get("d")
-    node.dispose("d")
+    const d = cont.get("d")
+    cont.dispose("d")
 
     expect(d).toBeInstanceOf(D)
     await wait(10)

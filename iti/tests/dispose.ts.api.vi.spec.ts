@@ -103,41 +103,41 @@ describe("Disposing: ", () => {
 describe("Individual disposing: ", () => {
   let root = createContainer()
   let disposerOfA = vi.fn()
-  let node = root.add({ a: "A" }).addDisposer({ a: disposerOfA })
+  let cont = root.add({ a: "A" }).addDisposer({ a: disposerOfA })
 
   beforeEach(() => {
     disposerOfA.mockReset()
     root = createContainer()
-    node = root.add({ a: "A" }).addDisposer({ a: disposerOfA })
+    cont = root.add({ a: "A" }).addDisposer({ a: disposerOfA })
   })
 
   it("should dispose a resolved value call a never resolved object", async () => {
-    node.get("a")
-    await node.dispose("a")
+    cont.get("a")
+    await cont.dispose("a")
     expect(disposerOfA).toHaveBeenCalledTimes(1)
   })
 
   it("should not call a never resolved object", async () => {
-    await node.dispose("a")
+    await cont.dispose("a")
     expect(disposerOfA).toHaveBeenCalledTimes(0)
   })
 
   it("should not call dispose on already disposed object", async () => {
-    node.get("a")
-    await node.dispose("a")
-    await node.dispose("a")
+    cont.get("a")
+    await cont.dispose("a")
+    await cont.dispose("a")
 
     expect(disposerOfA).toHaveBeenCalledTimes(1)
   })
 
   it("should emit a dispose event when disposed", () => {
     return new Promise(async (resolve) => {
-      node.get("a")
-      node.on("containerDisposed", (payload) => {
+      cont.get("a")
+      cont.on("containerDisposed", (payload) => {
         expect(payload.key).toBe("a")
         resolve(true)
       })
-      node.dispose("a")
+      cont.dispose("a")
     })
   })
 })
@@ -164,7 +164,7 @@ describe("Disposing complex async: ", () => {
 
   it("should call async dispose with correct instances and correct times", async () => {
     const disposerDb = vi.fn()
-    const node = createContainer()
+    const cont = createContainer()
       .add({
         db: () => new DB(),
       })
@@ -177,9 +177,9 @@ describe("Disposing complex async: ", () => {
         },
       }))
 
-    node.get("db")
-    await node.dispose("db")
-    await node.dispose("db")
+    cont.get("db")
+    await cont.dispose("db")
+    await cont.dispose("db")
 
     expect(disposerDb).toHaveBeenCalledTimes(1)
   })

@@ -11,12 +11,12 @@ export interface KitchenUpgrader {
 }
 
 export async function provideKitchenManipulatorContainer(
-  node: PizzaAppCoreContainer,
+  cont: PizzaAppCoreContainer,
 ): Promise<KitchenManipulator_Container> {
   let ksc = new KitchenSizeUIController({
     onKitchenResize: async () => {
-      const currentKitchen = await node.items.kitchen
-      return await node.upsert({
+      const currentKitchen = await cont.items.kitchen
+      return await cont.upsert({
         kitchen: () => provideUpgradedKitchenContainer(currentKitchen),
       })
     },

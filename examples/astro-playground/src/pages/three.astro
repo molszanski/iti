@@ -1,0 +1,52 @@
+---
+import { Three as ThreeComponent } from "../components/Three"
+import Layout from "../layouts/Layout.astro"
+import { createApp } from "../components/two/bl"
+
+console.log("[SERVER] Fetching data for hydration...")
+const serverContainer = createApp()
+
+const data = await serverContainer.getItems((c) => [c.four, c.processedData])
+console.log("[SERVER] Fetched items:", data)
+const hydrationData = JSON.stringify(data)
+---
+
+<Layout>
+  <main>
+    <div>
+      <h2>SSR/Hydration Flow Demo</h2>
+      <p>This page demonstrates:</p>
+      <ol>
+        <li>Server fetches data during SSR</li>
+        <li>Data is serialized to JSON</li>
+        <li>Client receives and hydrates the container with server data</li>
+      </ol>
+      <hr />
+      <ThreeComponent client:load hydrationData={hydrationData} />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  html {
+    color-scheme: light dark;
+  }
+
+  body {
+    font-family: system-ui;
+    font-size: 1.25rem;
+    line-height: 1.5;
+  }
+
+  img,
+  svg,
+  video {
+    max-width: 100%;
+    display: block;
+  }
+
+  main {
+    max-width: min(70ch, 100% - 4rem);
+    margin-inline: auto;
+  }
+</style>

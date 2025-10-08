@@ -23,7 +23,7 @@ describe("Getter tests", () => {
     expect(cont.items.aCont).toBeInstanceOf(Promise)
 
     let m = vi.fn()
-    cont.subscribeToContainer("cCont", m)
+    cont.subscribeToItem("cCont", m)
     let cCont = await cont.get("cCont")
     cCont.upgradeCContainer()
 

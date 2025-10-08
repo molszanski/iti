@@ -15,7 +15,7 @@ import {
 import { ItiResolveError, ItiTokenError } from "./errors.js"
 import type { Intersection } from "utility-types"
 
-abstract class AbstractNode<Context extends {}> {
+abstract class AbstractContainer<Context extends {}> {
   public abstract get<T extends keyof Context>(
     token: T,
   ): UnpackFunction<Context[T]>
@@ -28,13 +28,27 @@ type Events<Context> = {
   containerUpdated: (payload: {
     key: keyof Context
     newContainer: Context[keyof Context]
+    newItem: Context[keyof Context]
   }) => void
   containerUpserted: (payload: {
     key: keyof Context
     newContainer: Context[keyof Context] | null
+    newItem: Context[keyof Context] | null
   }) => void
   containerDeleted: (payload: { key: keyof Context }) => void
   containerDisposed: (payload: { key: keyof Context }) => void
+
+  // Used only in tests for now
+  itemUpdated: (payload: {
+    key: keyof Context
+    newItem: Context[keyof Context] | null
+  }) => void
+  itemUpserted: (payload: {
+    key: keyof Context
+    newItem: Context[keyof Context] | null
+  }) => void
+  itemDeleted: (payload: { key: keyof Context }) => void
+  itemDisposed: (payload: { key: keyof Context }) => void
 
   // Older events
   // containerCreated: (payload: {
@@ -45,14 +59,15 @@ type Events<Context> = {
   // containerRequested: (payload: { key: keyof Context }) => void
 }
 
-class Node<
+class InternalContainer<
   Context extends {},
   DisposeContext extends {},
-> extends AbstractNode<Context> {
+> extends AbstractContainer<Context> {
   /**
    * When we create a new class instance or function, we cache the output
    */
   private _cache: { [K in keyof Context]?: any } = {}
+  private _cacheSync: { [K in keyof Context]?: any } = {}
 
   /**
    * Holds key:value factories in a form token:factory
@@ -78,7 +93,41 @@ class Node<
   constructor() {
     super()
     this.ee = createNanoEvents<Events<Context>>()
+    this.subscribeToContainer = this.subscribeToItem.bind(this)
   }
+
+  protected _storeInSyncCache(token: keyof Context, v: any) {
+    this._cacheSync[token] = v
+  }
+  protected _storeInCache(token: keyof Context, v: any) {
+    this._cache[token] = v
+
+    if (v instanceof Promise) {
+      v.then((resolvedValue) => {
+        this._storeInSyncCache(token, resolvedValue)
+      }).catch((err) => {
+        // we should't do anything with an error here
+        // because this is our internal cache
+        // in userspace he will get __another__ throw error
+      })
+    }
+
+    /**
+     * Not remember why this is here.
+     * I think to indicate when we create an instance
+     * or cache a function result
+     */
+    this.ee.emit("containerUpserted", {
+      key: token,
+      newContainer: v,
+      newItem: v,
+    })
+    this.ee.emit("itemUpserted", {
+      key: token,
+      newItem: v,
+    })
+  }
+
   public get<SearchToken extends keyof Context>(
     token: SearchToken,
   ): UnpackFunction<Context[SearchToken]> {
@@ -92,31 +141,35 @@ class Node<
         return cachedValue
       }
 
-      const storeInCache = (token: SearchToken, v: any) => {
-        this._cache[token] = v
-
-        /**
-         * Not remember why this is here.
-         * I think to indicate when we create an instance
-         * or cache a function result
-         */
-        this.ee.emit("containerUpserted", {
-          key: token,
-          newContainer: v,
-        })
-      }
-
       // Case 2: If this token is a function we must launch and cache it
       const tokenValue = this._context[token]
       if (typeof tokenValue === "function") {
         const providedValue = tokenValue()
-        storeInCache(token, providedValue)
+        this._storeInCache(token, providedValue)
         return providedValue
       }
 
       // Case 3: This is a simple literal so we just send it
-      storeInCache(token, tokenValue) // We store it send events too
+      this._storeInCache(token, tokenValue) // We store it send events too
       return tokenValue as any
+    }
+
+    throw new ItiResolveError(`Can't find token '${String(token)}' value`)
+  }
+
+  public getSync<SearchToken extends keyof Context>(
+    token: SearchToken,
+  ): UnpackFunction<Context[SearchToken]> {
+    /**
+     * FLOW A: We have this is in a current context
+     */
+    if (token in this._context) {
+      if (token in this._cacheSync) {
+        const cachedValue = this._cacheSync[token]
+        return cachedValue
+      } else {
+        return this.get(token)
+      }
     }
 
     throw new ItiResolveError(`Can't find token '${String(token)}' value`)
@@ -132,6 +185,9 @@ class Node<
     delete this._disposeCtx[token]
 
     this.ee.emit("containerDeleted", {
+      key: token as any,
+    })
+    this.ee.emit("itemDeleted", {
       key: token as any,
     })
 
@@ -157,6 +213,7 @@ class Node<
       const cleanup = () => {
         delete this._cache[token]
         this.ee.emit("containerDisposed", { key: token })
+        this.ee.emit("itemDisposed", { key: token })
       }
       if (disposeResult instanceof Promise) {
         disposeResult.then(cleanup)
@@ -189,6 +246,11 @@ class Node<
         this.ee.emit("containerUpdated", {
           key: token as any,
           newContainer: value as any,
+          newItem: value as any,
+        })
+        this.ee.emit("itemUpdated", {
+          key: token as any,
+          newItem: value as any,
         })
       }
       // Save state and clear cache
@@ -197,15 +259,20 @@ class Node<
       this.ee.emit("containerUpserted", {
         key: token as any,
         newContainer: value,
+        newItem: value,
+      } as any)
+      this.ee.emit("itemUpserted", {
+        key: token as any,
+        newItem: value,
       } as any)
     }
   }
 
-  public subscribeToContainer<T extends keyof Context>(
+  public subscribeToItem<T extends keyof Context>(
     token: T,
     cb: (err: any, container: UnpackFunction<Context[T]>) => void,
   ): () => void {
-    const upsertUnsubscribe = this.ee.on("containerUpserted", async (ev) => {
+    const upsertUnsubscribe = this.ee.on("itemUpserted", async (ev) => {
       if (token === ev.key) {
         try {
           const data = await this.get(token)
@@ -215,9 +282,9 @@ class Node<
         }
       }
     })
-    const deleteUnsubscribe = this.ee.on("containerDeleted", async (ev) => {
+    const deleteUnsubscribe = this.ee.on("itemDeleted", async (ev) => {
       if (token === ev.key) {
-        cb({ containerRemoved: token }, undefined as any)
+        cb({ containerRemoved: token, itemRemoved: token }, undefined as any)
       }
     })
     return () => {
@@ -225,6 +292,14 @@ class Node<
       deleteUnsubscribe()
     }
   }
+
+  /**
+   * @deprecated Use `subscribeToItem` instead. This method will be removed in a future version.
+   */
+  public subscribeToContainer: <T extends keyof Context>(
+    token: T,
+    cb: (err: any, container: UnpackFunction<Context[T]>) => void,
+  ) => () => void
 
   public getTokens(): {
     [T in keyof Context]: T
@@ -239,9 +314,11 @@ class Node<
 export class Container<
   Context extends {},
   DisposeContext extends {},
-> extends Node<Context, DisposeContext> {
+> extends InternalContainer<Context, DisposeContext> {
   constructor() {
     super()
+    this.getContainerSet = this.getItems.bind(this)
+    this.subscribeToContainerSet = this.subscribeToItems.bind(this)
   }
 
   // SAVE: NewContext extends {! [T in keyof NewContext]: NewContext[T] }
@@ -336,29 +413,29 @@ export class Container<
     }
   }
 
-  public subscribeToContainerSet<T extends keyof Context>(
-    tokensOrCb: KeysOrCb<Context>,
+  public subscribeToItems<T extends (keyof Context)[]>(
+    tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
     cb: (
       err: any,
       container: {
-        [K in T]: FullyUnpackObject<Context>[K]
+        [K in T[number]]: FullyUnpackObject<Context>[K]
       },
     ) => void,
   ): () => void {
     let tokens = this._extractTokens(tokensOrCb)
-    const upsertUnsubscribe = this.ee.on("containerUpserted", async (ev) => {
+    const upsertUnsubscribe = this.ee.on("itemUpserted", async (ev) => {
       if (tokens.includes(ev.key)) {
         try {
-          const cSet = await this.getContainerSet(tokens)
+          const cSet = await this.getItems(tokens)
           cb(null, cSet)
         } catch (err) {
           cb(err, undefined as any)
         }
       }
     })
-    const deleteUnsubscribe = this.ee.on("containerDeleted", async (ev) => {
+    const deleteUnsubscribe = this.ee.on("itemDeleted", async (ev) => {
       if (tokens.includes(ev.key)) {
-        cb({ containerRemoved: ev.key }, undefined as any)
+        cb({ containerRemoved: ev.key, itemRemoved: ev.key }, undefined as any)
       }
     })
     return () => {
@@ -367,12 +444,47 @@ export class Container<
     }
   }
 
-  // this can be optimized
-  public async getContainerSet<T extends keyof Context>(
+  public getItemsSync<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,
-  ) {
+  ):
+    | Promise<{
+        [K in T]: FullyUnpackObject<Context>[K]
+      }>
+    | {
+        [K in T]: FullyUnpackObject<Context>[K]
+      } {
     let tokens: T[] = this._extractTokens(tokensOrCb)
-    let promiseTokens: T[] = []
+
+    let itemDecoratedMap = {} as any
+
+    // Step 1: Assign all values
+    let hasAnyPromise = false
+    tokens.forEach((token) => {
+      const value = this.getSync(token)
+      itemDecoratedMap[token as any] = value
+      if (value instanceof Promise) {
+        hasAnyPromise = true
+      }
+    })
+
+    if (hasAnyPromise) {
+      return this.getItems(tokensOrCb)
+    }
+
+    return itemDecoratedMap
+  }
+
+  /**
+   * Gets multiple items from the container by their tokens.
+   * Handles both synchronous and asynchronous values properly.
+   */
+  public async getItems<T extends (keyof Context)[]>(
+    tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
+  ): Promise<{
+    [K in T[number]]: FullyUnpackObject<Context>[K]
+  }> {
+    let tokens: T = this._extractTokens(tokensOrCb) as any
+    let promiseTokens: any = []
     let allPromises: any = []
     for (let token of tokens) {
       if (this.items[token] instanceof Promise) {
@@ -381,22 +493,32 @@ export class Container<
       }
     }
 
-    let containerDecoratedMap: {
-      [K in T]: FullyUnpackObject<Context>[K]
+    let itemDecoratedMap: {
+      [K in T[number]]: FullyUnpackObject<Context>[K]
     } = {} as any
 
     // Step 1: Assign all values
     tokens.forEach((token) => {
-      containerDecoratedMap[token as any] = this.items[token]
+      itemDecoratedMap[token as any] = this.items[token]
     })
 
     // Step 2: Overwrite Promise like values with promise results
     const rez = await Promise.all(allPromises)
     promiseTokens.forEach((token, index) => {
-      containerDecoratedMap[token] = rez[index]
+      itemDecoratedMap[token] = rez[index]
     })
 
-    return containerDecoratedMap
+    return itemDecoratedMap
+  }
+
+  public get items(): ContextGetter<Context> {
+    let itemMap = <ContextGetter<Context>>{}
+    for (let key in this.getTokens()) {
+      addGetter(itemMap, key, () => {
+        return this.get(key as any)
+      })
+    }
+    return itemMap
   }
 
   /**
@@ -409,15 +531,25 @@ export class Container<
     return this.items
   }
 
-  public get items(): ContextGetter<Context> {
-    let itemMap = <ContextGetter<Context>>{}
-    for (let key in this.getTokens()) {
-      addGetter(itemMap, key, () => {
-        return this.get(key as any)
-      })
-    }
-    return itemMap
-  }
+  /**
+   * @deprecated Use `getItems` instead. This method will be removed in a future version.
+   */
+  public getContainerSet: <T extends (keyof Context)[]>(
+    tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
+  ) => Promise<{ [K in T[number]]: FullyUnpackObject<Context>[K] }>
+
+  /**
+   * @deprecated Use `subscribeToItems` instead. This method will be removed in a future version.
+   */
+  public subscribeToContainerSet: <T extends (keyof Context)[]>(
+    tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
+    cb: (
+      err: any,
+      container: {
+        [K in T[number]]: FullyUnpackObject<Context>[K]
+      },
+    ) => void,
+  ) => () => void
 }
 
 export function createContainer() {

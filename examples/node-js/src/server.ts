@@ -28,11 +28,11 @@ const kitchenContainer = async ({ oven, userManual }) => {
 }
 
 // Step 4: Add an async provider
-const node = root.add((ctx, node) => ({
+const cont = root.add((ctx, cont) => ({
   kitchen: async () =>
-    kitchenContainer(await node.getContainerSet(["userManual", "oven"])),
+    kitchenContainer(await cont.getItems(["userManual", "oven"])),
 }))
-await node.get("kitchen")
+await cont.get("kitchen")
 
 // A SHORT USE MANUAL
 // A SHORT USE MANUAL
@@ -44,24 +44,24 @@ await node.get("kitchen")
 root.get("oven") // Creates a new Oven instance
 root.get("oven") // Gets a cached Oven instance
 
-await node.get("kitchen") // { kitchen: Kitchen } also cached
-await node.items.kitchen // same as above
+await cont.get("kitchen") // { kitchen: Kitchen } also cached
+await cont.items.kitchen // same as above
 
 // Get multiple instances at once
-await root.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
-await root.getContainerSet((c) => [c.userManual, c.oven]) // same as above
+await root.getItems(["oven", "userManual"]) // { userManual: '...', oven: Oven }
+await root.getItems((c) => [c.userManual, c.oven]) // same as above
 
 // Subscribe to container changes
-node.subscribeToContainer("oven", (oven) => {})
-node.subscribeToContainerSet(["oven", "kitchen"], ({ oven, kitchen }) => {})
+cont.subscribeToItem("oven", (oven) => {})
+cont.subscribeToItems(["oven", "kitchen"], ({ oven, kitchen }) => {})
 // prettier-ignore
-node.subscribeToContainerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
-node.on("containerUpdated", ({ key, newContainer }) => {})
-node.on("containerUpserted", ({ key, newContainer }) => {})
+cont.subscribeToItems((c) => [c.kitchen], ({ oven, kitchen }) => {})
+cont.on("containerUpdated", ({ key, newContainer }) => {})
+cont.on("containerUpserted", ({ key, newContainer }) => {})
 
 // ----Adding
 
-let node1 = createContainer()
+let cont1 = createContainer()
   .add({
     userManual: "Please preheat before use",
     oven: () => new Oven(),
@@ -76,7 +76,7 @@ let node1 = createContainer()
 
 // `add` is typesafe and a runtime safe method. Hence we've used `upsert`
 try {
-  node1.add({
+  cont1.add({
     // @ts-expect-error
     userManual: "You shall not pass",
     // Type Error: (property) userManual: "You are overwriting this token. It is not safe. Use an unsafe `upsert` method"

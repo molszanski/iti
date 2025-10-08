@@ -14,11 +14,11 @@ type ContainerSet<Tokens extends keyof Context, Context extends {}> = {
   [S in Tokens]: UnpackTokenFromContext<S, Context>
 }
 
-export function getContainerSetHooks<
+export function getContainerHooks<
   Context extends object,
   DisposeContext extends object,
 >(reactContext: React.Context<Container<Context, DisposeContext>>) {
-  function useContainer() {
+  function useItem() {
     const root = useContext(reactContext)
     return useRootStores(root)
   }
@@ -42,9 +42,9 @@ export function getContainerSetHooks<
     for (let contKey in tokens) {
       addGetter(FFF, contKey, () =>
         useBetterGenericContainer(
-          () => appRoot.containers[contKey as any],
+          () => appRoot.items[contKey as any],
           // @ts-expect-error
-          (cb: () => any) => appRoot.subscribeToContainer(contKey, cb),
+          (cb: () => any) => appRoot.subscribeToItem(contKey, cb),
           contKey,
         ),
       )
@@ -53,7 +53,7 @@ export function getContainerSetHooks<
     return FFF
   }
 
-  function useContainerSet<
+  function useItems<
     Tokens extends keyof Context,
     TokenMap extends { [T in keyof Context]: T },
   >(
@@ -71,30 +71,67 @@ export function getContainerSetHooks<
         ? root._extractTokens(tokensOrCallback as any)
         : tokensOrCallback
 
-    useEffect(() => {
-      root.getContainerSet(tokens).then((contSet) => {
-        setAll(contSet)
-      })
-    }, tokens)
+    let earlyReturnValue: any = undefined
+    /**
+     * This is an import SYNC fallback mode to enable hassle free SSR
+     *
+     * We must provide proper values at once from iti cache to make ssr work
+     *
+     * Sadly it has a second instant rerender in react, but I would need
+     * to hack into react internals to prevent it
+     */
+    try {
+      const itemSet = root.getItemsSync(tokens)
+      if (itemSet instanceof Promise) {
+        /* silent error, will be handled by other hook anyway */
+        itemSet.catch((e) => {
+          return e
+        })
+      } else {
+        earlyReturnValue = [itemSet as any, err]
+      }
+    } catch (err) {
+      setErr(err)
+    }
 
     useEffect(() => {
-      const unsubscribe = root.subscribeToContainerSet(
-        tokens,
-        (err, contSet) => {
-          if (err) {
-            setErr(err)
-            return
-          }
+      if (earlyReturnValue != null) return
+      root
+        .getItems(tokens)
+        .then((contSet) => {
           setAll(contSet)
-        },
-      )
+        })
+        .catch((err) => {
+          setErr(err)
+        })
+    }, [earlyReturnValue, tokens])
+
+    useEffect(() => {
+      const unsubscribe = root.subscribeToItems(tokens, (err, contSet) => {
+        if (err) {
+          setErr(err)
+          return
+        }
+        setAll(contSet)
+      })
       return unsubscribe
     }, tokens)
+
+    if (earlyReturnValue != null) return earlyReturnValue
 
     return [all as any, err]
   }
   return {
-    useContainer: useContainer,
-    useContainerSet: useContainerSet,
+    useItem: useItem,
+    useItems: useItems,
+
+    /**
+     *  @deprecated Use useItem and useItems instead
+     */
+    useContainer: useItem,
+    /**
+     *  @deprecated Use useItem and useItems instead
+     */
+    useContainerSet: useItems,
   }
 }

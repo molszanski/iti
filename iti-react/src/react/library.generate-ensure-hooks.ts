@@ -1,20 +1,20 @@
 import React, { useContext } from "react"
 
-export function generateEnsureContainerSet<ContainerSetContext>(
-  containerSetGetterHook: (...args: any) => [ContainerSetContext, any],
+export function generateEnsureItems<ItemSetContext>(
+  itemSetGetterHook: (...args: any) => [ItemSetContext, any],
 ) {
-  const EnsureReactContext = React.createContext<ContainerSetContext>({} as any)
+  const EnsureReactContext = React.createContext<ItemSetContext>({} as any)
 
   function useThatContext() {
     return useContext(EnsureReactContext)
   }
 
   const EnsureContainer = (props: {
-    fallback?: JSX.Element
+    fallback?: React.ReactNode
     children: React.ReactNode
   }) => {
-    let [containerSet, err] = containerSetGetterHook()
-    if (!containerSet || err != null) {
+    let [itemSet, err] = itemSetGetterHook()
+    if (!itemSet || err != null) {
       if (props.fallback) {
         return props.fallback
       } else {
@@ -24,7 +24,7 @@ export function generateEnsureContainerSet<ContainerSetContext>(
 
     return React.createElement(
       EnsureReactContext.Provider,
-      { value: containerSet },
+      { value: itemSet },
       props.children,
     )
   }
