@@ -52,10 +52,10 @@ await root.getItems(["oven", "userManual"]) // { userManual: '...', oven: Oven }
 await root.getItems((c) => [c.userManual, c.oven]) // same as above
 
 // Subscribe to container changes
-node.subscribeToContainer("oven", (oven) => {})
-node.subscribeToContainerSet(["oven", "kitchen"], ({ oven, kitchen }) => {})
+node.subscribeToItem("oven", (oven) => {})
+node.subscribeToItems(["oven", "kitchen"], ({ oven, kitchen }) => {})
 // prettier-ignore
-node.subscribeToContainerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
+node.subscribeToItems((c) => [c.kitchen], ({ oven, kitchen }) => {})
 node.on("containerUpdated", ({ key, newContainer }) => {})
 node.on("containerUpserted", ({ key, newContainer }) => {})
 

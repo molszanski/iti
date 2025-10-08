@@ -105,7 +105,7 @@ describe("Node long chain async", () => {
   }, 100)
 })
 
-describe("Node subscribeToContainer", () => {
+describe("Node subscribeToItem", () => {
   let root: ReturnType<typeof createContainer>
 
   beforeEach(() => {
@@ -118,7 +118,7 @@ describe("Node subscribeToContainer", () => {
       a: async () => "A",
       b: async () => "B",
     }))
-    node.subscribeToContainer("a", async (err, container) => {
+    node.subscribeToItem("a", async (err, container) => {
       expect(await container).toBe("A")
       cb()
     })
@@ -134,7 +134,7 @@ describe("Node subscribeToContainer", () => {
       },
     }))
 
-    node.subscribeToContainer("b", async (err, container) => {
+    node.subscribeToItem("b", async (err, container) => {
       if (err) {
         expect(err).toBe("B")
       }
@@ -158,17 +158,17 @@ describe("Node subscribeToContainer", () => {
     })
     const f1 = vi.fn()
     const f2 = vi.fn()
-    node.subscribeToContainer("a", f1)
+    node.subscribeToItem("a", f1)
 
     await node.get("a")
     node.get("b")
-    node.subscribeToContainer("b", f2)
+    node.subscribeToItem("b", f2)
 
     expect(f1).toBeCalled()
     expect(f2).not.toBeCalled()
   })
 
-  it("should handle err on subscribeToContainerSet", async () => {
+  it("should handle err on subscribeToItems", async () => {
     const node = root
       .add(() => ({
         a: async () => "A",
@@ -180,12 +180,12 @@ describe("Node subscribeToContainer", () => {
         },
       }))
     const f3 = vi.fn()
-    node.subscribeToContainerSet(["a", "c"], (err, containers) => {
+    node.subscribeToItems(["a", "c"], (err, containers) => {
       if (err) {
         expect(err).toBe("C")
       }
     })
-    node.subscribeToContainerSet((c) => [c.a, c.c], f3)
+    node.subscribeToItems((c) => [c.a, c.c], f3)
 
     try {
       await node.get("c")
@@ -211,11 +211,11 @@ describe("Node subscribeToContainer", () => {
     const f3 = vi.fn()
     const f4 = vi.fn()
 
-    node.subscribeToContainerSet(["a", "c"], f1)
-    node.subscribeToContainerSet(["c", "d"], f2)
+    node.subscribeToItems(["a", "c"], f1)
+    node.subscribeToItems(["c", "d"], f2)
     // TODO: Warning, if called before seal, this will fail
-    node.subscribeToContainerSet((c) => [c.a, c.c], f3)
-    node.subscribeToContainerSet((c) => [c.c, c.d], f4)
+    node.subscribeToItems((c) => [c.a, c.c], f3)
+    node.subscribeToItems((c) => [c.c, c.d], f4)
     await node.get("c")
     await node.get("c")
     await node.get("c")

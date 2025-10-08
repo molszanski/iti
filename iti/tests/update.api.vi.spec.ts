@@ -89,8 +89,8 @@ describe("Deleting and destructuring: ", () => {
     const f1 = vi.fn()
     const f2 = vi.fn()
 
-    node.subscribeToContainer("a", f1)
-    node.subscribeToContainerSet(["a", "b"], f2)
+    node.subscribeToItem("a", f1)
+    node.subscribeToItems(["a", "b"], f2)
 
     node.delete("a")
 
@@ -110,7 +110,7 @@ describe("Deleting and destructuring: ", () => {
       a: "A",
       b: "B",
     }))
-    node.subscribeToContainer("a", (err) => {
+    node.subscribeToItem("a", (err) => {
       expect(err).not.toBe(null)
       cb()
     })
@@ -125,7 +125,7 @@ describe("Deleting and destructuring: ", () => {
       a: "A",
       b: "B",
     }))
-    node.subscribeToContainerSet(["a", "b"], (err) => {
+    node.subscribeToItems(["a", "b"], (err) => {
       expect(err).not.toBe(null)
       cb()
     })

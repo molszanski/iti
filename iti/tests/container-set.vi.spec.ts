@@ -27,12 +27,9 @@ describe("Container set:", () => {
     expect(containerSet.cCont.c2.size).toBe(5)
 
     containerSet.cCont.upgradeCContainer()
-    cont.subscribeToContainerSet(
-      ["aCont", "bCont", "cCont"],
-      (err, containerSet) => {
-        expect(containerSet.cCont.c2.size).toBe(10)
-      },
-    )
+    cont.subscribeToItems(["aCont", "bCont", "cCont"], (err, containerSet) => {
+      expect(containerSet.cCont.c2.size).toBe(10)
+    })
     await cont.get("cCont")
     await wait(10)
   })
@@ -53,7 +50,7 @@ describe("Container set:", () => {
     expect(containerSet).toHaveProperty("aCont")
 
     const a = vi.fn()
-    cont.subscribeToContainerSet(
+    cont.subscribeToItems(
       (c) => {
         return [c.aCont, c.cCont]
       },
@@ -72,7 +69,7 @@ describe("Container set:", () => {
     let containerSet = await cont.getItems(["aCont", "cCont"])
     expect(containerSet).toHaveProperty("aCont")
 
-    cont.subscribeToContainerSet(
+    cont.subscribeToItems(
       (c) => {
         return [c.aCont, c.cCont]
       },
@@ -90,7 +87,7 @@ describe("Container set:", () => {
     let containerSet = await cont.getItems((c) => [c.aCont, c.cCont])
 
     const fn = vi.fn()
-    const unsub = cont.subscribeToContainerSet(
+    const unsub = cont.subscribeToItems(
       (c) => [c.cCont],
       () => {
         fn()

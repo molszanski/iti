@@ -67,7 +67,7 @@ describe("Type tests:", () => {
     attest.instantiations([2692, "instantiations"])
   })
 
-  it("should have subscribeToContainerSet types valid", async () => {
+  it("should have subscribeToItems types valid", async () => {
     const cont = getMainMockAppContainer()
     const a = vi.fn()
     let itemSet = await cont.getItems((c) => [c.aCont, c.cCont])
@@ -79,7 +79,7 @@ describe("Type tests:", () => {
     // will cause this test to fail in an unexpected way
     // anyway fix (or comment it out) and see how it works without it
 
-    cont.subscribeToContainerSet(
+    cont.subscribeToItems(
       (c) => {
         attest<MockTokens>(c)
         attest<"aCont">(c.aCont)

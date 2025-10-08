@@ -109,13 +109,10 @@ await container.getItems((c) => [c.userManual, c.oven]) // same as above
 container.delete("kitchen")
 
 // Subscribe to container changes
-container.subscribeToContainer("oven", (oven) => {})
-container.subscribeToContainerSet(
-  ["oven", "kitchen"],
-  ({ oven, kitchen }) => {}
-)
+container.subscribeToItem("oven", (oven) => {})
+container.subscribeToItems(["oven", "kitchen"], ({ oven, kitchen }) => {})
 // prettier-ignore
-container.subscribeToContainerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
+container.subscribeToItems((c) => [c.kitchen], ({ oven, kitchen }) => {})
 container.on("containerUpdated", ({ key, newItem }) => {})
 container.on("containerUpserted", ({ key, newItem }) => {})
 container.on("containerDeleted", ({ key, newItem }) => {})
