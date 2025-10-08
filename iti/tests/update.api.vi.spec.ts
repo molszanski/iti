@@ -82,17 +82,17 @@ describe("Deleting and destructuring: ", () => {
   })
 
   it("should send containerUpdated event on overwrite", async () => {
-    const node = root.add(() => ({
+    const cont = root.add(() => ({
       a: "A",
       b: "B",
     }))
     const f1 = vi.fn()
     const f2 = vi.fn()
 
-    node.subscribeToItem("a", f1)
-    node.subscribeToItems(["a", "b"], f2)
+    cont.subscribeToItem("a", f1)
+    cont.subscribeToItems(["a", "b"], f2)
 
-    node.delete("a")
+    cont.delete("a")
 
     await wait(10)
 
@@ -106,30 +106,30 @@ describe("Deleting and destructuring: ", () => {
 
   it("should send error if we remove a token some container listens to", async () => {
     const cb = vi.fn()
-    const node = root.add(() => ({
+    const cont = root.add(() => ({
       a: "A",
       b: "B",
     }))
-    node.subscribeToItem("a", (err) => {
+    cont.subscribeToItem("a", (err) => {
       expect(err).not.toBe(null)
       cb()
     })
-    node.delete("a")
+    cont.delete("a")
     await wait(10)
     expect(cb).toHaveBeenCalledTimes(1)
   })
 
   it("should send error if we remove a token some containerSet listens to", async () => {
     const cb = vi.fn()
-    const node = root.add(() => ({
+    const cont = root.add(() => ({
       a: "A",
       b: "B",
     }))
-    node.subscribeToItems(["a", "b"], (err) => {
+    cont.subscribeToItems(["a", "b"], (err) => {
       expect(err).not.toBe(null)
       cb()
     })
-    node.delete("a")
+    cont.delete("a")
     await wait(10)
     expect(cb).toHaveBeenCalledTimes(1)
   })

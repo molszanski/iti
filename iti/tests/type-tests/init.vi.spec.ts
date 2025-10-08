@@ -14,7 +14,7 @@ enum UniqueResult {
 describe("attest features", () => {
   // results produced by an add should valid
   it("should check getter types", () => {
-    const node = createContainer()
+    const cont = createContainer()
       .add({
         a: UniqueResult.A,
         b: () => UniqueResult.B,
@@ -23,11 +23,11 @@ describe("attest features", () => {
         c: () => UniqueResult.C,
       }))
 
-    attest<UniqueResult>(node.get("a"))
-    attest<UniqueResult.B>(node.get("b"))
-    attest<UniqueResult.C>(node.items.c)
+    attest<UniqueResult>(cont.get("a"))
+    attest<UniqueResult.B>(cont.get("b"))
+    attest<UniqueResult.C>(cont.items.c)
 
-    attest(node).type.toString.snap(dedent`Container<
+    attest(cont).type.toString.snap(dedent`Container<
       {
         a: UniqueResult
         b: () => UniqueResult.B
@@ -235,7 +235,7 @@ describe("attest features", () => {
 // The easiest way to provide overrides is to the setup function, but they can also be provided as a JSON serialized string either passed to a --typeToStringFormat CLI flag or set as the value of ATTEST_typeToStringFormat on process.env.
 
 // Benches
-// Benches are run separately from tests and don't require any special setup. If the below file was benches.ts, you could run it using something like tsx benches.ts or ts-node benches.ts:
+// Benches are run separately from tests and don't require any special setup. If the below file was benches.ts, you could run it using something like tsx benches.ts or ts-cont benches.ts:
 
 // // Combinatorial template literals often result in expensive types- let's benchmark this one!
 // type makeComplexType<s extends string> =

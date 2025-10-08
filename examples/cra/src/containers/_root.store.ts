@@ -27,7 +27,7 @@ export function pizzaAppCore() {
       fatlib1: async () => provideFatLib1(),
       fatlib2: async () => provideFatLib2(),
     }))
-    .add((ctx, node) => ({
+    .add((ctx, cont) => ({
       // pizza stuff
       pizzaContainer: async () => providePizzaPlaceContainer(await ctx.fatlib2),
       kitchen: async () => provideKitchenContainer(),
@@ -52,7 +52,7 @@ export function pizzaAppCore() {
 
 export type PizzaAppContainer = ReturnType<typeof getMainPizzaAppContainer>
 export function getMainPizzaAppContainer() {
-  return pizzaAppCore().add((ctx, node) => ({
-    kitchenManipulator: async () => provideKitchenManipulatorContainer(node),
+  return pizzaAppCore().add((ctx, cont) => ({
+    kitchenManipulator: async () => provideKitchenManipulatorContainer(cont),
   }))
 }

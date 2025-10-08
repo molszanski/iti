@@ -6,12 +6,12 @@ import { provideCContainer } from "./container.c"
 
 export type MockAppNode = ReturnType<typeof getMainMockAppContainer>
 export function getMainMockAppContainer() {
-  let node = createContainer()
-  let k = node
+  let cont = createContainer()
+  let k = cont
     .add({ aCont: async () => provideAContainer() })
-    .add((c, node) => {
+    .add((c, cont) => {
       return {
-        bCont: async () => provideBContainer(await node.get("aCont")),
+        bCont: async () => provideBContainer(await cont.get("aCont")),
       }
     })
     .add((c) => {

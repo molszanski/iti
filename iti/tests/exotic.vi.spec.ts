@@ -8,13 +8,13 @@ describe("Perf and exotic tests:", () => {
     root = createContainer()
   })
 
-  describe("Node get:", () => {
+  describe("cont get:", () => {
     it("should not run into an infinite loop with recursive search", async () => {
       let r = root
         .add((c) => ({ a: async () => "A", b: "B", c: "C" }))
-        .add((c, node) => ({
+        .add((c, cont) => ({
           d: async () => {
-            expect(await node.items.b).toBe("B")
+            expect(await cont.items.b).toBe("B")
             return "D"
           },
         }))
@@ -28,7 +28,7 @@ describe("Perf and exotic tests:", () => {
       expect(await r.items.d).toBe("D2")
     }, 100)
 
-    it("should never evaluate unrequested tokens, but pass correct reference to child node ", async () => {
+    it("should never evaluate unrequested tokens, but pass correct reference to child cont ", async () => {
       let r = root
         .add((c) => ({
           b: async () => {
@@ -50,7 +50,7 @@ describe("Perf and exotic tests:", () => {
     }, 100)
 
     // getTokens must be async welp
-    it("should never evaluate unrequested tokens, but pass correct reference to child node \
+    it("should never evaluate unrequested tokens, but pass correct reference to child cont \
               without a manual seal", async () => {
       let r = root
         .add((c) => ({
@@ -60,10 +60,10 @@ describe("Perf and exotic tests:", () => {
           },
           c: "C",
         }))
-        .add((c, node) => {
+        .add((c, cont) => {
           return {
             d: async () => {
-              expect(await node.items.c).toBe("C")
+              expect(await cont.items.c).toBe("C")
               return "D"
             },
           }
