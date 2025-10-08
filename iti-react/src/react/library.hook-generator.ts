@@ -71,28 +71,7 @@ export function getItemSetHooks<
         ? root._extractTokens(tokensOrCallback as any)
         : tokensOrCallback
 
-    useEffect(() => {
-      root
-        .getItemSet(tokens)
-        .then((contSet) => {
-          setAll(contSet)
-        })
-        .catch((err) => {
-          setErr(err)
-        })
-    }, tokens)
-
-    useEffect(() => {
-      const unsubscribe = root.subscribeToItemSet(tokens, (err, contSet) => {
-        if (err) {
-          setErr(err)
-          return
-        }
-        setAll(contSet)
-      })
-      return unsubscribe
-    }, tokens)
-
+    let earlyReturnValue: any = undefined
     /**
      * This is an import SYNC fallback mode to enable hassle free SSR
      *
@@ -109,11 +88,36 @@ export function getItemSetHooks<
           return e
         })
       } else {
-        return [itemSet as any, err]
+        earlyReturnValue = [itemSet as any, err]
       }
     } catch (err) {
       setErr(err)
     }
+
+    useEffect(() => {
+      if (earlyReturnValue != null) return
+      root
+        .getItemSet(tokens)
+        .then((contSet) => {
+          setAll(contSet)
+        })
+        .catch((err) => {
+          setErr(err)
+        })
+    }, [earlyReturnValue, tokens])
+
+    useEffect(() => {
+      const unsubscribe = root.subscribeToItemSet(tokens, (err, contSet) => {
+        if (err) {
+          setErr(err)
+          return
+        }
+        setAll(contSet)
+      })
+      return unsubscribe
+    }, tokens)
+
+    if (earlyReturnValue != null) return earlyReturnValue
 
     return [all as any, err]
   }
