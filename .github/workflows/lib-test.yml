@@ -34,17 +34,14 @@ jobs:
       - name: Install Deps
         run: yarn install
 
-      - name: Check types of a core package
-        run: cd iti && yarn tsd
-
       - name: Run tests of a core package
-        run: cd iti && yarn test
+        run: cd iti && yarn test:ci
 
       - name: Check if a core package builds
         run: cd iti && yarn build
 
       - name: Check types of a react package
-        run: cd iti-react && yarn tsd
+        run: cd iti-react && yarn test
 
       - name: Check if a react package builds
         run: cd iti-react && yarn build

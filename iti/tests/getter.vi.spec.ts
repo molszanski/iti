@@ -66,6 +66,10 @@ describe("Node long chain async", () => {
     root.on("containerUpdated", (k) => {
       expect(k.key).toBe("a")
       expect(k.newContainer).toBe(22)
+    })
+    root.on("itemUpdated", (k) => {
+      expect(k.key).toBe("a")
+      expect(k.newItem).toBe(22)
       cb()
     })
 

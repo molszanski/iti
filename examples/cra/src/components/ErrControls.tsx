@@ -8,9 +8,9 @@ export const ErrControls = () => {
     <div>
       new Err Controls:
       {/* <Simple />
-      <SimpleAsyncErr />
-      <NestedErr /> */}
-      <SimpleSyncErr />
+      <SimpleAsyncErr />*/}
+      <NestedErr />
+      {/* <SimpleSyncErr /> */}
     </div>
   )
 }

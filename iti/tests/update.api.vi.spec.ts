@@ -1,3 +1,4 @@
+import { attest } from "@ark/attest"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { createContainer } from "../src/iti"
 import { wait } from "./_utils"
@@ -34,6 +35,12 @@ describe("Deleting and destructuring: ", () => {
     expect(r.get("b")).toBe("new B")
   })
 
+  it("should be able to upsert value normally", () => {
+    let r = root.add({ a: "A", b: "B" }).upsert({ a: "new A" })
+
+    expect(r.get("a")).toBe("new A")
+  })
+
   it("should be able to delete a token", () => {
     let r = root.add({ a: "A", b: "B", c: "C" })
 
@@ -41,6 +48,8 @@ describe("Deleting and destructuring: ", () => {
 
     let updated = r.delete("b")
     expect(r.getTokens()).toMatchObject({ a: "a", c: "c" })
+
+    attest<string>(updated.items.a)
 
     // should throw
     expect(() => {
@@ -56,6 +65,11 @@ describe("Deleting and destructuring: ", () => {
       root.on("containerUpserted", (k) => {
         expect(k.key).toBe("b")
         expect(k.newContainer).toBe("new B")
+        // cb()
+      })
+      root.on("itemUpserted", (k) => {
+        expect(k.key).toBe("b")
+        expect(k.newItem).toBe("new B")
         cb()
       })
       await wait(5)
