@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "iti": "0.8.0-alpha.0",
-    "iti-react": "0.8.0-alpha.0"
+    "iti": "0.8.0-alpha.1",
+    "iti-react": "0.8.0-alpha.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^2.0.0",

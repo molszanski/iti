@@ -30,7 +30,7 @@ build: ## Build the project
 check: ## Check the project
 	make build
 	npm pack
-	attw ./iti-0.8.0-alpha.0-alpha.4.tgz
+	attw ./iti-0.8.0-alpha.1-alpha.4.tgz
 # find ./dist -name "*.d.ts" -delete;
 
 

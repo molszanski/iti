@@ -1,6 +1,6 @@
 {
   "name": "iti-react",
-  "version": "0.8.0-alpha.0",
+  "version": "0.8.0-alpha.1",
   "description": "Handy React bindings for iti, a ~1kB Typesafe dependency injection framework for TypeScript and JavaScript with a unique support for async flow",
   "type": "module",
   "sideEffects": false,
@@ -32,7 +32,7 @@
     "t": "IS_REACT_ACT_ENVIRONMENT=true vitest run ./tests/react-hooks-errors.test.ts"
   },
   "dependencies": {
-    "iti": "0.8.0-alpha.0",
+    "iti": "0.8.0-alpha.1",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {

@@ -7,7 +7,7 @@
     "lodash": "^4.17.21",
     "mobx": "^6.3.12",
     "nodemon": "^2.0.15",
-    "iti": "0.8.0-alpha.0",
+    "iti": "0.8.0-alpha.1",
     "react": "^17.0.2"
   },
   "scripts": {
