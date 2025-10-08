@@ -317,8 +317,8 @@ export class Container<
 > extends InternalContainer<Context, DisposeContext> {
   constructor() {
     super()
-    this.getContainerSet = this.getItemSet.bind(this)
-    this.subscribeToContainerSet = this.subscribeToItemSet.bind(this)
+    this.getContainerSet = this.getItems.bind(this)
+    this.subscribeToContainerSet = this.subscribeToItems.bind(this)
   }
 
   // SAVE: NewContext extends {! [T in keyof NewContext]: NewContext[T] }
@@ -413,7 +413,7 @@ export class Container<
     }
   }
 
-  public subscribeToItemSet<T extends (keyof Context)[]>(
+  public subscribeToItems<T extends (keyof Context)[]>(
     tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
     cb: (
       err: any,
@@ -426,7 +426,7 @@ export class Container<
     const upsertUnsubscribe = this.ee.on("itemUpserted", async (ev) => {
       if (tokens.includes(ev.key)) {
         try {
-          const cSet = await this.getItemSet(tokens)
+          const cSet = await this.getItems(tokens)
           cb(null, cSet)
         } catch (err) {
           cb(err, undefined as any)
@@ -444,7 +444,7 @@ export class Container<
     }
   }
 
-  public getItemSetSync<T extends keyof Context>(
+  public getItemsSync<T extends keyof Context>(
     tokensOrCb: KeysOrCb<Context>,
   ):
     | Promise<{
@@ -468,7 +468,7 @@ export class Container<
     })
 
     if (hasAnyPromise) {
-      return this.getItemSet(tokensOrCb)
+      return this.getItems(tokensOrCb)
     }
 
     return itemDecoratedMap
@@ -478,7 +478,7 @@ export class Container<
    * Gets multiple items from the container by their tokens.
    * Handles both synchronous and asynchronous values properly.
    */
-  public async getItemSet<T extends (keyof Context)[]>(
+  public async getItems<T extends (keyof Context)[]>(
     tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
   ): Promise<{
     [K in T[number]]: FullyUnpackObject<Context>[K]
@@ -532,14 +532,14 @@ export class Container<
   }
 
   /**
-   * @deprecated Use `getItemSet` instead. This method will be removed in a future version.
+   * @deprecated Use `getItems` instead. This method will be removed in a future version.
    */
   public getContainerSet: <T extends (keyof Context)[]>(
     tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),
   ) => Promise<{ [K in T[number]]: FullyUnpackObject<Context>[K] }>
 
   /**
-   * @deprecated Use `subscribeToItemSet` instead. This method will be removed in a future version.
+   * @deprecated Use `subscribeToItems` instead. This method will be removed in a future version.
    */
   public subscribeToContainerSet: <T extends (keyof Context)[]>(
     tokensOrCb: T | ((t: { [K in keyof Context]: K }) => T),

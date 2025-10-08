@@ -113,13 +113,13 @@ describe("sync API:", () => {
   })
   // WORK
   it("should get values that are already resolved via set in a sync API ", async () => {
-    expect(cont.getItemSetSync((c) => [c.y, c.z])).toBeInstanceOf(Promise)
-    await cont.getItemSetSync(["z"])
-    expect(cont.getItemSetSync((c) => [c.y, c.z])).toMatchObject({
+    expect(cont.getItemsSync((c) => [c.y, c.z])).toBeInstanceOf(Promise)
+    await cont.getItemsSync(["z"])
+    expect(cont.getItemsSync((c) => [c.y, c.z])).toMatchObject({
       y: "y",
       z: "z",
     })
-    expect(cont.getItemSetSync(["y", "z"])).toMatchObject({
+    expect(cont.getItemsSync(["y", "z"])).toMatchObject({
       y: "y",
       z: "z",
     })
@@ -133,7 +133,7 @@ describe("sync API:", () => {
 
   it("should get values resolved via items api", async () => {
     await cont.items.z
-    expect(cont.getItemSetSync((c) => [c.y, c.z])).toMatchObject({
+    expect(cont.getItemsSync((c) => [c.y, c.z])).toMatchObject({
       y: "y",
       z: "z",
     })
@@ -141,15 +141,15 @@ describe("sync API:", () => {
 
   it("should get values resolved via get API", async () => {
     await cont.get("z")
-    expect(cont.getItemSetSync((c) => [c.y, c.z])).toMatchObject({
+    expect(cont.getItemsSync((c) => [c.y, c.z])).toMatchObject({
       y: "y",
       z: "z",
     })
   })
 
   it("should get two containers are already resolved via set API", async () => {
-    await cont.getItemSetSync(["z"])
-    expect(cont.getItemSetSync((c) => [c.y, c.z])).toMatchObject({
+    await cont.getItemsSync(["z"])
+    expect(cont.getItemsSync((c) => [c.y, c.z])).toMatchObject({
       y: "y",
       z: "z",
     })

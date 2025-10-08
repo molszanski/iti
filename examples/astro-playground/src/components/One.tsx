@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from "react"
 import { createContainer } from "iti"
-import { getItemSetHooks } from "iti-react"
+import { getContainerHooks } from "iti-react"
 
 const container = createContainer()
   .add({
@@ -16,8 +16,8 @@ const container = createContainer()
   }))
 
 const Ctx = React.createContext(container)
-const hooks = getItemSetHooks(Ctx)
-const useItemSet = hooks.useItemSet
+const hooks = getContainerHooks(Ctx)
+const useItems = hooks.useItems
 const useItem = hooks.useItem
 
 async function main() {
@@ -31,7 +31,7 @@ async function main() {
 }
 
 const ErrorOne = () => {
-  const [x, err] = useItemSet((c) => [c.name, c.two, c.three])
+  const [x, err] = useItems((c) => [c.name, c.two, c.three])
   console.log("~~~>", x, err)
 
   return <div>Error</div>

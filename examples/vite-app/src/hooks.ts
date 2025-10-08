@@ -1,9 +1,9 @@
 import * as React from "react"
-import { getItemSetHooks } from "iti-react"
+import { getContainerHooks } from "iti-react"
 import { app } from "./_bl"
 
 export const MyAppContext = React.createContext<typeof app>({} as any)
 
-const hooks = getItemSetHooks(MyAppContext)
-export const useItemSet = hooks.useItemSet
+const hooks = getContainerHooks(MyAppContext)
+export const useItems = hooks.useItems
 export const useItem = hooks.useItem

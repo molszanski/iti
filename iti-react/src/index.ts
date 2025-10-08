@@ -2,14 +2,14 @@
 export type { GetContainerFormat, UnPromisify } from "./_utils"
 
 // React
-export { generateEnsureItemSet } from "./react/library.generate-ensure-hooks.js"
-export { getItemSetHooks } from "./react/library.hook-generator.js"
+export { generateEnsureItems } from "./react/library.generate-ensure-hooks.js"
+export { getContainerHooks } from "./react/library.hook-generator.js"
 
 /**
- * @deprecated use `generateEnsureItemSet` instead
+ * @deprecated use `generateEnsureItems` instead
  */
-export { generateEnsureItemSet as generateEnsureContainerSet } from "./react/library.generate-ensure-hooks.js"
+export { generateEnsureItems as generateEnsureContainerSet } from "./react/library.generate-ensure-hooks.js"
 /**
- * @deprecated use `getItemSetHooks` instead
+ * @deprecated use `getContainerHooks` instead
  */
-export { getItemSetHooks as getContainerSetHooks } from "./react/library.hook-generator.js"
+export { getContainerHooks as getContainerSetHooks } from "./react/library.hook-generator.js"

@@ -1,6 +1,6 @@
 import React, { createElement, useMemo, ReactNode } from "react"
 import { createContainer } from "iti"
-import { getItemSetHooks } from "../../src/index"
+import { getContainerHooks } from "../../src/index"
 
 // ----------
 
@@ -22,8 +22,8 @@ function getContainer() {
 const container = getContainer()
 
 const LOL = React.createContext(container)
-const hooks = getItemSetHooks(LOL)
-export const useItemSet = hooks.useItemSet
+const hooks = getContainerHooks(LOL)
+export const useItems = hooks.useItems
 export const useItem = hooks.useItem
 
 async function main() {

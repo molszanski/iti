@@ -1,6 +1,6 @@
 import React, { useContext } from "react"
 
-export function generateEnsureItemSet<ItemSetContext>(
+export function generateEnsureItems<ItemSetContext>(
   itemSetGetterHook: (...args: any) => [ItemSetContext, any],
 ) {
   const EnsureReactContext = React.createContext<ItemSetContext>({} as any)

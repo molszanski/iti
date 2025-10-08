@@ -107,7 +107,7 @@ describe("React hooks type tests", () => {
     attest.instantiations([4087, "instantiations"])
   })
 
-  it("useItemSet should work in SYNC mode and provide itemSet value on first render if it was called before", async () => {
+  it("useItems should work in SYNC mode and provide itemSet value on first render if it was called before", async () => {
     let firstTestFirstRender = true
     function Test() {
       const [itemSet, isError] = useMockAppItemSet((c) => [c.aCont, c.bCont])

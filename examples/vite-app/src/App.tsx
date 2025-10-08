@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { MyAppContext, useItem, useItemSet } from "./hooks"
+import { MyAppContext, useItem, useItems } from "./hooks"
 import { app } from "./_bl"
 
 const Lol = () => {
-  const [itemSet, err] = useItemSet((c) => [c.x, c.y, c.a, c.b, c.c])
+  const [itemSet, err] = useItems((c) => [c.x, c.y, c.a, c.b, c.c])
   if (itemSet == null) {
     console.log("not ready LOL1 ", err)
     return null
@@ -14,7 +14,7 @@ const Lol = () => {
 }
 
 const Lol2 = () => {
-  const [itemSet, err] = useItemSet((c) => [c.c])
+  const [itemSet, err] = useItems((c) => [c.c])
   if (itemSet == null) {
     console.log("not ready LOL2 ", err)
     return null

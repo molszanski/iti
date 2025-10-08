@@ -1,10 +1,10 @@
 import React, { useMemo, use, Suspense, useContext } from "react"
-import { getItemSetHooks } from "iti-react"
+import { getContainerHooks } from "iti-react"
 import { createApp, lolData } from "./two/bl"
 
 const Ctx = React.createContext<ReturnType<typeof createApp>>({} as any)
-const hooks = getItemSetHooks(Ctx)
-const useItemSet = hooks.useItemSet
+const hooks = getContainerHooks(Ctx)
+const useItems = hooks.useItems
 const useItem = hooks.useItem
 
 const Looool1 = () => {
@@ -30,7 +30,7 @@ const Looool2 = () => {
 }
 
 const App = () => {
-  // const [itemSet, err] = useItemSet((c) => [c.four, c.five])
+  // const [itemSet, err] = useItems((c) => [c.four, c.five])
   // if (itemSet == null) {
   //   console.log("not ready LOL1 ", err)
   //   return null

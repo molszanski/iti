@@ -14,7 +14,7 @@ type ContainerSet<Tokens extends keyof Context, Context extends {}> = {
   [S in Tokens]: UnpackTokenFromContext<S, Context>
 }
 
-export function getItemSetHooks<
+export function getContainerHooks<
   Context extends object,
   DisposeContext extends object,
 >(reactContext: React.Context<Container<Context, DisposeContext>>) {
@@ -53,7 +53,7 @@ export function getItemSetHooks<
     return FFF
   }
 
-  function useItemSet<
+  function useItems<
     Tokens extends keyof Context,
     TokenMap extends { [T in keyof Context]: T },
   >(
@@ -81,7 +81,7 @@ export function getItemSetHooks<
      * to hack into react internals to prevent it
      */
     try {
-      const itemSet = root.getItemSetSync(tokens)
+      const itemSet = root.getItemsSync(tokens)
       if (itemSet instanceof Promise) {
         /* silent error, will be handled by other hook anyway */
         itemSet.catch((e) => {
@@ -97,7 +97,7 @@ export function getItemSetHooks<
     useEffect(() => {
       if (earlyReturnValue != null) return
       root
-        .getItemSet(tokens)
+        .getItems(tokens)
         .then((contSet) => {
           setAll(contSet)
         })
@@ -107,7 +107,7 @@ export function getItemSetHooks<
     }, [earlyReturnValue, tokens])
 
     useEffect(() => {
-      const unsubscribe = root.subscribeToItemSet(tokens, (err, contSet) => {
+      const unsubscribe = root.subscribeToItems(tokens, (err, contSet) => {
         if (err) {
           setErr(err)
           return
@@ -123,15 +123,15 @@ export function getItemSetHooks<
   }
   return {
     useItem: useItem,
-    useItemSet: useItemSet,
+    useItems: useItems,
 
     /**
-     *  @deprecated Use useItem and useItemSet instead
+     *  @deprecated Use useItem and useItems instead
      */
     useContainer: useItem,
     /**
-     *  @deprecated Use useItem and useItemSet instead
+     *  @deprecated Use useItem and useItems instead
      */
-    useContainerSet: useItemSet,
+    useContainerSet: useItems,
   }
 }

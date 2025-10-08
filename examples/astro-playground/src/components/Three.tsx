@@ -1,16 +1,16 @@
 import React, { useMemo, Suspense } from "react"
-import { getItemSetHooks } from "iti-react"
+import { getContainerHooks } from "iti-react"
 import { createApp } from "./two/bl"
 
 export const prerender = false
 
 const Ctx = React.createContext<ReturnType<typeof createApp>>({} as any)
-const hooks = getItemSetHooks(Ctx)
-const useItemSet = hooks.useItemSet
+const hooks = getContainerHooks(Ctx)
+const useItems = hooks.useItems
 const useItem = hooks.useItem
 
 const ProcessedDataDisplay = () => {
-  const [itemSet, err] = useItemSet((c) => [c.processedData])
+  const [itemSet, err] = useItems((c) => [c.processedData])
   console.log("getting processedData", itemSet)
 
   if (itemSet == null) {

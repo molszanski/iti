@@ -6,7 +6,7 @@ import { createApp } from "../components/two/bl"
 console.log("[SERVER] Fetching data for hydration...")
 const serverContainer = createApp()
 
-const data = await serverContainer.getItemSet((c) => [c.four, c.processedData])
+const data = await serverContainer.getItems((c) => [c.four, c.processedData])
 console.log("[SERVER] Fetched items:", data)
 const hydrationData = JSON.stringify(data)
 ---
