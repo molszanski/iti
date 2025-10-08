@@ -33,8 +33,8 @@
   ],
   "scripts": {
     "build": "make build",
-    "stryker": "stryker",
-    "stryker:run": "stryker run",
+    "stryker": "ATTEST_skipTypes=1 stryker",
+    "stryker:run": "ATTEST_skipTypes=1 stryker run",
     "test:ci": "vitest run",
     "test:watch": "ATTEST_skipTypes=1 vitest -- --skipTypes  --benchPercentThreshold 10",
     "test:types": "vitest run",
