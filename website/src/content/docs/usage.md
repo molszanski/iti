@@ -29,14 +29,14 @@ await node.items.kitchen // same as above
 node.delete("kitchen")
 
 // Get multiple instances at once
-await root.getContainerSet(["oven", "userManual"]) // { userManual: '...', oven: Oven }
-await root.getContainerSet((c) => [c.userManual, c.oven]) // same as above
+await root.getItems(["oven", "userManual"]) // { userManual: '...', oven: Oven }
+await root.getItems((c) => [c.userManual, c.oven]) // same as above
 
 // Subscribe to container changes
-node.subscribeToContainer("oven", (oven) => {})
-node.subscribeToContainerSet(["oven", "kitchen"], ({ oven, kitchen }) => {})
+node.subscribeToItem("oven", (oven) => {})
+node.subscribeToItems(["oven", "kitchen"], ({ oven, kitchen }) => {})
 // prettier-ignore
-node.subscribeToContainerSet((c) => [c.kitchen], ({ oven, kitchen }) => {})
+node.subscribeToItems((c) => [c.kitchen], ({ oven, kitchen }) => {})
 node.on("containerUpdated", ({ key, newItem }) => {})
 node.on("containerUpserted", ({ key, newItem }) => {})
 node.on("containerDeleted", ({ key, newItem }) => {})
@@ -52,7 +52,7 @@ await node.disposeAll()
 **Writing**
 
 ```ts
-let node1 = createContainer()
+let cont1 = createContainer()
   .add({
     userManual: "Please preheat before use",
     oven: () => new Oven(),
@@ -67,7 +67,7 @@ let node1 = createContainer()
 
 // `add` is typesafe and a runtime safe method. Hence we've used `upsert`
 try {
-  node1.add({
+  cont1.add({
     // @ts-expect-error
     userManual: "You shall not pass",
     // Type Error: (property) userManual: "You are overwriting this token. It is not safe. Use an unsafe `upsert` method"

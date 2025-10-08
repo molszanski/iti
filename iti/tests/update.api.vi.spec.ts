@@ -1,3 +1,4 @@
+import { attest } from "@ark/attest"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { createContainer } from "../src/iti"
 import { wait } from "./_utils"
@@ -34,6 +35,12 @@ describe("Deleting and destructuring: ", () => {
     expect(r.get("b")).toBe("new B")
   })
 
+  it("should be able to upsert value normally", () => {
+    let r = root.add({ a: "A", b: "B" }).upsert({ a: "new A" })
+
+    expect(r.get("a")).toBe("new A")
+  })
+
   it("should be able to delete a token", () => {
     let r = root.add({ a: "A", b: "B", c: "C" })
 
@@ -41,6 +48,8 @@ describe("Deleting and destructuring: ", () => {
 
     let updated = r.delete("b")
     expect(r.getTokens()).toMatchObject({ a: "a", c: "c" })
+
+    attest<string>(updated.items.a)
 
     // should throw
     expect(() => {
@@ -56,6 +65,11 @@ describe("Deleting and destructuring: ", () => {
       root.on("containerUpserted", (k) => {
         expect(k.key).toBe("b")
         expect(k.newContainer).toBe("new B")
+        // cb()
+      })
+      root.on("itemUpserted", (k) => {
+        expect(k.key).toBe("b")
+        expect(k.newItem).toBe("new B")
         cb()
       })
       await wait(5)
@@ -68,17 +82,17 @@ describe("Deleting and destructuring: ", () => {
   })
 
   it("should send containerUpdated event on overwrite", async () => {
-    const node = root.add(() => ({
+    const cont = root.add(() => ({
       a: "A",
       b: "B",
     }))
     const f1 = vi.fn()
     const f2 = vi.fn()
 
-    node.subscribeToContainer("a", f1)
-    node.subscribeToContainerSet(["a", "b"], f2)
+    cont.subscribeToItem("a", f1)
+    cont.subscribeToItems(["a", "b"], f2)
 
-    node.delete("a")
+    cont.delete("a")
 
     await wait(10)
 
@@ -92,30 +106,30 @@ describe("Deleting and destructuring: ", () => {
 
   it("should send error if we remove a token some container listens to", async () => {
     const cb = vi.fn()
-    const node = root.add(() => ({
+    const cont = root.add(() => ({
       a: "A",
       b: "B",
     }))
-    node.subscribeToContainer("a", (err) => {
+    cont.subscribeToItem("a", (err) => {
       expect(err).not.toBe(null)
       cb()
     })
-    node.delete("a")
+    cont.delete("a")
     await wait(10)
     expect(cb).toHaveBeenCalledTimes(1)
   })
 
   it("should send error if we remove a token some containerSet listens to", async () => {
     const cb = vi.fn()
-    const node = root.add(() => ({
+    const cont = root.add(() => ({
       a: "A",
       b: "B",
     }))
-    node.subscribeToContainerSet(["a", "b"], (err) => {
+    cont.subscribeToItems(["a", "b"], (err) => {
       expect(err).not.toBe(null)
       cb()
     })
-    node.delete("a")
+    cont.delete("a")
     await wait(10)
     expect(cb).toHaveBeenCalledTimes(1)
   })

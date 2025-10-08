@@ -1,5 +1,8 @@
 export class A1 {
-  constructor() {}
+  constructor() {
+    this.b = 12
+  }
+  b: number
 }
 export class A2 {
   constructor(private a1: A1) {}

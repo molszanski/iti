@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import { createContainer } from "../src/iti"
 
-describe("Node.get()", () => {
+describe("cont.get()", () => {
   let c0 = createContainer()
   beforeEach(() => (c0 = createContainer()))
 
@@ -24,7 +24,7 @@ describe("Node.get()", () => {
     expect(c1.get("functionTOken")).toBe("optimus")
   })
 
-  it("should return correct tokens for merged and overridden nodes", () => {
+  it("should return correct tokens for merged and overridden conts", () => {
     const c = c0.add({ optimus: () => "prime", a: 123 }).upsert({ a: "123" })
     expect(c.getTokens()).toMatchObject({
       optimus: "optimus",
@@ -55,7 +55,7 @@ describe("Node.get()", () => {
   })
 
   it("should handle async errors with a simple try/catch", async () => {
-    const node = c0
+    const cont = c0
       .add({
         optimus: async () => "prime",
         megatron: async () => {
@@ -68,22 +68,22 @@ describe("Node.get()", () => {
         },
       }))
 
-    expect(await node.get("optimus")).toBe("prime")
+    expect(await cont.get("optimus")).toBe("prime")
     try {
-      await node.get("megatron")
+      await cont.get("megatron")
     } catch (e) {
       expect(e).toBe("all hail megatron")
     }
 
     try {
-      await node.items.decepticons
+      await cont.items.decepticons
     } catch (e) {
       expect(e).toBe("all hail megatron")
     }
   })
 
-  it("should handle async errors with for getContainerSet", async () => {
-    const node = c0
+  it("should handle async errors with for getItems", async () => {
+    const cont = c0
       .add({
         optimus: async () => "prime",
         megatron: async () => {
@@ -97,7 +97,7 @@ describe("Node.get()", () => {
       }))
 
     try {
-      await node.getContainerSet(["optimus", "decepticons"])
+      await cont.getItems(["optimus", "decepticons"])
     } catch (e) {
       expect(e).toBe("all hail megatron")
     }
@@ -107,7 +107,7 @@ describe("Node.get()", () => {
     const fn1 = vi.fn()
     const fn2 = vi.fn()
 
-    const node = c0.add({
+    const cont = c0.add({
       autobots: () => {
         fn1()
         return {
@@ -124,9 +124,9 @@ describe("Node.get()", () => {
     expect(fn1).not.toBeCalled()
     expect(fn2).not.toBeCalled()
 
-    let a1 = node.get("autobots")
+    let a1 = cont.get("autobots")
     a1.optimus()
-    let a2 = node.get("autobots")
+    let a2 = cont.get("autobots")
     a2.optimus()
     expect(fn1).toHaveBeenCalledTimes(1)
     expect(fn2).toHaveBeenCalledTimes(2)
