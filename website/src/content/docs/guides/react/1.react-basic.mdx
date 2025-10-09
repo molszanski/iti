@@ -82,10 +82,10 @@ function Profile() {
 ## Async Request for single item in ITI
 
 ```tsx title="./src/Profile.tsx"
-import { useContainer } from "./_containers/main-app"
+import { useItem } from "./_containers/main-app"
 
 function Profile() {
-  const [auth, authErr] = useContainer().auth
+  const [auth, authErr] = useItem().auth
 
   if (authErr) return <div>failed to load</div>
   if (!auth) return <div>loading...</div>
@@ -94,17 +94,21 @@ function Profile() {
 }
 ```
 
+:::note[API Naming Update in v0.8.0]
+The hook was renamed from `useContainer()` to `useItem()` for better clarity. The old name still works but is deprecated.
+:::
+
 ## Async Request for multiple items
 
-**`useContainerSet`**
+**`useItems`** (new API)
 
 ```tsx title="./src/Profile.tsx"
-import { useContainer, useContainerSet } from "./_containers/main-app"
+import { useItem, useItems } from "./_containers/main-app"
 
 // Callback style
 
 function Profile() {
-  const [profileDeps, profileDepsErr] = useContainerSet((c) => [c.auth, c.env])
+  const [profileDeps, profileDepsErr] = useItems((c) => [c.auth, c.env])
 
   if (!profileDeps || profileDepsErr) return null
   const { auth, env } = profileDeps
@@ -114,7 +118,7 @@ function Profile() {
 
 // Literal style
 function Profile() {
-  const [profileDeps, profileDepsErr] = useContainerSet(["auth", "env"])
+  const [profileDeps, profileDepsErr] = useItems(["auth", "env"])
 
   if (!profileDeps || profileDepsErr) return null
   const { auth, env } = profileDeps
@@ -122,6 +126,14 @@ function Profile() {
   return <div>hello {auth.profile.name}!</div>
 }
 ```
+
+:::tip[SSR Support in v0.8.0]
+The `useItems` hook now includes synchronous fallback for better SSR support. It will return cached values synchronously when available, preventing hydration mismatches in Server-Side Rendering scenarios.
+:::
+
+:::note[API Naming Update]
+The hook was renamed from `useContainerSet()` to `useItems()` for better clarity. The old name still works but is deprecated.
+:::
 
 ## Ensure Sync Containers
 
@@ -164,15 +176,19 @@ We will create a wrapping component that will fetch dependencies, provide fallba
 
 ```tsx title="./src/_containers-react/EnsureEcommerce.tsx"
 import React, { useContext } from "react"
-import { generateEnsureContainerSet } from "iti-react"
-import { useContainerSet } from "./_editor-app-hooks"
+import { generateEnsureItems } from "iti-react"
+import { useItems } from "./_editor-app-hooks"
 
-const x = generateEnsureContainerSet(() =>
-  useContainerSet(["ecommerce", "auth"])
+const x = generateEnsureItems(() =>
+  useItems(["ecommerce", "auth"])
 )
 export const EnsureEcommerceContainer = x.EnsureWrapper
 export const useEcommerceContext = x.contextHook
 ```
+
+:::note[API Naming Update in v0.8.0]
+The function was renamed from `generateEnsureContainerSet()` to `generateEnsureItems()` for better clarity. The old name still works but is deprecated.
+:::
 
 ```tsx title="./src/App.tsx"
 import { EnsureEcommerceContainer } from "./_containers-react/EnsureEcommerce"

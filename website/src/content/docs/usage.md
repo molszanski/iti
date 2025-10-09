@@ -18,25 +18,39 @@ Please know, that the docs is still work in progress. Many features or use cases
 **Reading**
 
 ```ts
-// Get a single instance
-root.get("oven") // Creates a new Oven instance
-root.get("oven") // Gets a cached Oven instance
+// Get a single instance (async)
+await root.get("oven") // Creates a new Oven instance
+await root.get("oven") // Gets a cached Oven instance
 
-await node.get("kitchen") // { kitchen: Kitchen } also cached
+// Get a single instance (sync) - ✨ New in v0.8.0
+root.getSync("oven") // Returns cached instance or undefined
+
+await node.get("kitchen") // Kitchen instance
 await node.items.kitchen // same as above
 
 // Plain deletion
 node.delete("kitchen")
 
-// Get multiple instances at once
+// Get multiple instances at once (async)
 await root.getItems(["oven", "userManual"]) // { userManual: '...', oven: Oven }
 await root.getItems((c) => [c.userManual, c.oven]) // same as above
 
-// Subscribe to container changes
+// Get multiple instances at once (sync) - ✨ New in v0.8.0
+root.getItemsSync(["oven", "userManual"]) // Returns items if cached, otherwise Promise
+
+// Subscribe to item changes (new API)
 node.subscribeToItem("oven", (oven) => {})
 node.subscribeToItems(["oven", "kitchen"], ({ oven, kitchen }) => {})
 // prettier-ignore
 node.subscribeToItems((c) => [c.kitchen], ({ oven, kitchen }) => {})
+
+// Item-focused events (recommended) - ✨ New in v0.8.0
+node.on("itemUpdated", ({ key, newItem }) => {})
+node.on("itemUpserted", ({ key, newItem }) => {})
+node.on("itemDeleted", ({ key, newItem }) => {})
+node.on("itemDisposed", ({ key }) => {})
+
+// Legacy container events (still supported but deprecated)
 node.on("containerUpdated", ({ key, newItem }) => {})
 node.on("containerUpserted", ({ key, newItem }) => {})
 node.on("containerDeleted", ({ key, newItem }) => {})

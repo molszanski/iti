@@ -93,6 +93,7 @@ export default defineConfig({
               label: "Async DI Examples",
               items: ["async-di/manual-di", "async-di/iti"],
             },
+            "migration",
           ],
         },
         {

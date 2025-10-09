@@ -1,0 +1,355 @@
+---
+title: Migration Guide - v0.8.0
+description: Guide for migrating from v0.7.x to v0.8.0
+slug: migration
+sidebar:
+  order: 10
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+# Migration Guide - v0.8.0
+
+This guide will help you migrate from v0.7.x to v0.8.0. **Good news: there are no breaking changes!** All old APIs continue to work but are now deprecated in favor of more semantically accurate names.
+
+:::tip[No Breaking Changes]
+All deprecated APIs are fully functional and will continue to work. You can migrate at your own pace. The deprecated methods are simply aliases to the new methods.
+:::
+
+## Overview of Changes
+
+v0.8.0 introduces:
+
+1. **Better API naming** - "items" instead of "containers" for better clarity
+2. **Synchronous methods** - New `getSync()` and `getItemsSync()` for SSR support
+3. **New events** - Item-focused events with clearer naming
+4. **React hook improvements** - Better SSR support and clearer naming
+
+## Core Library (`iti`) Migration
+
+### Method Renaming
+
+The following methods have been renamed. Old names still work but are deprecated:
+
+<Tabs>
+<TabItem label="Before (v0.7.x)">
+
+```typescript
+import { createContainer } from "iti"
+
+const container = createContainer().add({
+  serviceA: () => new ServiceA(),
+  serviceB: () => new ServiceB(),
+})
+
+// Get multiple items
+const items = await container.getContainerSet(["serviceA", "serviceB"])
+
+// Subscribe to changes
+container.subscribeToContainer("serviceA", (err, service) => {
+  console.log("Service A updated")
+})
+
+container.subscribeToContainerSet(["serviceA", "serviceB"], (err, items) => {
+  console.log("Services updated")
+})
+```
+
+</TabItem>
+<TabItem label="After (v0.8.0)">
+
+```typescript
+import { createContainer } from "iti"
+
+const container = createContainer().add({
+  serviceA: () => new ServiceA(),
+  serviceB: () => new ServiceB(),
+})
+
+// Get multiple items (new name)
+const items = await container.getItems(["serviceA", "serviceB"])
+
+// Subscribe to changes (new names)
+container.subscribeToItem("serviceA", (err, service) => {
+  console.log("Service A updated")
+})
+
+container.subscribeToItems(["serviceA", "serviceB"], (err, items) => {
+  console.log("Services updated")
+})
+```
+
+</TabItem>
+</Tabs>
+
+#### Quick Reference
+
+| Old API (deprecated)          | New API (recommended)      |
+|------------------------------|----------------------------|
+| `getContainerSet()`          | `getItems()`              |
+| `subscribeToContainerSet()`  | `subscribeToItems()`      |
+| `subscribeToContainer()`     | `subscribeToItem()`       |
+
+### New Synchronous Methods ✨
+
+v0.8.0 introduces synchronous methods for better SSR support:
+
+```typescript
+// Get a single item synchronously (returns undefined if not cached)
+const service = container.getSync("myService")
+
+// Get multiple items synchronously
+const items = container.getItemsSync(["serviceA", "serviceB"])
+// Returns items object if all are cached, otherwise returns a Promise
+```
+
+**When to use:**
+- Server-Side Rendering (SSR)
+- React Server Components
+- When you know items are already cached
+- When you need synchronous access to avoid hydration mismatches
+
+### Event Naming Updates
+
+New item-focused events provide clearer semantics:
+
+<Tabs>
+<TabItem label="Before (v0.7.x)">
+
+```typescript
+container.on("containerCreated", ({ key, newItem }) => {})
+container.on("containerUpdated", ({ key, newItem }) => {})
+container.on("containerUpserted", ({ key, newItem }) => {})
+container.on("containerDeleted", ({ key }) => {})
+container.on("containerDisposed", ({ key }) => {})
+```
+
+</TabItem>
+<TabItem label="After (v0.8.0)">
+
+```typescript
+// New item-focused events (recommended)
+container.on("itemCreated", ({ key, newItem }) => {})
+container.on("itemUpdated", ({ key, newItem }) => {})
+container.on("itemUpserted", ({ key, newItem }) => {})
+container.on("itemDeleted", ({ key }) => {})
+container.on("itemDisposed", ({ key }) => {})
+
+// Old events still work but are deprecated
+```
+
+</TabItem>
+</Tabs>
+
+## React Integration (`iti-react`) Migration
+
+### Hook Generator Naming
+
+The main hook generator function remains the same, but the returned hook names have changed:
+
+<Tabs>
+<TabItem label="Before (v0.7.x)">
+
+```tsx
+import { getContainerSetHooks } from "iti-react"
+
+const MyContext = React.createContext<MyContainer>({})
+
+const { useContainer, useContainerSet } = getContainerSetHooks(MyContext)
+```
+
+</TabItem>
+<TabItem label="After (v0.8.0)">
+
+```tsx
+import { getContainerHooks } from "iti-react"
+
+const MyContext = React.createContext<MyContainer>({})
+
+const { useItem, useItems } = getContainerHooks(MyContext)
+```
+
+</TabItem>
+</Tabs>
+
+:::note[Alias Available]
+`getContainerSetHooks` is now aliased to `getContainerHooks` and still works, but `getContainerHooks` is the new recommended name.
+:::
+
+#### Quick Reference
+
+| Old API (deprecated)           | New API (recommended)       |
+|--------------------------------|-----------------------------|
+| `getContainerSetHooks()`       | `getContainerHooks()`      |
+| `useContainer()`               | `useItem()`                |
+| `useContainerSet()`            | `useItems()`               |
+| `generateEnsureContainerSet()` | `generateEnsureItems()`    |
+
+### Hook Usage in Components
+
+<Tabs>
+<TabItem label="Before (v0.7.x)">
+
+```tsx
+import { useContainer, useContainerSet } from "./_containers/hooks"
+
+function MyComponent() {
+  // Single item
+  const [auth, authErr] = useContainer().auth
+
+  // Multiple items
+  const [items, itemsErr] = useContainerSet(["auth", "config"])
+
+  if (!items || itemsErr) return <div>Loading...</div>
+
+  return <div>Hello {items.auth.user.name}</div>
+}
+```
+
+</TabItem>
+<TabItem label="After (v0.8.0)">
+
+```tsx
+import { useItem, useItems } from "./_containers/hooks"
+
+function MyComponent() {
+  // Single item
+  const [auth, authErr] = useItem().auth
+
+  // Multiple items (now with SSR support!)
+  const [items, itemsErr] = useItems(["auth", "config"])
+
+  if (!items || itemsErr) return <div>Loading...</div>
+
+  return <div>Hello {items.auth.user.name}</div>
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Ensure Wrapper Updates
+
+<Tabs>
+<TabItem label="Before (v0.7.x)">
+
+```tsx
+import { generateEnsureContainerSet } from "iti-react"
+import { useContainerSet } from "./hooks"
+
+const { EnsureWrapper, contextHook } = generateEnsureContainerSet(() =>
+  useContainerSet(["auth", "config"])
+)
+
+export const EnsureAuth = EnsureWrapper
+export const useAuthContext = contextHook
+```
+
+</TabItem>
+<TabItem label="After (v0.8.0)">
+
+```tsx
+import { generateEnsureItems } from "iti-react"
+import { useItems } from "./hooks"
+
+const { EnsureWrapper, contextHook } = generateEnsureItems(() =>
+  useItems(["auth", "config"])
+)
+
+export const EnsureAuth = EnsureWrapper
+export const useAuthContext = contextHook
+```
+
+</TabItem>
+</Tabs>
+
+## Complete Migration Example
+
+Here's a complete example showing all the changes together:
+
+### Core Container Setup
+
+```tsx title="src/_containers/app-container.ts"
+import { createContainer } from "iti"
+
+export const createAppContainer = () =>
+  createContainer().add({
+    config: () => ({
+      apiUrl: process.env.API_URL,
+    }),
+    authService: async () => {
+      const res = await fetch("/api/auth")
+      return res.json()
+    },
+    apiClient: (ctx) => new ApiClient(ctx.config.apiUrl),
+  })
+
+export type AppContainer = ReturnType<typeof createAppContainer>
+```
+
+### React Hooks Setup
+
+```tsx title="src/_containers/hooks.ts"
+import React from "react"
+import { getContainerHooks } from "iti-react" // ✨ Updated
+import { AppContainer } from "./app-container"
+
+export const AppContext = React.createContext<AppContainer | null>(null)
+
+const hooks = getContainerHooks(AppContext)
+export const useItem = hooks.useItem     // ✨ Updated
+export const useItems = hooks.useItems   // ✨ Updated
+```
+
+### Component Usage
+
+```tsx title="src/components/Profile.tsx"
+import { useItem, useItems } from "../_containers/hooks"
+
+export function Profile() {
+  // Single item
+  const [auth, authErr] = useItem().authService
+
+  // Multiple items
+  const [deps, depsErr] = useItems(["authService", "config"])
+
+  if (authErr || depsErr) return <div>Error loading</div>
+  if (!auth || !deps) return <div>Loading...</div>
+
+  return <div>Hello {auth.user.name}!</div>
+}
+```
+
+
+## Automated Migration
+
+You can use these find-and-replace commands to help with migration:
+
+```bash
+# Core library
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/getContainerSet(/getItems(/g'
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/subscribeToContainer(/subscribeToItem(/g'
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/subscribeToContainerSet(/subscribeToItems(/g'
+
+# React hooks
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/getContainerSetHooks/getContainerHooks/g'
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/generateEnsureContainerSet/generateEnsureItems/g'
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/useContainerSet/useItems/g'
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/useContainer/useItem/g'
+
+# Events
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/"containerCreated"/"itemCreated"/g'
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/"containerUpdated"/"itemUpdated"/g'
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/"containerUpserted"/"itemUpserted"/g'
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/"containerDeleted"/"itemDeleted"/g'
+find . -type f -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/"containerDisposed"/"itemDisposed"/g'
+```
+
+
+## Deprecation Timeline
+
+- **v0.8.0** (Current) - Old API deprecated but fully functional
+- **v0.9.0** (Future) - Deprecation warnings may become more prominent
+- **v1.0.0** (Future) - Old API may be removed (with advance notice)
+
+

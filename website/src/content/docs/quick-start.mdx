@@ -62,10 +62,10 @@ import wiringCode from "../code-examples/6_async_start-PART-2/main/app.ts?raw"
 
 ```tsx
 // (Optional) With React
-import { useContainer } from "./_containers/main-app"
+import { useItem } from "./_containers/main-app"
 
 function Profile() {
-  const [user, userErr] = useContainer().userData
+  const [user, userErr] = useItem().userData
   if (!user || userErr) return <div>loading... or error</div>
 
   return <div>Hello {user.name}!</div>
@@ -93,10 +93,10 @@ paymentService.sendMoney()
 
 ```tsx
 // (Optional) With React
-import { useContainer } from "./_containers/main-app"
+import { useItem } from "./_containers/main-app"
 
 function Profile() {
-  const [user, userErr] = useContainer().userData
+  const [user, userErr] = useItem().userData
   if (!user || userErr) return <div>loading... or error</div>
 
   return <div>Hello {user.name}!</div>

@@ -27,15 +27,36 @@ In a container, if you update or replace an item, users will be notified.
 In React it happens automatically
 
 ```ts
-const kitchenApp = new RootContainer((ctx) => ({
+const kitchenApp = createContainer((ctx) => ({
   // you can use tokens (`oven`, `kitchen`) here and later on
   oven: async () => ovenContainer(),
   kitchen: async () => kitchenContainer(await ctx.oven()),
 }))
 
+kitchenApp.on("itemCreated", (event) => {
+  console.log(`event: 'itemCreated' ~~> token: '${event.key}'`)
+  // `event.newItem` is also available here
+})
+
+kitchenApp.on("itemUpdated", (event) => {
+  console.log(`event: 'itemUpdated' ~~> token: '${event.key}'`)
+})
+
+kitchenApp.on("itemUpserted", (event) => {
+  console.log(`event: 'itemUpserted' ~~> token: '${event.key}'`)
+})
+
+kitchenApp.on("itemDeleted", (event) => {
+  console.log(`event: 'itemDeleted' ~~> token: '${event.key}'`)
+})
+
+kitchenApp.on("itemDisposed", (event) => {
+  console.log(`event: 'itemDisposed' ~~> token: '${event.key}'`)
+})
+
+// Legacy container events (still supported)
 kitchenApp.on("containerCreated", (event) => {
   console.log(`event: 'containerCreated' ~~> token: '${event.key}'`)
-  // `event.container` is also available here
 })
 
 kitchenApp.on("containerRequested", (event) => {
@@ -50,12 +71,18 @@ await kitchenApp.items.kitchen
 
 // event: 'containerRequested' ~~> token: 'kitchen'
 // event: 'containerRequested' ~~> token: 'oven'
-// event: 'containerCreated'   ~~> token: 'oven'
-// event: 'containerCreated'   ~~> token: 'kitchen'
+// event: 'itemCreated'         ~~> token: 'oven'
+// event: 'containerCreated'    ~~> token: 'oven'
+// event: 'itemCreated'         ~~> token: 'kitchen'
+// event: 'containerCreated'    ~~> token: 'kitchen'
 
 // Notice how oven was created before kitchen.
 // This is because kitchen depends on oven
 ```
+
+:::tip[New Event Names in v0.8.0]
+The new `item*` events (itemCreated, itemUpdated, etc.) use more accurate terminology. The legacy `container*` events still work but are deprecated.
+:::
 
 ## API documentation JS / TS
 
@@ -76,9 +103,43 @@ let kitchen = await container.items.kitchen
 kitchen.oven.pizzaCapacity // 4
 ```
 
-### `getItems`
+### `get(token)` - Get single item
 
-### `getItemsNew`
+```ts
+const service = await container.get("myService")
+// Returns a Promise that resolves to the service instance
+```
+
+### `getSync(token)` - Get item synchronously ✨ New in v0.8.0
+
+```ts
+// Get an item synchronously if it's already resolved
+const service = container.getSync("myService")
+// Returns the instance immediately if cached, otherwise undefined
+```
+
+### `getItems(tokens)` - Get multiple items
+
+```ts
+// Get multiple instances at once
+const items = await container.getItems(["serviceA", "serviceB"])
+// Returns: { serviceA: ..., serviceB: ... }
+
+// Callback style
+const items = await container.getItems((c) => [c.serviceA, c.serviceB])
+```
+
+### `getItemsSync(tokens)` - Get multiple items synchronously ✨ New in v0.8.0
+
+```ts
+// Returns synchronously if all items are resolved, otherwise returns a Promise
+const items = container.getItemsSync(["serviceA", "serviceB"])
+// Can be either: { serviceA: ..., serviceB: ... } OR Promise<{ serviceA: ..., serviceB: ... }>
+```
+
+:::note[SSR Support]
+The synchronous methods (`getSync` and `getItemsSync`) are particularly useful for Server-Side Rendering (SSR) scenarios where you need to access already-cached values without triggering async operations.
+:::
 
 ### `upsert`
 
@@ -170,7 +231,7 @@ container.addDisposer((ctx) => ({
 
 <Code code={addDisposerExample} lang="ts" title="addDisposer.ts" />
 
-### `.on('containerDisposed', ({ key: string }) => void)`
+### `.on('itemDisposed', ({ key: string }) => void)` ✨ New in v0.8.0
 
 ```ts
 import { createContainer } from "iti"
@@ -178,13 +239,17 @@ import { createContainer } from "iti"
 container = createContainer()
   .add({ a: () => "123" })
   .addDisposer({ a: () => {} })
-  .on("containerDisposed", (payload) => {
+  .on("itemDisposed", (payload) => {
     console.log(payload.key) // prints 'a'
   })
 
 container.get("a") === "123" // true
 await container.disposeAll()
 ```
+
+:::note
+The legacy `.on('containerDisposed', ...)` event is still supported but deprecated in favor of `itemDisposed`.
+:::
 
 ### Notes on disposing
 

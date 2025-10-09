@@ -19,8 +19,14 @@ Yes, no problem at all. If you want, they can even share tokens and hence instan
 
 **Why `getItems` is always async?**
 
-This is temporary(?) limitation to keep typescript happy and typescript types reasonably sane.
-In most real world scenarios your frontend dependencies are already async.
+As of v0.8.0, ITI now supports synchronous item retrieval via `getSync()` and `getItemsSync()` methods! These are particularly useful for SSR scenarios.
+
+The async `getItems()` method remains the primary API because:
+- It provides a consistent interface for both sync and async dependencies
+- Most real-world frontend dependencies are already async
+- It keeps TypeScript types simpler and more predictable
+
+For synchronous access to cached items, use the new `getSync()` or `getItemsSync()` methods.
 
 ### Why should I use ITI?
 

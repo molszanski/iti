@@ -29,3 +29,7 @@ Iti relies on plain JS functions, objects and familiar patterns. API is simple s
 It is an alternative to [InversifyJS](https://github.com/inversify/InversifyJS) and [microsoft/tsyringe](https://github.com/microsoft/tsyringe) for constructor injection.
 
 > _At [Packhelp](https://unpacked.packhelp.com) we've refactored most of our 65K SLOC Editor app, that didn't have any IoC, to Iti in under 5 hours_
+
+:::tip[New in v0.8.0]
+Better API naming and SSR support! Check out the [Migration Guide](/migration/) for upgrading from v0.7.x.
+:::
