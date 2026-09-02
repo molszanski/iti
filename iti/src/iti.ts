@@ -104,7 +104,9 @@ class InternalContainer<
 
     if (v instanceof Promise) {
       v.then((resolvedValue) => {
-        this._storeInSyncCache(token, resolvedValue)
+        if (this._cache[token] === v) {
+          this._storeInSyncCache(token, resolvedValue)
+        }
       }).catch((err) => {
         // we should't do anything with an error here
         // because this is our internal cache
@@ -180,6 +182,7 @@ class InternalContainer<
   ): Container<Omit<Context, SearchToken>, DisposeContext> {
     delete this._context[token]
     delete this._cache[token]
+    delete this._cacheSync[token]
     // There is no need to check for disposer existence, since delete will not throw
     // @ts-expect-error
     delete this._disposeCtx[token]
@@ -212,6 +215,7 @@ class InternalContainer<
 
       const cleanup = () => {
         delete this._cache[token]
+        delete this._cacheSync[token]
         this.ee.emit("containerDisposed", { key: token })
         this.ee.emit("itemDisposed", { key: token })
       }
@@ -256,6 +260,7 @@ class InternalContainer<
       // Save state and clear cache
       this._context[token] = value
       delete this._cache[token]
+      delete this._cacheSync[token]
       this.ee.emit("containerUpserted", {
         key: token as any,
         newContainer: value,
